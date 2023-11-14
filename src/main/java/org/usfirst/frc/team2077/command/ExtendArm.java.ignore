@@ -1,0 +1,73 @@
+package org.usfirst.frc.team2077.command;
+
+import com.revrobotics.CANSparkMax;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import org.usfirst.frc.team2077.RobotHardware;
+import org.usfirst.frc.team2077.common.command.RepeatedCommand;
+import org.usfirst.frc.team2077.util.SmartDashNumber;
+
+public class ExtendArm extends RepeatedCommand {
+    private final CANSparkMax arm;
+
+    private static final double SCREW_MAX_SPEED = ...; //TODO, run screw at max to determine value (in RPM)
+    private static final double buffer = 1.2;
+
+    private final ArmDirection direction;
+    private final DoubleProvider speed;
+    private final SmartDashNumber smartDash;
+//    private final double speed;
+
+
+    public enum ArmDirection{
+        EXTEND(1),
+        RETRACT(-1);
+        private final int direction;
+        ArmDirection(int direction) {
+            this.direction = direction;
+        }
+        public int getDirection(){
+            return direction;
+        }
+    }
+
+    public ExtendArm(RobotHardware hardware, ArmDirection direction, double speed){
+        arm = hardware.arm;
+        this.direction = direction;
+        this.speed = () -> speed;
+        smartDash = null;
+    }
+
+    public ExtendArm(RobotHardware hardware, ArmDirection direction, String smartDashKey, double def) {
+        arm =hardware.arm;
+        this.direction = direction;
+        smartDash = new SmartDashNumber(smartDashKey, def, true);
+        this.speed = () -> smartDash.get().doubleValue();
+    }
+
+    @Override
+    public void execute() {
+
+        double appliedVoltage = arm.getAppliedOutput();
+
+        double predictedRPM = appliedVoltage * SCREW_MAX_SPEED * buffer;
+
+        double observedRPM = arm.getEncoder().getVelocity();
+
+        if(predictedRPM > observedRPM){
+            end(false);
+        }
+
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        arm.stopMotor();
+    }
+
+    @Override
+    public void initialize() {
+        arm.set(speed.provide() * direction.getDirection());
+    }
+
+    interface DoubleProvider {double provide();}
+}
