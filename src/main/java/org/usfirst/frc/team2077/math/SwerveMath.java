@@ -4,7 +4,7 @@ import org.usfirst.frc.team2077.common.VelocityDirection;
 import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.control.DriveStick;
 import org.usfirst.frc.team2077.common.math.Matrix;
-import org.usfirst.frc.team2077.drivetrain.SwerveModuleIF;
+import org.usfirst.frc.team2077.drivetrain.SwerveWheelState;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -119,7 +119,7 @@ public class SwerveMath {
         return new SwerveTargetValues(mag, ang);
     }
 
-    public Map<WheelPosition, SwerveTargetValues> targetsForVelocities(
+    public Map<WheelPosition, SwerveTargetValues> wheelStatesForBotVelocity(
             Map<VelocityDirection, Double> targetMagnitudes
     ) {
         double north = targetMagnitudes.get(FORWARD);
@@ -148,11 +148,11 @@ public class SwerveMath {
         return targetValues;
     }
 
-    public Map<WheelPosition, SwerveTargetValues> targetsForVelocities(
+    public Map<WheelPosition, SwerveTargetValues> wheelStatesForBotVelocity(
           Map<VelocityDirection, Double> targetMagnitudes,
           double maxSpeed, double maxRotation
     ) {
-       return targetsForVelocities(Map.of(
+       return wheelStatesForBotVelocity(Map.of(
              FORWARD, targetMagnitudes.get(FORWARD) / maxSpeed,
              STRAFE, targetMagnitudes.get(STRAFE) / maxSpeed,
              ROTATION, targetMagnitudes.get(ROTATION) / maxRotation
@@ -185,13 +185,13 @@ public class SwerveMath {
         );
     }
 
-    public Map<VelocityDirection, Double> velocitiesForTargets( //TODO: potentially rename to something regarding forward kinematics
-        Map<WheelPosition, ? extends SwerveModuleIF> targets
+    public Map<VelocityDirection, Double> botVelocityForWheelStates( //TODO: potentially rename to something regarding forward kinematics
+                                                                     Map<WheelPosition, ? extends SwerveWheelState> targets
     ) {
-        SwerveModuleIF fl = targets.get(FRONT_LEFT);
-        SwerveModuleIF bl = targets.get(BACK_LEFT);
-        SwerveModuleIF br = targets.get(BACK_RIGHT);
-        SwerveModuleIF fr = targets.get(FRONT_RIGHT);
+        SwerveWheelState fl = targets.get(FRONT_LEFT);
+        SwerveWheelState bl = targets.get(BACK_LEFT);
+        SwerveWheelState br = targets.get(BACK_RIGHT);
+        SwerveWheelState fr = targets.get(FRONT_RIGHT);
 
         // We have to convert our wheel angles to their unit circle equivalent
         // We go 0 (north) - 360 clockwise

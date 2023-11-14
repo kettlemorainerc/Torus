@@ -1,10 +1,9 @@
 package org.usfirst.frc.team2077.drivetrain;
 
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
-import org.usfirst.frc.team2077.common.WheelPosition;
+import org.usfirst.frc.team2077.common.*;
 import org.usfirst.frc.team2077.common.drivetrain.AbstractChassis;
 import org.usfirst.frc.team2077.common.drivetrain.DriveModuleIF;
-import org.usfirst.frc.team2077.common.sensor.AngleSensor;
 import org.usfirst.frc.team2077.math.SwerveMath;
 import org.usfirst.frc.team2077.math.SwerveTargetValues;
 import org.usfirst.frc.team2077.subsystem.SwerveModule;
@@ -60,11 +59,11 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
     }
 
     @Override protected void measureVelocity(){
-        velocityMeasured = math.velocitiesForTargets(driveModules);
+        velocityMeasured = math.botVelocityForWheelStates(driveModules);
     }
 
     @Override protected void updateDriveModules() {
-        Map<WheelPosition, SwerveTargetValues> wheelTargets = math.targetsForVelocities(
+        Map<WheelPosition, SwerveTargetValues> wheelTargets = math.wheelStatesForBotVelocity(
             velocitySet,
             maximumSpeed,
             maximumRotation
@@ -80,5 +79,26 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
             module.setVelocity(velocity);
         });
 
+    }
+
+    private static final class TestSwerve implements SwerveWheelState {
+        private double angle, velocity;
+        private final WheelPosition position;
+
+        TestSwerve(WheelPosition position, double angle, double velocity) {
+            this.position = position;
+            this.angle = angle;
+            this.velocity = velocity;
+        }
+
+        @Override public void setAngle(double angle) {this.angle = angle;}
+        @Override public double getAngle() {return angle;}
+
+        @Override public double getMaximumSpeed() {return Double.MAX_VALUE;}
+        @Override public void setVelocity(double velocity) {this.velocity = velocity;}
+        @Override public double getVelocitySet() {return velocity;}
+        @Override public double getVelocityMeasured() {return velocity;}
+
+        @Override public WheelPosition getWheelPosition() {return position;}
     }
 }
