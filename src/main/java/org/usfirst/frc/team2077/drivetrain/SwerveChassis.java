@@ -49,7 +49,7 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
         // Percents in, percents out
         Map<WheelPosition, SwerveTargetValues> wheelTargets = math.wheelStatesForBotVelocity(botVelocity);
 
-        // "idealWheelStates" for purely rotation velocity
+        // "idealWheelStates" for purely rotational velocity
         Map<WheelPosition, SimpleSwerveWheelState> idealWheelStates = new EnumMap<>(WheelPosition.class);
         wheelTargets.forEach((k, v) -> {
             // degrees or radians or whatever
