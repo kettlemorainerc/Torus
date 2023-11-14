@@ -51,12 +51,12 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
         // "idealWheelStates" for purely rotational velocity
         Map<WheelPosition, SimpleSwerveWheelState> idealWheelStates = new EnumMap<>(WheelPosition.class);
-        wheelTargets.forEach((k, v) -> {
+        wheelTargets.forEach((wheelPosition, idealWheelState) -> {
             // degrees or radians or whatever
-            double pureRotationIdealAngle = v.getAngle();
+            double pureRotationIdealAngle = idealWheelState.getAngle();
             // convert "% Max Velocity" -> "whatever unit maximum speed is in"
-            double pureRotationIdealMagnitude = v.getMagnitude() * maximumSpeed;
-            idealWheelStates.put(k, new SimpleSwerveWheelState(k, pureRotationIdealAngle, pureRotationIdealMagnitude));
+            double pureRotationIdealMagnitude = idealWheelState.getMagnitude() * maximumSpeed;
+            idealWheelStates.put(wheelPosition, new SimpleSwerveWheelState(wheelPosition, pureRotationIdealAngle, pureRotationIdealMagnitude));
         });
 
         // "calcluatedMaximumVelocity" for ideal rotational velocity wheel states
