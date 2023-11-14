@@ -40,20 +40,29 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
         this.maximumSpeed = this.driveModules.values().stream().map(DriveModuleIF::getMaximumSpeed).min(Comparator.naturalOrder()).orElseThrow();
 
-        //Dear David,
-        //  I am sorry that I did not like you clever work around
-        //  for finding the max rotation velocity, but it added a
-        //  lot of clutter and is likely too confusion to anybody
-        //  who did not watch you implement it directly.
-        //Sincerely, Hank
+        // Hank, and anyone else. This should hopefully be more clear.
 
-        //TODO: confirm that this works
-        double circumference = Math.PI * Math.hypot(Frame.kWheelBaseLength, Frame.kWheelBaseWidth);
-        //The time it would take for a wheel traveling at maximum speed to travel the distance of the circumference
-        double secondsPerRevolution = circumference / this.maximumSpeed;
-        double radiansPerSecond = 2 * Math.PI / secondsPerRevolution;
+        // percent of maximum velocity
+        double zeroPercent = 0, oneHundredPercent = 1;
+        Map<VelocityDirection, Double> botVelocity = Map.of(FORWARD, zeroPercent, STRAFE, zeroPercent, ROTATION, oneHundredPercent);
 
-        this.maximumRotation = radiansPerSecond;
+        // Percents in, percents out
+        Map<WheelPosition, SwerveTargetValues> wheelTargets = math.wheelStatesForBotVelocity(botVelocity);
+
+        // "idealWheelStates" for purely rotation velocity
+        Map<WheelPosition, SimpleSwerveWheelState> idealWheelStates = new EnumMap<>(WheelPosition.class);
+        wheelTargets.forEach((k, v) -> {
+            // degrees or radians or whatever
+            double pureRotationIdealAngle = v.getAngle();
+            // convert "% Max Velocity" -> "whatever unit maximum speed is in"
+            double pureRotationIdealMagnitude = v.getMagnitude() * maximumSpeed;
+            idealWheelStates.put(k, new SimpleSwerveWheelState(k, pureRotationIdealAngle, pureRotationIdealMagnitude));
+        });
+
+        // "calcluatedMaximumVelocity" for ideal rotational velocity wheel states
+        Map<VelocityDirection, Double> calculatedMaximumVelocity = math.botVelocityForWheelStates(idealWheelStates);
+
+        maximumRotation = calculatedMaximumVelocity.get(ROTATION);
 
         this.minimumSpeed = this.maximumSpeed * 0.1;
     }
@@ -81,11 +90,11 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
     }
 
-    private static final class TestSwerve implements SwerveWheelState {
+    private static final class SimpleSwerveWheelState implements SwerveWheelState {
         private double angle, velocity;
         private final WheelPosition position;
 
-        TestSwerve(WheelPosition position, double angle, double velocity) {
+        SimpleSwerveWheelState(WheelPosition position, double angle, double velocity) {
             this.position = position;
             this.angle = angle;
             this.velocity = velocity;
