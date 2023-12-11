@@ -234,8 +234,8 @@ public class SwerveMath {
         Matrix result = pseudoPDotX.multiply(velocities);
 
         return Map.of(
-                FORWARD,  result.get(0, 1),
-                STRAFE,   result.get(0, 0),
+                FORWARD,  result.get(0, 0),
+                STRAFE,   result.get(0, 1),
                 ROTATION, result.get(0, 2)
         );
     }

@@ -140,4 +140,12 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         return position.maxSpeed;
     }
 
+    public SparkMaxPIDController getDrivingPID(){
+        return drivingPID;
+    }
+
+    public SparkMaxPIDController getGuidingPID(){
+        return guidingPID;
+    }
+
 }
