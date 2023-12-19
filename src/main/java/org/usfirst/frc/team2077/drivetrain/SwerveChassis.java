@@ -20,7 +20,7 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
     private final SwerveMath math;
     //ADIS16470_IMU is the class used in the provided swerve code //TODO: check gyro
-    private final /*AngleSensor*/ ADIS16470_IMU gyro;
+//    private final /*AngleSensor*/ ADIS16470_IMU gyro;
 
     private static EnumMap<WheelPosition, SwerveModule> buildDriveTrain() {
         EnumMap<WheelPosition, SwerveModule> map = new EnumMap<>(WheelPosition.class);
@@ -35,7 +35,7 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
     public SwerveChassis() {
         super(buildDriveTrain());
 
-        gyro = new ADIS16470_IMU();
+//        gyro = new ADIS16470_IMU();
 
         math = new SwerveMath(Frame.kWheelBaseLength, Frame.kWheelBaseWidth);
 

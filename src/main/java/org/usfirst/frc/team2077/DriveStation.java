@@ -35,7 +35,7 @@ public class DriveStation {
     private static final int NUMPAD_PORT = 5;
 
     private final DriveXboxController driveStick;
-    private final DriveXboxController technicalStick;
+    private final Joystick technicalStick;
 
     public DriveStation() {
         /** Set the driver's control method this MUST be a {@link DriveStick} implementation */
@@ -45,7 +45,8 @@ public class DriveStation {
 
         /** Set the technical control method. This can be any {@link Joystick} implementation */
 //        technicalStick = getTechnicalJoystick();
-        technicalStick = getXbox(TECHNICAL_XBOX_PORT);
+//        technicalStick = getXbox(TECHNICAL_XBOX_PORT);
+        technicalStick = getNumpad();
 
         bind();
     }
@@ -60,8 +61,6 @@ public class DriveStation {
         hardware.getPosition().setDefaultCommand(new CardinalMovement(driveStick));
         hardware.getHeading().setDefaultCommand(new RotationMovement(driveStick));
 
-        new PIDAutoTune();
-
         bindDriverControl(driveStick);
         bindTechnicalControl(technicalStick);
     }
@@ -72,9 +71,12 @@ public class DriveStation {
     }
 
     /** Bind technical driver button commands here */
-    private void bindTechnicalControl(DriveXboxController secondary) {
+    private void bindTechnicalControl(Joystick secondary) {
 //        InputMap.bindAxis(Claw.Input.CLOSE, secondary::getRightTriggerAxis);
 //        InputMap.bindAxis(ScissorArm.Input.EXTEND, secondary::getLeftY);
+
+        new PIDAutoTune().bind(new JoystickButton(secondary, 1));
+//        useCommand(secondary, 1, new PIDAutoTune());
     }
 
     /** Normal (silver/brighter) joystick that supports rotation */

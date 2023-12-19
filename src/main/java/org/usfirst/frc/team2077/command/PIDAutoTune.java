@@ -4,33 +4,47 @@ import com.revrobotics.SparkMaxPIDController;
 import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.common.Clock;
 import org.usfirst.frc.team2077.common.WheelPosition;
-import org.usfirst.frc.team2077.common.command.RepeatedCommand;
+import org.usfirst.frc.team2077.common.command.SelfDefinedCommand;
 import org.usfirst.frc.team2077.common.drivetrain.AbstractChassis;
 import org.usfirst.frc.team2077.subsystem.SwerveModule;
 import org.usfirst.frc.team2077.util.SmartDashNumber;
+import org.usfirst.frc.team2077.util.SmartDashString;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
-public class PIDAutoTune extends RepeatedCommand {
+public class PIDAutoTune extends SelfDefinedCommand {
 
-    private static double pMaxRange = 1.0;
-    private static double iMaxRange = 0.5;
+    private static double pGuess = 0.1396;
+    private static double iGuess = 0.0011;
 
-    private static double testingVelocity = 5; //m/s
-    private static double testingTime = 3;//s
-    private static double maxError = 1;//TODO: figure out what the hell this should be
+    private static double testingVelocity = 1; //m/s
+    private static double testingTime = 4;//s
+    private static double maxError = 15;//TODO: determine good error for this
 
-    private static double walkingPercent = 0.2;
+    private static double walkingPercent = 0.33;
 
     private AbstractChassis chassis;
     private Map<WheelPosition, PIDTester> testers;
 
-//    private SmartDashNumber error;
+    private double pBest = 0;
+    private double iBest = 0;
+
+    private double pEntropy = 0;
+    private double iEntropy = 0;
+
+    private final double entropyDecay = 0.25;
+
+    private SmartDashNumber error;
+    private SmartDashNumber best;
+    private SmartDashString bestPID;
+
+    private WheelPosition mostBest = WheelPosition.BACK_LEFT;
+
+    private double dt = 0;
+    private double pt = 0;
 
     public PIDAutoTune(){
         chassis = RobotHardware.getInstance().getChassis();
@@ -43,66 +57,87 @@ public class PIDAutoTune extends RepeatedCommand {
             );
         }
 
-//        error = new SmartDashNumber("PID Error", 0.0, true);
+        error = new SmartDashNumber("PID Error", 0.0, true);
+        best = new SmartDashNumber("Best Motor", 0.0, true);
+        bestPID = new SmartDashString("Best PID", "", true);
+        System.out.println("Init");
+
+       pt = Clock.getSeconds();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return false;
     }
 
     @Override
     public void initialize() {
+        startTest();
     }
 
     @Override
     public void execute() {
         if(!inTesting()){
-            PSO();
+            walk();
+            System.out.println("----------startTest------");
             startTest();
             return;
         }
 
+        double ct = Clock.getSeconds();
+        dt = ct - pt;
+        pt = ct;
+
         testers.values().forEach(PIDTester::execute);
     }
 
-    //TODO: Rename this function dumbass
-    private void PSO(){
-        ArrayList<PIDTester> tests = new ArrayList<>(testers.values());
+    private void walk(){
+        ArrayList<PIDTester> testersArray = new ArrayList<>(testers.values());
         double minError = Double.MAX_VALUE;
-        double p_target = 0, i_target = 0;
-        for(PIDTester test : tests){
-            double error = test.getTestError();
+        double pBest = 0, iBest = 0;
+        for(PIDTester tester : testersArray){
+            double error = tester.getError();
             if(error < minError){
                 minError = error;
-                p_target = test.getPID().getP();
-                i_target = test.getPID().getI();
+                pBest = tester.getPID().getP();
+                iBest = tester.getPID().getI();
+                mostBest = tester.module.getWheelPosition();
+
+                this.error.set(error);
+
+                System.out.println("P: " + pBest + ", I: " + iBest);
+                this.bestPID.set("P: " + pBest + ", I: " + iBest);
             }
         }
 
-        System.out.printf("Min Error %.2f at p: %.4f i: %.4f%n", minError, p_target, i_target);
-//        error.set(minError);
+        if(this.pBest != 0) pEntropy = pBest - this.pBest;
+        if(this.iBest != 0) iEntropy = iBest - this.iBest;
 
-        //TODO: improve walking function, but test this as a baseline
-        for(PIDTester test : tests){
-            double p = test.getPID().getP();
-            double i = test.getPID().getI();
+        this.pBest = pBest;
+        this.iBest = iBest;
 
-            double p_diff = p_target - p;
-            double i_diff = i_target - i;
-
-            p += p_diff * walkingPercent;
-            i += i_diff * walkingPercent;
-
-            test.getPID().setP(p);
-            test.getPID().setI(i);
+        for(PIDTester tester : testersArray){
+            if(tester.module.getWheelPosition() != mostBest){
+                tester.getPID().setP(
+                    pBest * (1 + (2 * Math.random() - 0.5) * walkingPercent) + pEntropy * entropyDecay
+                );
+                tester.getPID().setI(
+                    iBest * (1 + (2 * Math.random() - 0.5) * walkingPercent) + iEntropy * entropyDecay
+                );
+            }
         }
 
     }
 
     @Override
     public void end(boolean interrupted) {
+        testers.values().forEach(PIDTester::end);
     }
 
     private boolean inTesting(){
         AtomicBoolean testing = new AtomicBoolean(false);
         testers.values().forEach(e -> {
-            if(e.hasEnded()) testing.set(true);
+            if(!e.hasEnded()) testing.set(true);
         });
         return testing.get();
     }
@@ -118,6 +153,7 @@ public class PIDAutoTune extends RepeatedCommand {
 
         private double startTime = 0;
         private double testError = 0;
+        private double accumError = 0;
 
         private boolean running = false;
 
@@ -129,13 +165,13 @@ public class PIDAutoTune extends RepeatedCommand {
         }
 
         private void randomisePID(){
-            pid.setP( Math.random() * pMaxRange );
-            pid.setI( Math.random() * iMaxRange );
+            pid.setP( Math.random() * pGuess);
+            pid.setI( Math.random() * iGuess);
         }
 
         private void start(){
             running = true;
-            testError = 0;
+            accumError = 0;
             startTime = Clock.getSeconds();
             pid.setIAccum(0);
         }
@@ -144,17 +180,23 @@ public class PIDAutoTune extends RepeatedCommand {
             if(!running) return;
 
             if(getElapsed() > testingTime || getError() > maxError) {
-                running = false;
-                module.setVelocity(0);
-                testError = getError();
+                end();
                 return;
             }
 
             module.setVelocity(testingVelocity);
+            getError();
+//            System.out.printf("P %.2f I %.2f", pid.getP(), pid.getI());
+
+            if(mostBest == module.getWheelPosition()){
+                best.set(module.getVelocityMeasured());
+            }
         }
 
-        private double getTestError(){
-            return testError;
+        private void end(){
+            testError = accumError;
+            running = false;
+            module.setVelocity(0);
         }
 
         public boolean hasEnded(){
@@ -162,7 +204,16 @@ public class PIDAutoTune extends RepeatedCommand {
         }
 
         private double getError(){
-            return pid.getIAccum();
+            if(Math.abs(module.getVelocitySet()) < 0.01){
+                return accumError;
+            }
+            double currentError = dt * (module.getVelocitySet() - module.getVelocityMeasured());
+            accumError += Math.abs(currentError);
+            return accumError;
+        }
+
+        private double getTestError(){
+            return testError;
         }
 
         private double getElapsed(){

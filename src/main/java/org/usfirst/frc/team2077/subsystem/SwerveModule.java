@@ -11,10 +11,11 @@ import org.usfirst.frc.team2077.util.Constants.Drive;
 public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
     public enum MotorPosition{
-        FRONT_LEFT(0, 1, -500),
-        FRONT_RIGHT(2,3, -500),
-        BACK_LEFT(4, 5, -500),
-        BACK_RIGHT(6, 7, -500);
+
+        FRONT_LEFT(2, 1, 5),//Based on some of the numbers from ZTPHVN, TODO: check these
+        FRONT_RIGHT(8,7, 5),
+        BACK_LEFT(4, 3, 5),
+        BACK_RIGHT(6, 5, 5);
 
         public int drivingCANid;
         public int guidingCANid;
@@ -49,7 +50,7 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 //        guidingMotor.restoreFactoryDefaults();
 
         //Setting up the guiding motor
-        guidingMotor = new CANSparkMax(position.drivingCANid, MotorType.kBrushless);
+        guidingMotor = new CANSparkMax(position.guidingCANid, MotorType.kBrushless);
         guidingMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         guidingMotor.setSmartCurrentLimit(Drive.kGuidingMotorCurrentLimit);
 
@@ -81,11 +82,20 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         drivingPID.setOutputRange(-1, 1);
 
         drivingMotor.burnFlash();
+
+        this.register();
     }
 
     @Override
     public void periodic(){
-        guidingPID.setReference(angleSet, CANSparkMax.ControlType.kPosition);
+//        guidingPID.setReference(angleSet, CANSparkMax.ControlType.kPosition);
+
+        //So that bad pid values doesn't prevent the motors from stopping
+        if(Math.abs(velocitySet) < 0.01){
+            drivingMotor.set(0);
+            return;
+        }
+
         drivingPID.setReference(velocitySet * (flipMagnitude? -1 : 1), CANSparkMax.ControlType.kVelocity);
     }
 
@@ -99,11 +109,11 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         double currentWheelAngle = getAngle();
         double angleDifference = getAngleDifference(currentWheelAngle, angle);
 
-        flipMagnitude = false;
-        if(Math.abs(angleDifference) > 0.5 * Math.PI) {
-            angle -= Math.PI;
-            flipMagnitude = true;
-        }
+//        flipMagnitude = false;
+//        if(Math.abs(angleDifference) > 0.5 * Math.PI) {
+//            angle -= Math.PI;
+//            flipMagnitude = true;
+//        }
 
         angle %= 2 * Math.PI;
         angleSet = angle;
@@ -127,6 +137,7 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
     @Override
     public double getVelocityMeasured() {
+//        System.out.printf("Set%.2f drivingEncoder.getVelocity());
         return drivingEncoder.getVelocity();
     }
 
