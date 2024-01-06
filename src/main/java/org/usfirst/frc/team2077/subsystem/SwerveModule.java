@@ -5,10 +5,10 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.drivetrain.DriveModuleIF;
-import org.usfirst.frc.team2077.drivetrain.SwerveModuleIF;
+import org.usfirst.frc.team2077.drivetrain.SwerveWheelState;
 import org.usfirst.frc.team2077.util.Constants.Drive;
 
-public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
+public class SwerveModule implements Subsystem, DriveModuleIF, SwerveWheelState {
 
     public enum MotorPosition{
 
