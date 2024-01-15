@@ -1,5 +1,6 @@
 package org.usfirst.frc.team2077.drivetrain;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.drivetrain.AbstractChassis;
@@ -8,7 +9,6 @@ import org.usfirst.frc.team2077.common.sensor.AngleSensor;
 import org.usfirst.frc.team2077.math.SwerveMath;
 import org.usfirst.frc.team2077.math.SwerveTargetValues;
 import org.usfirst.frc.team2077.subsystem.SwerveModule;
-import org.usfirst.frc.team2077.util.Constants.Frame;
 
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -17,6 +17,9 @@ import java.util.Map;
 import static org.usfirst.frc.team2077.common.VelocityDirection.*;
 
 public class SwerveChassis extends AbstractChassis<SwerveModule> {
+
+    public static final double wheelBaseLength = Units.inchesToMeters(19.25);
+    public static final double wheelBaseWidth = Units.inchesToMeters(22.5);
 
     private final SwerveMath math;
     //ADIS16470_IMU is the class used in the provided swerve code //TODO: check gyro
@@ -37,7 +40,7 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
 //        gyro = new ADIS16470_IMU();
 
-        math = new SwerveMath(Frame.kWheelBaseLength, Frame.kWheelBaseWidth);
+        math = new SwerveMath(wheelBaseLength, wheelBaseWidth);
 
         this.maximumSpeed = this.driveModules.values().stream().map(DriveModuleIF::getMaximumSpeed).min(Comparator.naturalOrder()).orElseThrow();
 
@@ -49,7 +52,7 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
         //Sincerely, Hank
 
         //TODO: confirm that this works
-        double circumference = Math.PI * Math.hypot(Frame.kWheelBaseLength, Frame.kWheelBaseWidth);
+        double circumference = Math.PI * Math.hypot(wheelBaseLength, wheelBaseWidth);
         //The time it would take for a wheel traveling at maximum speed to travel the distance of the circumference
         double secondsPerRevolution = circumference / this.maximumSpeed;
         double radiansPerSecond = 2 * Math.PI / secondsPerRevolution;

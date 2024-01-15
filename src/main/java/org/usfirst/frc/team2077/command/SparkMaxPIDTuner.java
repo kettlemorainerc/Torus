@@ -1,16 +1,22 @@
 package org.usfirst.frc.team2077.command;
 
 import com.revrobotics.SparkMaxPIDController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import org.usfirst.frc.team2077.common.Clock;
 import org.usfirst.frc.team2077.common.command.SelfDefinedCommand;
+import org.usfirst.frc.team2077.subsystem.SwerveModule;
 import org.usfirst.frc.team2077.util.SmartDashNumber;
 import org.usfirst.frc.team2077.util.SmartDashString;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-public class MultiSparkMaxPIDTuner<Module> extends SelfDefinedCommand {
+public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
 
     public enum ErrorMethod{
         DIFFERENCE,
@@ -20,11 +26,14 @@ public class MultiSparkMaxPIDTuner<Module> extends SelfDefinedCommand {
     private final double walkPercent = 0.33;
     private final double entropyPercent = 0.25;
 
-    private ArrayList<Module> modules;
-    private ArrayList<SparkMaxPIDController> pids;
-    private BiConsumer<Module, Double> set;
-    private Function<Module, Double> get;
+    private final List<Module> modules;
+    private final List<SparkMaxPIDController> pids;
+    private final BiConsumer<Module, Double> set;
+    private final Function<Module, Double> get;
+    private final Consumer<Module> save;
     private ArrayList<Tester> testers;
+
+    private final JoystickButton endButton;
 
     private SmartDashString debug;
 
@@ -41,17 +50,20 @@ public class MultiSparkMaxPIDTuner<Module> extends SelfDefinedCommand {
 
     private double pt, dt;
 
-    public MultiSparkMaxPIDTuner(
-            ArrayList<Module> modules, ArrayList<SparkMaxPIDController> pids,
-            BiConsumer<Module, Double> set, Function<Module, Double> get,
+    public SparkMaxPIDTuner(
+            List<Module> modules, List<SparkMaxPIDController> pids,
+            BiConsumer<Module, Double> set, Function<Module, Double> get, Consumer<Module> save,
             double pGuess, double iGuess,
             double setpoint, double testDuration,
-            ErrorMethod errorMethod, double maxError
+            ErrorMethod errorMethod, double maxError,
+            JoystickButton endButton
     ){
         this.modules = modules;
         this.pids = pids;
         this.set = set;
         this.get = get;
+        this.save = save;
+        this.endButton = endButton;
 
         pBest = pGuess;
         iBest = iGuess;
@@ -75,7 +87,15 @@ public class MultiSparkMaxPIDTuner<Module> extends SelfDefinedCommand {
 
     @Override
     public boolean isFinished() {
-        return false;
+        boolean finished = endButton.getAsBoolean() && finishedTesting();
+        if(finished){
+            pids.forEach(e -> {
+                e.setP(pBest);
+                e.setI(iBest);
+            });
+            for(Tester t : testers) save.accept(t.module);
+        }
+        return finished;
     }
 
     @Override
@@ -100,22 +120,25 @@ public class MultiSparkMaxPIDTuner<Module> extends SelfDefinedCommand {
 
     //TODO: rename this method
     private void walk(){
-        boolean singleModule = testers.size() == 1;
+//        boolean singleModule = testers.size() == 1;
+
+//        double bestError = Double.MAX_VALUE;
 
         double pBest = this.pBest, iBest = this.iBest;
 
         for(Tester tester : testers){
             double error = tester.getError();
 
-            if(error < bestError){
+            if(error <= bestError){
                 bestError = error;
                 pBest = tester.getPID().getP();
                 iBest = tester.getPID().getI();
                 bestModule = tester.getModule();
+//                for(Tester t : testers) save.accept(t.module);
             }
         }
 
-        System.out.println(bestError);
+//        System.out.println(bestError);
 
         debug.set(
             String.format("P: %.8f, I: %.8f Error: %.4f", pBest, iBest, bestError)
@@ -134,6 +157,8 @@ public class MultiSparkMaxPIDTuner<Module> extends SelfDefinedCommand {
             tester.getPID().setP(   walkValue(pBest, pEntropy)  );
             tester.getPID().setI(   walkValue(iBest, iEntropy)  );
         }
+
+
     }
 
     //TODO: rename this method
@@ -145,7 +170,6 @@ public class MultiSparkMaxPIDTuner<Module> extends SelfDefinedCommand {
         for(Tester tester : testers){
             if(!tester.hasEnded()) return false;
         }
-        if(errorMethod == ErrorMethod.ANGLE_DIFFERENCE) setpoint += Math.random() * Math.PI / 2.0;
         return true;
     }
 
@@ -191,13 +215,16 @@ public class MultiSparkMaxPIDTuner<Module> extends SelfDefinedCommand {
                 case DIFFERENCE:
                     return !running && Math.abs(getMes()) < 0.01;
                 case ANGLE_DIFFERENCE:
-                    return true;
+                    return !running && Math.abs(SwerveModule.getAngleDifference(0, getMes())) < 0.25;
             }
             return false;
         }
 
-        private void execute(){
-            if(!running) return;
+        private void execute() {
+            if (!running){
+                end();
+                return;
+            }
 
             if(getElapsed() > testDuration || getError() > maxError){
                 end();
@@ -209,6 +236,7 @@ public class MultiSparkMaxPIDTuner<Module> extends SelfDefinedCommand {
 
         private void end(){
             running = false;
+//            System.out.println(getMes());
             set(0.0);
         }
 
@@ -221,20 +249,27 @@ public class MultiSparkMaxPIDTuner<Module> extends SelfDefinedCommand {
             double diff = 0.0;
             double set = setpoint;
             double mes = getMes();
+            double mod = 1;
 
             switch(errorMethod){
                 case DIFFERENCE:
                     diff = set - mes;
+                    if(diff < 0){
+                        mod = 10;
+                    }
                     break;
                 case ANGLE_DIFFERENCE:
-                    diff = set - mes;
-                    if(Math.abs(diff) > Math.PI) diff -= 2 * Math.PI * Math.signum(diff);
+                    diff = SwerveModule.getAngleDifference(set, mes);
+                    if(diff < 0){
+                        mod = 150;
+                    }
                     break;
             }
 
 //            System.out.printf("dt: %.8f, diff: %.8f ", dt, diff);
 
-            error += Math.abs(dt * diff);
+
+            error += Math.abs(dt * diff * diff) * mod;
 //            System.out.println(error);
             return error;
         }

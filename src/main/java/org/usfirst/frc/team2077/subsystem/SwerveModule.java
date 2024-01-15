@@ -2,11 +2,13 @@ package org.usfirst.frc.team2077.subsystem;
 
 import com.revrobotics.*;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.drivetrain.DriveModuleIF;
 import org.usfirst.frc.team2077.drivetrain.SwerveModuleIF;
-import org.usfirst.frc.team2077.util.Constants.Drive;
 
 public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
@@ -27,43 +29,63 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         }
     }
 
+    private static final double driveGearReduction = (45d * 22d) / (15d * 13d/*This is the variable gear*/);
+    private static final int drivingMotorCurrentLimit = 50; // amps
+    private static final int guidingMotorCurrentLimit = 20; // amps
+
+    private static final double angleDeadZone = 0.1;
+
+    public static final double wheelRadius = Units.inchesToMeters(2);
+    public static final double wheelDiameter = wheelRadius * 2.0;
+    public static final double wheelCircumference = wheelDiameter * Math.PI;
+
+    public static boolean allAtAngle = false;
+
     private final MotorPosition position;
 
     private final CANSparkMax guidingMotor;
     private final AbsoluteEncoder guidingEncoder;
-    private final SparkMaxPIDController guidingPID;
+    private final PIDController guidingPID;
+    private final SparkMaxPIDController guidingCANPID;
 
     private final CANSparkMax drivingMotor;
     private final RelativeEncoder drivingEncoder;
     private final SparkMaxPIDController drivingPID;
 
+    private boolean calibrating = false;
+    private double angleOffset = 0.0;
+
     private double velocitySet;
-    private double angleSet;
+    private double angleSet = 0;
 
     private boolean flipMagnitude;
 
+    //P: 0.12839818, I: 0.00006161
+
     public SwerveModule(MotorPosition position){
         this.position = position;
+
         //"Factory reset, so we get the SPARKS MAX to a known state before configuring"
         //"them. This is useful in case a SPARK MAX is swapped out."
 //        drivingMotor.restoreFactoryDefaults();
 //        guidingMotor.restoreFactoryDefaults();
 
-        //Setting up the guiding motor
         guidingMotor = new CANSparkMax(position.guidingCANid, MotorType.kBrushless);
         guidingMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
-        guidingMotor.setSmartCurrentLimit(Drive.kGuidingMotorCurrentLimit);
+        guidingMotor.setSmartCurrentLimit(guidingMotorCurrentLimit);
 
         guidingEncoder = guidingMotor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
-        guidingEncoder.setPositionConversionFactor(2d * Math.PI);
-        guidingEncoder.setInverted(true);
+        guidingEncoder.setPositionConversionFactor(2.0 * Math.PI);
+        guidingEncoder.setInverted(false);
 
-        guidingPID = guidingMotor.getPIDController();
-        guidingPID.setFeedbackDevice(guidingEncoder);
-        guidingPID.setPositionPIDWrappingEnabled(true);
-        guidingPID.setPositionPIDWrappingMinInput(0);
-        guidingPID.setPositionPIDWrappingMinInput(2d * Math.PI);
-        guidingPID.setOutputRange(-1, 1);
+        guidingCANPID = guidingMotor.getPIDController();
+        guidingPID = new PIDController(guidingCANPID.getP(), guidingCANPID.getI(), 0.0);
+
+//        guidingPID.setFeedbackDevice(guidingEncoder);
+//        guidingPID.setPositionPIDWrappingEnabled(true);
+//        guidingPID.setPositionPIDWrappingMinInput(0);
+//        guidingPID.setPositionPIDWrappingMaxInput(2.0 * Math.PI);
+//        guidingPID.setOutputRange(-1, 1);
 
         // "Save the SPARK MAX configurations. If a SPARK MAX browns out during"
         // "operation, it will maintain the above configurations."
@@ -72,31 +94,56 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         //Setting up the driving motor
         drivingMotor = new CANSparkMax(position.drivingCANid, MotorType.kBrushless);
         drivingMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
-        drivingMotor.setSmartCurrentLimit(Drive.kDrivingMotorCurrentLimit);
+        drivingMotor.setSmartCurrentLimit(drivingMotorCurrentLimit);
 
         drivingEncoder = drivingMotor.getEncoder();
-        drivingEncoder.setVelocityConversionFactor(Drive.kWheelCircumference / Drive.kDriveGearReduction / 60.0);
+        drivingEncoder.setVelocityConversionFactor(wheelCircumference / driveGearReduction / 60.0);
 
         drivingPID = drivingMotor.getPIDController();
-        drivingPID.setFeedbackDevice(drivingEncoder);
-        drivingPID.setOutputRange(-1, 1);
 
-        drivingMotor.burnFlash();
+//        drivingPID.setP(0.08728395);
+//        drivingPID.setI(0.00107429);
+
 
         this.register();
     }
 
     @Override
     public void periodic(){
-//        guidingPID.setReference(angleSet, CANSparkMax.ControlType.kPosition);
+        if(calibrating) return;
 
-        //So that bad pid values doesn't prevent the motors from stopping
-        if(Math.abs(velocitySet) < 0.01){
-            drivingMotor.set(0);
-            return;
-        }
+        System.out.printf(
+                "P: %.8f, I: %.8f", guidingCANPID.getP(), guidingCANPID.getI()
+        );
+
+        guidingPeriodic();
+        drivingPeriodic();
+    }
+
+    private void drivingPeriodic(){
+        boolean notAllAtAngle = RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::isAtAngle).anyMatch(e -> !e);
+
+        if(notAllAtAngle && Math.abs(velocitySet) > 0.05) return;
 
         drivingPID.setReference(velocitySet * (flipMagnitude? -1 : 1), CANSparkMax.ControlType.kVelocity);
+    }
+
+    private void guidingPeriodic(){
+        double angleDiff = getAngleDifference(angleSet, getAngle());
+        double p = guidingPID.calculate(angleDiff, 0.0);
+        guidingMotor.set(p);
+    }
+
+    //Only used for PID
+    public void calibrationSetVelocity(double velocity){
+        calibrating = true;
+
+        setVelocity(velocity);
+        if(Math.abs(velocity) < 0.01){
+            drivingMotor.set(0);
+        }else{
+            drivingPeriodic();
+        }
     }
 
     @Override
@@ -104,22 +151,43 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         velocitySet = velocity;
     }
 
+    //Only used for PID
+    public void calibrationSetAngle(double angle){
+        calibrating = true;
+
+        if(angle == 0.0){
+            guidingMotor.set(0.0);
+            angleOffset -= getAngle();
+            return;
+        }
+
+        angle %= 2.0 * Math.PI;
+        if(angle < 0) angle += 2.0 * Math.PI;
+        angleSet = angle;
+
+        guidingPID.setP( guidingCANPID.getP() );
+        guidingPID.setI( guidingCANPID.getI() );
+
+        guidingPeriodic();
+    }
+
     @Override
     public void setAngle(double angle) {
-        double currentWheelAngle = getAngle();
-        double angleDifference = getAngleDifference(currentWheelAngle, angle);
+        double currentAngle = getAngle();
+        double angleDifference = getAngleDifference(currentAngle, angle);
 
-//        flipMagnitude = false;
-//        if(Math.abs(angleDifference) > 0.5 * Math.PI) {
-//            angle -= Math.PI;
-//            flipMagnitude = true;
-//        }
+        flipMagnitude = false;
+        if(Math.abs(angleDifference) > 0.5 * Math.PI) {
+            angle -= Math.PI;
+            flipMagnitude = true;
+        }
 
-        angle %= 2 * Math.PI;
+        angle %= 2.0 * Math.PI;
+        if(angle < 0) angle += 2.0 * Math.PI;
         angleSet = angle;
     }
 
-    private double getAngleDifference(double from, double to) {
+    public static double getAngleDifference(double from, double to) {
         double diff = from - to;
         if(Math.abs(diff) > Math.PI) diff -= 2 * Math.PI * Math.signum(diff);
         return diff;
@@ -143,7 +211,14 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
     @Override
     public double getAngle() {
-        return guidingEncoder.getPosition();
+        double angle = guidingEncoder.getPosition() + angleOffset;
+        angle %= 2.0 * Math.PI;
+        if(angle < 0) angle += 2.0 * Math.PI;
+        return angle;
+    }
+
+    private boolean isAtAngle(){
+        return Math.abs(getAngleDifference(angleSet, getAngle())) <= angleDeadZone;
     }
 
     @Override
@@ -156,7 +231,16 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     }
 
     public SparkMaxPIDController getGuidingPID(){
-        return guidingPID;
+        return guidingCANPID;
+    }
+
+    public void savePID(){
+        guidingMotor.burnFlash();
+        drivingMotor.burnFlash();
+
+        System.out.printf(
+            "P: %.2f, I: %.2f", guidingCANPID.getP(), guidingCANPID.getI()
+        );
     }
 
 }

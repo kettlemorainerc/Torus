@@ -8,8 +8,7 @@ package org.usfirst.frc.team2077;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.button.*;
-import org.usfirst.frc.team2077.command.MultiSparkMaxPIDTuner;
-import org.usfirst.frc.team2077.command.PIDAutoTune;
+import org.usfirst.frc.team2077.command.SparkMaxPIDTuner;
 import org.usfirst.frc.team2077.common.command.*;
 import org.usfirst.frc.team2077.common.control.DriveJoystick;
 import org.usfirst.frc.team2077.common.control.DriveStick;
@@ -17,8 +16,6 @@ import org.usfirst.frc.team2077.common.control.DriveXboxController;
 import org.usfirst.frc.team2077.subsystem.SwerveModule;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -83,27 +80,47 @@ public class DriveStation {
 //        new PIDAutoTune().bind(new JoystickButton(secondary, 1));
 
         ArrayList<SwerveModule> modules = new ArrayList<>(RobotHardware.getInstance().getChassis().getDriveModules().values());
-        ArrayList<SparkMaxPIDController> pids = new ArrayList<>(modules.stream().map(SwerveModule::getDrivingPID).collect(Collectors.toList()));
+        ArrayList<SparkMaxPIDController> pids = new ArrayList<>(modules.stream().map(SwerveModule::getGuidingPID).collect(Collectors.toList()));
 
-//        new MultiSparkMaxPIDTuner<SwerveModule>(
-//                modules, pids,
-//                SwerveModule::setVelocity,
-//                SwerveModule::getVelocityMeasured,
-//                0.08658034, 0.00090362,
-//                2.5, 4,
-//                MultiSparkMaxPIDTuner.ErrorMethod.DIFFERENCE,
-//                15
+//        for(int i = 0; i < 4; i++) {
+//            new SparkMaxPIDTuner<>(
+//                    modules.subList(i, i + 1),
+//                    pids.subList(i, i + 1),
+//                    SwerveModule::calibrationSetVelocity,
+//                    SwerveModule::getVelocityMeasured,
+//                    SwerveModule::savePID,
+//                    0.08658034, 0.00090362,
+//                    3.25, 4,
+//                    SparkMaxPIDTuner.ErrorMethod.DIFFERENCE,
+//                    15
+//            ).bind(new JoystickButton(secondary, 1));
+//        }
+
+        for(int i = 0; i < 4; i++) {
+            new SparkMaxPIDTuner<>(
+                    modules.subList(i, i + 1),
+                    pids.subList(i, i + 1),
+                    SwerveModule::calibrationSetAngle,
+                    SwerveModule::getAngle,
+                    SwerveModule::savePID,
+                    0.12235982, 0.00003915,
+                    Math.PI / 2.0, 4,
+                    SparkMaxPIDTuner.ErrorMethod.ANGLE_DIFFERENCE,
+                    20,
+                    new JoystickButton(secondary, 2)
+            ).bind(new JoystickButton(secondary, 1));
+        }
+
+//        new SparkMaxPIDTuner<>(
+//            modules, pids,
+//            SwerveModule::calibrationSetAngle,
+//            SwerveModule::getAngle,
+//            SwerveModule::savePID,
+//            0.10372401, 0.00005248,
+//            Math.PI / 2.0, 4,
+//            SparkMaxPIDTuner.ErrorMethod.ANGLE_DIFFERENCE,
+//            10
 //        ).bind(new JoystickButton(secondary, 1));
-
-        new MultiSparkMaxPIDTuner<SwerveModule>(
-            modules, pids,
-            SwerveModule::setVelocity,
-            SwerveModule::getVelocityMeasured,
-            0.08658034, 0.00090362,
-            Math.PI / 2, 4,
-            MultiSparkMaxPIDTuner.ErrorMethod.ANGLE_DIFFERENCE,
-            15
-        ).bind(new JoystickButton(secondary, 1));
     }
 
     /** Normal (silver/brighter) joystick that supports rotation */
