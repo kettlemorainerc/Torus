@@ -48,7 +48,7 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     private final PIDController guidingPID;
     private final SparkMaxPIDController guidingCANPID;
 
-    private final CANSparkMax drivingMotor;
+    private final BetterCanSparkMax drivingMotor;
     private final RelativeEncoder drivingEncoder;
     private final SparkMaxPIDController drivingPID;
 
@@ -92,7 +92,7 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         guidingMotor.burnFlash();
 
         //Setting up the driving motor
-        drivingMotor = new CANSparkMax(position.drivingCANid, MotorType.kBrushless);
+        drivingMotor = new BetterCanSparkMax(position.drivingCANid, MotorType.kBrushless);
         drivingMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         drivingMotor.setSmartCurrentLimit(drivingMotorCurrentLimit);
 
@@ -230,8 +230,24 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         return drivingPID;
     }
 
+    public BetterCanSparkMax getDrivingMotor() {
+        return this.drivingMotor;
+    }
+
+    public CANSparkMax getGuidingMotor() {
+        return this.guidingMotor;
+    }
+
     public SparkMaxPIDController getGuidingPID(){
         return guidingCANPID;
+    }
+
+    public PIDController getAnglePid() {
+        return guidingPID;
+    }
+
+    public AbsoluteEncoder getAngleEncoder() {
+        return guidingEncoder;
     }
 
     public void savePID(){
