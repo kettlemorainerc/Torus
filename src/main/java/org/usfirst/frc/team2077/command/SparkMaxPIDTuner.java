@@ -81,8 +81,9 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
             );
         }
 
-        debug = new SmartDashString("AutoPID", "", true);
+//        debug = new SmartDashString("AutoPID", "", true);
 
+        start();
     }
 
     @Override
@@ -115,7 +116,11 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
             return;
         }
 
-        testers.forEach(Tester::execute);
+        for(Tester t : testers){
+            t.execute();
+        }
+
+//        testers.forEach(Tester::execute);
     }
 
     //TODO: rename this method
@@ -140,9 +145,9 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
 
 //        System.out.println(bestError);
 
-        debug.set(
-            String.format("P: %.8f, I: %.8f Error: %.4f", pBest, iBest, bestError)
-        );
+//        debug.set(
+//            String.format("P: %.8f, I: %.8f Error: %.4f", pBest, iBest, bestError)
+//        );
 
         double pEntropy = 0.0;
         if(this.pBest != 0.0) pEntropy = pBest - this.pBest;
@@ -200,8 +205,10 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
 
         private void initPID(){
             //TODO: Determine if this should be randomised at init
-            pid.setP(pBest * (0.5 * Math.random() + 0.75));
-            pid.setI(iBest * (0.5 * Math.random() + 0.75));
+//            pid.setP(pBest * (0.5 * Math.random() + 0.75));
+//            pid.setI(iBest * (0.5 * Math.random() + 0.75));
+            pid.setI(iBest);
+            pid.setP(pBest);
         }
 
         private void start(){
@@ -211,11 +218,10 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
         }
 
         private boolean hasEnded(){
-            switch(errorMethod){
-                case DIFFERENCE:
-                    return !running && Math.abs(getMes()) < 0.01;
-                case ANGLE_DIFFERENCE:
-                    return !running && Math.abs(SwerveModule.getAngleDifference(0, getMes())) < 0.25;
+            if(errorMethod == ErrorMethod.DIFFERENCE){
+                return !running && Math.abs(getMes()) < 0.01;
+            }else if(errorMethod == ErrorMethod.ANGLE_DIFFERENCE){
+                return !running && Math.abs(SwerveModule.getAngleDifference(0, getMes())) < 0.25;
             }
             return false;
         }

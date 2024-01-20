@@ -169,7 +169,7 @@ public class SwerveMath {
     public Map<VelocityDirection, Double> rotateTargets(
             Map<VelocityDirection, Double> tar, double angle
     ){
-        Map<VelocityDirection, Double> copy = new EnumMap(tar);
+        Map<VelocityDirection, Double> copy = new EnumMap<>(tar);
 
         copy.put(FORWARD,Math.sin(angle) * tar.get(STRAFE) + Math.cos(angle) * tar.get(FORWARD));
         copy.put(STRAFE, Math.cos(angle) * tar.get(STRAFE) - Math.sin(angle) * tar.get(FORWARD));

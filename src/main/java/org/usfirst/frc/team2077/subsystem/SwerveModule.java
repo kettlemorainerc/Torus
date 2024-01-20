@@ -59,7 +59,7 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     private double velocitySet;
     private double angleSet = 0;
 
-    private boolean flipMagnitude;
+    private boolean flipMagnitude = false;
 
     //P: 0.12839818, I: 0.00006161
 
@@ -131,7 +131,7 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     }
 
     private void guidingPeriodic(){
-        if(Math.abs(velocitySet) < 0.1) {
+        if(Math.abs(velocitySet) < 0.1 && !calibrating) {
             guidingMotor.set(0.0);
             return;
         }
@@ -252,9 +252,9 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         guidingMotor.burnFlash();
         drivingMotor.burnFlash();
 
-        System.out.printf(
-            "P: %.2f, I: %.2f", guidingCANPID.getP(), guidingCANPID.getI()
-        );
+//        System.out.printf(
+//            "P: %.2f, I: %.2f", guidingCANPID.getP(), guidingCANPID.getI()
+//        );
     }
 
 }

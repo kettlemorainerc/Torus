@@ -105,7 +105,7 @@ public class PIDAutoTune extends SelfDefinedCommand {
 
                 this.error.set(error);
 
-                System.out.println("P: " + pBest + ", I: " + iBest);
+//                System.out.println("P: " + pBest + ", I: " + iBest);
                 this.bestPID.set("P: " + pBest + ", I: " + iBest);
             }
         }

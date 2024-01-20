@@ -27,7 +27,7 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
     private final SwerveMath math;
     //ADIS16470_IMU is the class used in the provided swerve code //TODO: check gyro
 //    private final ADXRS450_Gyro gyro = new ADXRS450_Gyro();
-    private final AHRS gyro = new AHRS();
+//    private final AHRS gyro = new AHRS();
 
     private static EnumMap<WheelPosition, SwerveModule> buildDriveTrain() {
         EnumMap<WheelPosition, SwerveModule> map = new EnumMap<>(WheelPosition.class);
@@ -73,29 +73,17 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
     @Override protected void updateDriveModules() {
 //        System.out.println(velocitySet.get(FORWARD));
 
-        double gyroOffset = Math.toRadians(gyro.getAngle());
-
-//        EnumMap velocityCopy = new EnumMap<>(velocitySet);
-//        double x = (double) velocityCopy.get(STRAFE);
-//        double y = (double) velocityCopy.get(FORWARD);
-//
-//        velocityCopy.put(STRAFE,
-////                Math.cos(a) * x - Math.sin(a) * y
-////        );
-////        velocityCopy.put(FORWARD,
-////                Math.sin(a) * x + Math.cos(a) * y
-////        );
+//        double gyroOffset = Math.toRadians(gyro.getAngle());
 
         Map<WheelPosition, SwerveTargetValues> wheelTargets = math.targetsForVelocities(
             velocitySet,
             maximumSpeed,
-            maximumRotation,
-            gyroOffset
+            maximumRotation
+//            gyroOffset
         );
 
         wheelTargets.forEach((key, value) -> {
             SwerveModule module = this.driveModules.get(key);
-            System.out.println(value.getMagnitude());
 
             double velocity = maximumSpeed * 0.4 * Math.abs(value.getMagnitude());
 
@@ -108,7 +96,7 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
     }
 
     public void resetGyro(){
-        gyro.reset();
+//        gyro.reset();
+        ;
     }
-
 }

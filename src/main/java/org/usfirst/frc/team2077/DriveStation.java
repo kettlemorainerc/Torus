@@ -71,7 +71,7 @@ public class DriveStation {
     /** Bind primary driver's button commands here */
     private static void bindDriverControl(DriveXboxController primary) {
 
-        new ResetGyro().bind(new JoystickButton(primary, 2));
+//        new ResetGyro().bind(new JoystickButton(primary, 2));
 
 
 //        primary.getRightTriggerAxis()
@@ -101,6 +101,9 @@ public class DriveStation {
 //            ).bind(new JoystickButton(secondary, 1));
 //        }
 
+        JoystickButton a = new JoystickButton(secondary, 1);
+        JoystickButton b = new JoystickButton(secondary, 2);
+
         for(int i = 0; i < 4; i++) {
             new SparkMaxPIDTuner<>(
                     modules.subList(i, i + 1),
@@ -112,8 +115,8 @@ public class DriveStation {
                     Math.PI / 2.0, 4,
                     SparkMaxPIDTuner.ErrorMethod.ANGLE_DIFFERENCE,
                     20,
-                    new JoystickButton(secondary, 2)
-            ).bind(new JoystickButton(secondary, 1));
+                    b
+            ).bind(a);
         }
 
 //        new SparkMaxPIDTuner<>(
@@ -124,7 +127,8 @@ public class DriveStation {
 //            0.10372401, 0.00005248,
 //            Math.PI / 2.0, 4,
 //            SparkMaxPIDTuner.ErrorMethod.ANGLE_DIFFERENCE,
-//            10
+//            10,
+//            new JoystickButton(secondary, 2)
 //        ).bind(new JoystickButton(secondary, 1));
     }
 
