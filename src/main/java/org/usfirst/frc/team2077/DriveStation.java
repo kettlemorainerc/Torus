@@ -8,6 +8,7 @@ package org.usfirst.frc.team2077;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.button.*;
+import org.usfirst.frc.team2077.command.ResetGyro;
 import org.usfirst.frc.team2077.command.SparkMaxPIDTuner;
 import org.usfirst.frc.team2077.common.command.*;
 import org.usfirst.frc.team2077.common.control.DriveJoystick;
@@ -69,6 +70,10 @@ public class DriveStation {
 
     /** Bind primary driver's button commands here */
     private static void bindDriverControl(DriveXboxController primary) {
+
+        new ResetGyro().bind(new JoystickButton(primary, 2));
+
+
 //        primary.getRightTriggerAxis()
     }
 

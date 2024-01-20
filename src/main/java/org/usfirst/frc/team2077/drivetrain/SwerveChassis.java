@@ -1,7 +1,10 @@
 package org.usfirst.frc.team2077.drivetrain;
 
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import org.usfirst.frc.team2077.common.VelocityDirection;
 import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.drivetrain.AbstractChassis;
 import org.usfirst.frc.team2077.common.drivetrain.DriveModuleIF;
@@ -18,12 +21,13 @@ import static org.usfirst.frc.team2077.common.VelocityDirection.*;
 
 public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
-    public static final double wheelBaseLength = Units.inchesToMeters(19.25);
-    public static final double wheelBaseWidth = Units.inchesToMeters(22.5);
+    public static final double wheelBaseLength = Units.inchesToMeters(36.5);//19.25);
+    public static final double wheelBaseWidth = Units.inchesToMeters(36.5);//22.5);
 
     private final SwerveMath math;
     //ADIS16470_IMU is the class used in the provided swerve code //TODO: check gyro
-//    private final /*AngleSensor*/ ADIS16470_IMU gyro;
+//    private final ADXRS450_Gyro gyro = new ADXRS450_Gyro();
+    private final AHRS gyro = new AHRS();
 
     private static EnumMap<WheelPosition, SwerveModule> buildDriveTrain() {
         EnumMap<WheelPosition, SwerveModule> map = new EnumMap<>(WheelPosition.class);
@@ -42,7 +46,7 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
         math = new SwerveMath(wheelBaseLength, wheelBaseWidth);
 
-        this.maximumSpeed = this.driveModules.values().stream().map(DriveModuleIF::getMaximumSpeed).min(Comparator.naturalOrder()).orElseThrow();
+        maximumSpeed = this.driveModules.values().stream().map(DriveModuleIF::getMaximumSpeed).min(Comparator.naturalOrder()).orElseThrow();
 
         //Dear David,
         //  I am sorry that I did not like you clever work around
@@ -57,9 +61,9 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
         double secondsPerRevolution = circumference / this.maximumSpeed;
         double radiansPerSecond = 2 * Math.PI / secondsPerRevolution;
 
-        this.maximumRotation = radiansPerSecond;
+        maximumRotation = radiansPerSecond;
 
-        this.minimumSpeed = this.maximumSpeed * 0.1;
+        minimumSpeed = maximumSpeed * 0.1;
     }
 
     @Override protected void measureVelocity(){
@@ -67,21 +71,44 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
     }
 
     @Override protected void updateDriveModules() {
+//        System.out.println(velocitySet.get(FORWARD));
+
+        double gyroOffset = Math.toRadians(gyro.getAngle());
+
+//        EnumMap velocityCopy = new EnumMap<>(velocitySet);
+//        double x = (double) velocityCopy.get(STRAFE);
+//        double y = (double) velocityCopy.get(FORWARD);
+//
+//        velocityCopy.put(STRAFE,
+////                Math.cos(a) * x - Math.sin(a) * y
+////        );
+////        velocityCopy.put(FORWARD,
+////                Math.sin(a) * x + Math.cos(a) * y
+////        );
+
         Map<WheelPosition, SwerveTargetValues> wheelTargets = math.targetsForVelocities(
             velocitySet,
             maximumSpeed,
-            maximumRotation
+            maximumRotation,
+            gyroOffset
         );
 
         wheelTargets.forEach((key, value) -> {
             SwerveModule module = this.driveModules.get(key);
-            double velocity = Math.abs(value.getMagnitude());
+            System.out.println(value.getMagnitude());
+
+            double velocity = maximumSpeed * 0.4 * Math.abs(value.getMagnitude());
+
             if(velocity > maximumSpeed) velocity = maximumSpeed;
             if(velocity > 0.01) velocity = Math.max(velocity, minimumSpeed);
 
             module.setAngle(value.getAngle());
             module.setVelocity(velocity);
         });
-
     }
+
+    public void resetGyro(){
+        gyro.reset();
+    }
+
 }

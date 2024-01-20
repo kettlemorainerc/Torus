@@ -15,9 +15,10 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     public enum MotorPosition{
 
         FRONT_LEFT(2, 1, 5),//Based on some of the numbers from ZTPHVN, TODO: check these
-        FRONT_RIGHT(8,7, 5),
         BACK_LEFT(4, 3, 5),
-        BACK_RIGHT(6, 5, 5);
+        BACK_RIGHT(6, 5, 5),
+        FRONT_RIGHT(8,7, 5),
+        ;
 
         public int drivingCANid;
         public int guidingCANid;
@@ -33,13 +34,13 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     private static final int drivingMotorCurrentLimit = 50; // amps
     private static final int guidingMotorCurrentLimit = 20; // amps
 
-    private static final double angleDeadZone = 0.1;
+    private static final double angleDeadZone = 0.25;
 
     public static final double wheelRadius = Units.inchesToMeters(2);
     public static final double wheelDiameter = wheelRadius * 2.0;
     public static final double wheelCircumference = wheelDiameter * Math.PI;
 
-    public static boolean allAtAngle = false;
+    public static boolean notAllAtAngle = false;
 
     private final MotorPosition position;
 
@@ -112,23 +113,29 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     public void periodic(){
         if(calibrating) return;
 
-        System.out.printf(
-                "P: %.8f, I: %.8f", guidingCANPID.getP(), guidingCANPID.getI()
-        );
+//        System.out.printf(
+//                "P: %.8f, I: %.8f", guidingCANPID.getP(), guidingCANPID.getI()
+//        );
+//        System.out.println(velocitySet);
 
         guidingPeriodic();
         drivingPeriodic();
     }
 
     private void drivingPeriodic(){
-        boolean notAllAtAngle = RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::isAtAngle).anyMatch(e -> !e);
+        if(getWheelPosition().ordinal() == 0) notAllAtAngle = RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::isAtAngle).anyMatch(e -> !e);
 
-        if(notAllAtAngle && Math.abs(velocitySet) > 0.05) return;
+        if(notAllAtAngle && Math.abs(velocitySet) > 0.1) return;
 
         drivingPID.setReference(velocitySet * (flipMagnitude? -1 : 1), CANSparkMax.ControlType.kVelocity);
     }
 
     private void guidingPeriodic(){
+        if(Math.abs(velocitySet) < 0.1) {
+            guidingMotor.set(0.0);
+            return;
+        }
+
         double angleDiff = getAngleDifference(angleSet, getAngle());
         double p = guidingPID.calculate(angleDiff, 0.0);
         guidingMotor.set(p);
@@ -176,10 +183,17 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         double currentAngle = getAngle();
         double angleDifference = getAngleDifference(currentAngle, angle);
 
-        flipMagnitude = false;
-        if(Math.abs(angleDifference) > 0.5 * Math.PI) {
+        if(
+            Math.abs(getVelocityMeasured()) > 0.1
+        ){
+            if(flipMagnitude){
+                angle -= Math.PI;
+            }
+        }else if(Math.abs(angleDifference) > 0.5 * Math.PI) {
             angle -= Math.PI;
             flipMagnitude = true;
+        }else{
+            flipMagnitude = false;
         }
 
         angle %= 2.0 * Math.PI;

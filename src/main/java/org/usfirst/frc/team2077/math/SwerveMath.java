@@ -159,6 +159,24 @@ public class SwerveMath {
        ));
     }
 
+    public Map<WheelPosition, SwerveTargetValues> targetsForVelocities(
+            Map<VelocityDirection, Double> targetMagnitudes,
+            double maxSpeed, double maxRotation, double angleOffset
+    ){
+        return targetsForVelocities(rotateTargets(targetMagnitudes, angleOffset), maxSpeed, maxRotation);
+    }
+
+    public Map<VelocityDirection, Double> rotateTargets(
+            Map<VelocityDirection, Double> tar, double angle
+    ){
+        Map<VelocityDirection, Double> copy = new EnumMap(tar);
+
+        copy.put(FORWARD,Math.sin(angle) * tar.get(STRAFE) + Math.cos(angle) * tar.get(FORWARD));
+        copy.put(STRAFE, Math.cos(angle) * tar.get(STRAFE) - Math.sin(angle) * tar.get(FORWARD));
+
+        return copy;
+    }
+
     /**
      * Handles solving for <strong>W<sub>i</sub></strong>.<br>
      * In regards to<br>
