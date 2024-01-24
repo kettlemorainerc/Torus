@@ -81,14 +81,14 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
             );
         }
 
-//        debug = new SmartDashString("AutoPID", "", true);
+        debug = new SmartDashString("AutoPID", "", true);
 
         start();
     }
 
     @Override
     public boolean isFinished() {
-        boolean finished = endButton.getAsBoolean() && finishedTesting();
+        boolean finished = endButton.getAsBoolean();
         if(finished){
             pids.forEach(e -> {
                 e.setP(pBest);
@@ -145,9 +145,9 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
 
 //        System.out.println(bestError);
 
-//        debug.set(
-//            String.format("P: %.8f, I: %.8f Error: %.4f", pBest, iBest, bestError)
-//        );
+        debug.set(
+            String.format("P: %.8f, I: %.8f Error: %.4f", pBest, iBest, bestError)
+        );
 
         double pEntropy = 0.0;
         if(this.pBest != 0.0) pEntropy = pBest - this.pBest;
@@ -267,7 +267,7 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
                 case ANGLE_DIFFERENCE:
                     diff = SwerveModule.getAngleDifference(set, mes);
                     if(diff < 0){
-                        mod = 150;
+                        mod = 25;
                     }
                     break;
             }
@@ -276,7 +276,7 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
 
 
             error += Math.abs(dt * diff * diff) * mod;
-//            System.out.println(error);
+            System.out.println(error);
             return error;
         }
 

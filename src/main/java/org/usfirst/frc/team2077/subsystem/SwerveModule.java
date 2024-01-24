@@ -14,19 +14,21 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
     public enum MotorPosition{
 
-        FRONT_LEFT(2, 1, 5),//Based on some of the numbers from ZTPHVN, TODO: check these
-        BACK_LEFT(4, 3, 5),
-        BACK_RIGHT(6, 5, 5),
-        FRONT_RIGHT(8,7, 5),
+        FRONT_LEFT(2, 1, 5, 1.5),//Based on some of the numbers from ZTPHVN, TODO: check these
+        BACK_LEFT(4, 3, 5, 1),
+        BACK_RIGHT(6, 5, 5, 0.5),
+        FRONT_RIGHT(8,7, 5, 0),
         ;
 
         public int drivingCANid;
         public int guidingCANid;
         public double maxSpeed;
-        MotorPosition(int drivingCANid, int guidingCANid, double maxSpeed){
+        public double angleOffset;
+        MotorPosition(int drivingCANid, int guidingCANid, double maxSpeed, double angleOffset){
             this.drivingCANid = drivingCANid;
             this.guidingCANid = guidingCANid;
             this.maxSpeed = maxSpeed;
+            this.angleOffset = angleOffset * Math.PI;
         }
     }
 
@@ -65,6 +67,7 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
     public SwerveModule(MotorPosition position){
         this.position = position;
+        angleOffset = position.angleOffset;
 
         //"Factory reset, so we get the SPARKS MAX to a known state before configuring"
         //"them. This is useful in case a SPARK MAX is swapped out."
@@ -123,9 +126,9 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     }
 
     private void drivingPeriodic(){
-        if(getWheelPosition().ordinal() == 0) notAllAtAngle = RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::isAtAngle).anyMatch(e -> !e);
+        if(!calibrating && getWheelPosition().ordinal() == 0) notAllAtAngle = RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::isAtAngle).anyMatch(e -> !e);
 
-        if(notAllAtAngle && Math.abs(velocitySet) > 0.1) return;
+        if(!calibrating && notAllAtAngle && Math.abs(velocitySet) > 0.1) return;
 
         drivingPID.setReference(velocitySet * (flipMagnitude? -1 : 1), CANSparkMax.ControlType.kVelocity);
     }
@@ -149,6 +152,7 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         if(Math.abs(velocity) < 0.01){
             drivingMotor.set(0);
         }else{
+            flipMagnitude = false;
             drivingPeriodic();
         }
     }

@@ -27,7 +27,8 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
     private final SwerveMath math;
     //ADIS16470_IMU is the class used in the provided swerve code //TODO: check gyro
 //    private final ADXRS450_Gyro gyro = new ADXRS450_Gyro();
-//    private final AHRS gyro = new AHRS();
+    private final AHRS gyro = new AHRS();
+    private double heading = 0.0;
 
     private static EnumMap<WheelPosition, SwerveModule> buildDriveTrain() {
         EnumMap<WheelPosition, SwerveModule> map = new EnumMap<>(WheelPosition.class);
@@ -59,7 +60,7 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
         double circumference = Math.PI * Math.hypot(wheelBaseLength, wheelBaseWidth);
         //The time it would take for a wheel traveling at maximum speed to travel the distance of the circumference
         double secondsPerRevolution = circumference / this.maximumSpeed;
-        double radiansPerSecond = 2 * Math.PI / secondsPerRevolution;
+        double radiansPerSecond = 2.0 * Math.PI / secondsPerRevolution;
 
         maximumRotation = radiansPerSecond;
 
@@ -73,13 +74,24 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
     @Override protected void updateDriveModules() {
 //        System.out.println(velocitySet.get(FORWARD));
 
-//        double gyroOffset = Math.toRadians(gyro.getAngle());
+        double gyroOffset = Math.toRadians(gyro.getAngle());
+
+        if(velocitySet.get(ROTATION) == 0.0) {
+            double correction = SwerveModule.getAngleDifference(gyroOffset, heading);
+            if(Math.abs(correction) > Math.PI / 16) {
+                velocitySet.put(ROTATION, velocitySet.get(ROTATION) + correction);
+            }
+        }
+
+        if(velocitySet.get(FORWARD) == 0.0 && velocitySet.get(STRAFE) == 0.0){
+            heading = gyroOffset;
+        }
 
         Map<WheelPosition, SwerveTargetValues> wheelTargets = math.targetsForVelocities(
             velocitySet,
             maximumSpeed,
-            maximumRotation
-//            gyroOffset
+            maximumRotation,
+            gyroOffset
         );
 
         wheelTargets.forEach((key, value) -> {
@@ -96,7 +108,6 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
     }
 
     public void resetGyro(){
-//        gyro.reset();
-        ;
+        gyro.reset();
     }
 }

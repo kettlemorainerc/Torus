@@ -85,7 +85,7 @@ public class DriveStation {
 //        new PIDAutoTune().bind(new JoystickButton(secondary, 1));
 
         ArrayList<SwerveModule> modules = new ArrayList<>(RobotHardware.getInstance().getChassis().getDriveModules().values());
-        ArrayList<SparkMaxPIDController> pids = new ArrayList<>(modules.stream().map(SwerveModule::getGuidingPID).collect(Collectors.toList()));
+        ArrayList<SparkMaxPIDController> pids = new ArrayList<>(modules.stream().map(SwerveModule::getDrivingPID).collect(Collectors.toList()));
 
 //        for(int i = 0; i < 4; i++) {
 //            new SparkMaxPIDTuner<>(
@@ -101,23 +101,51 @@ public class DriveStation {
 //            ).bind(new JoystickButton(secondary, 1));
 //        }
 
-        JoystickButton a = new JoystickButton(secondary, 1);
-        JoystickButton b = new JoystickButton(secondary, 2);
+//        JoystickButton a = new JoystickButton(secondary, 1);
+//        JoystickButton b = new JoystickButton(secondary, 2);
+
+//        for(int i = 0; i < 4; i++) {
+//            new SparkMaxPIDTuner<>(
+//                    modules.subList(i, i + 1),
+//                    pids.subList(i, i + 1),
+//                    SwerveModule::calibrationSetAngle,
+//                    SwerveModule::getAngle,
+//                    SwerveModule::savePID,
+//                    0.12235982, 0.00003915,
+//                    Math.PI / 2.0, 4,
+//                    SparkMaxPIDTuner.ErrorMethod.ANGLE_DIFFERENCE,
+//                    20,
+//                    b
+//            ).bind(a);
+//        }
 
         for(int i = 0; i < 4; i++) {
             new SparkMaxPIDTuner<>(
                     modules.subList(i, i + 1),
                     pids.subList(i, i + 1),
-                    SwerveModule::calibrationSetAngle,
-                    SwerveModule::getAngle,
+                    SwerveModule::calibrationSetVelocity,
+                    SwerveModule::getVelocityMeasured,
                     SwerveModule::savePID,
-                    0.12235982, 0.00003915,
-                    Math.PI / 2.0, 4,
-                    SparkMaxPIDTuner.ErrorMethod.ANGLE_DIFFERENCE,
-                    20,
-                    b
-            ).bind(a);
+                    0.00076854, 0.00058162,
+                    2.0, 4,
+                    SparkMaxPIDTuner.ErrorMethod.DIFFERENCE,
+                    50,
+                    new JoystickButton(secondary, 2)
+            ).bind(new JoystickButton(secondary, 1));
         }
+
+//        new SparkMaxPIDTuner<>(
+//            modules,
+//            pids,
+//            SwerveModule::calibrationSetVelocity,
+//            SwerveModule::getVelocityMeasured,
+//            SwerveModule::savePID,
+//            0.001, 0.0001,
+//            2.0, 4,
+//            SparkMaxPIDTuner.ErrorMethod.DIFFERENCE,
+//            50,
+//            b
+//        ).bind(a);
 
 //        new SparkMaxPIDTuner<>(
 //            modules, pids,
