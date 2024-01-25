@@ -83,7 +83,7 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
             }
         }
 
-        if(velocitySet.get(FORWARD) == 0.0 && velocitySet.get(STRAFE) == 0.0){
+        if(velocitySet.get(ROTATION) != 0.0){
             heading = gyroOffset;
         }
 
