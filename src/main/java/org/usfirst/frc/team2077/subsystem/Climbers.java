@@ -16,6 +16,11 @@ public class Climbers implements Subsystem {
     //TODO: speed TBD
     private double speed = 0.1d;
 
+    public enum Direction {
+        UP,
+        DOWN;
+    }
+
     public Climbers(){
         //Dear Henry
         //Yes
