@@ -36,6 +36,7 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
     private final JoystickButton endButton;
 
     private SmartDashString debug;
+    private SmartDashNumber test;
 
     private Module bestModule;
 
@@ -44,9 +45,11 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
     private double bestError = Double.MAX_VALUE;
 
     private double pBest = 0, iBest = 0;
+    private double pGuess = 0, iGuess = 0;
 
     private double setpoint;
     private double testDuration;
+    private double trial = 0;
 
     private double pt, dt;
 
@@ -68,13 +71,25 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
         pBest = pGuess;
         iBest = iGuess;
 
+        this.pGuess = pGuess;
+        this.iGuess = iGuess;
+
+        if(pids.size() == 1){
+            pBest = pids.get(0).getP();
+            if(Math.abs(pBest) < 0.00001) pBest = pGuess;
+            iBest = pids.get(0).getI();
+            if(Math.abs(iBest) < 0.00001) iBest = iGuess;
+        }
+
+        System.out.println(pBest);
+
         this.setpoint = setpoint;
         this.testDuration = testDuration;
 
         this.errorMethod = errorMethod;
         this.maxError = maxError;
 
-        testers = new ArrayList<Tester>();
+        testers = new ArrayList<>();
         for(int i = 0; i < modules.size(); i++){
             testers.add(
                 new Tester(modules.get(i), pids.get(i))
@@ -89,13 +104,6 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
     @Override
     public boolean isFinished() {
         boolean finished = endButton.getAsBoolean();
-        if(finished){
-            pids.forEach(e -> {
-                e.setP(pBest);
-                e.setI(iBest);
-            });
-            for(Tester t : testers) save.accept(t.module);
-        }
         return finished;
     }
 
@@ -113,6 +121,7 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
         if(finishedTesting()){
             walk();
             start();
+            trial++;
             return;
         }
 
@@ -134,7 +143,7 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
         for(Tester tester : testers){
             double error = tester.getError();
 
-            if(error <= bestError){
+            if(error < bestError){
                 bestError = error;
                 pBest = tester.getPID().getP();
                 iBest = tester.getPID().getI();
@@ -158,6 +167,11 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
         this.pBest = pBest;
         this.iBest = iBest;
 
+        if(Math.abs(pBest) < 0.00000001 && Math.abs(iBest) < 0.00000001){
+            this.pBest = pGuess;
+            this.iBest = iGuess;
+        }
+
         for(Tester tester : testers){
             tester.getPID().setP(   walkValue(pBest, pEntropy)  );
             tester.getPID().setI(   walkValue(iBest, iEntropy)  );
@@ -168,6 +182,7 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
 
     //TODO: rename this method
     private double walkValue(double value, double entropy){
+
         return value * (1 + walkPercent * (2 * Math.random() - 1)) + entropyPercent * entropy;
     }
 
@@ -184,6 +199,12 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
 
     @Override
     public void end(boolean interrupted) {
+        for(Tester t : testers){
+            t.getPID().setP(pBest);
+            t.getPID().setI(iBest);
+
+            save.accept(t.module);
+        }
         testers.forEach(Tester::end);
     }
 
@@ -257,11 +278,15 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
             double mes = getMes();
             double mod = 1;
 
+            if(trial == 0){
+                mod = 100;
+            }
+
             switch(errorMethod){
                 case DIFFERENCE:
                     diff = set - mes;
                     if(diff < 0){
-                        mod = 10;
+                        mod = 500;
                     }
                     break;
                 case ANGLE_DIFFERENCE:
@@ -275,8 +300,8 @@ public class SparkMaxPIDTuner<Module> extends SelfDefinedCommand {
 //            System.out.printf("dt: %.8f, diff: %.8f ", dt, diff);
 
 
-            error += Math.abs(dt * diff * diff) * mod;
-            System.out.println(error);
+            error += Math.abs(dt * diff) * mod;
+//            System.out.println(error);
             return error;
         }
 

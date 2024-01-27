@@ -4,6 +4,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.common.VelocityDirection;
 import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.drivetrain.AbstractChassis;
@@ -29,6 +30,7 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
 //    private final ADXRS450_Gyro gyro = new ADXRS450_Gyro();
     private final AHRS gyro = new AHRS();
     private double heading = 0.0;
+    private boolean fieldOriented = true;
 
     private static EnumMap<WheelPosition, SwerveModule> buildDriveTrain() {
         EnumMap<WheelPosition, SwerveModule> map = new EnumMap<>(WheelPosition.class);
@@ -76,28 +78,27 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
         double gyroOffset = Math.toRadians(gyro.getAngle());
 
-        if(velocitySet.get(ROTATION) == 0.0) {
-            double correction = SwerveModule.getAngleDifference(gyroOffset, heading);
-            if(Math.abs(correction) > Math.PI / 16) {
-                velocitySet.put(ROTATION, velocitySet.get(ROTATION) + correction);
-            }
-        }
+        Map<WheelPosition, SwerveTargetValues> wheelTargets;
 
-        if(velocitySet.get(ROTATION) != 0.0){
-            heading = gyroOffset;
+        if(fieldOriented) {
+            wheelTargets = math.targetsForVelocities(
+                    velocitySet,
+                    maximumSpeed,
+                    maximumRotation,
+                    gyroOffset
+            );
+        }else{
+            wheelTargets = math.targetsForVelocities(
+                    velocitySet,
+                    maximumSpeed,
+                    maximumRotation
+            );
         }
-
-        Map<WheelPosition, SwerveTargetValues> wheelTargets = math.targetsForVelocities(
-            velocitySet,
-            maximumSpeed,
-            maximumRotation,
-            gyroOffset
-        );
 
         wheelTargets.forEach((key, value) -> {
             SwerveModule module = this.driveModules.get(key);
 
-            double velocity = maximumSpeed * 0.4 * Math.abs(value.getMagnitude());
+            double velocity = maximumSpeed * 0.65 * Math.abs(value.getMagnitude());
 
             if(velocity > maximumSpeed) velocity = maximumSpeed;
             if(velocity > 0.01) velocity = Math.max(velocity, minimumSpeed);
@@ -109,5 +110,9 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
     public void resetGyro(){
         gyro.reset();
+    }
+
+    public void setFieldOriented(boolean v){
+        fieldOriented = v;
     }
 }
