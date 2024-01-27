@@ -100,10 +100,15 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         drivingMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         drivingMotor.setSmartCurrentLimit(drivingMotorCurrentLimit);
 
+        drivingMotor.setClosedLoopRampRate(1.0);
+
         drivingEncoder = drivingMotor.getEncoder();
         drivingEncoder.setVelocityConversionFactor(wheelCircumference / driveGearReduction / 60.0);
 
         drivingPID = drivingMotor.getPIDController();
+
+        drivingMotor.burnFlash();
+//        guidingMotor.burnFlash();
 
 //        drivingPID.setP(0.08728395);
 //        drivingPID.setI(0.00107429);
@@ -126,21 +131,21 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     }
 
     private void drivingPeriodic(){
-        if(!calibrating && getWheelPosition().ordinal() == 0) notAllAtAngle = RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::isAtAngle).anyMatch(e -> !e);
+//        if(!calibrating && getWheelPosition().ordinal() == 0) notAllAtAngle = RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::isAtAngle).anyMatch(e -> !e);
 
-        if(!calibrating && notAllAtAngle && Math.abs(velocitySet) > 0.1) return;
+//        if(!calibrating && notAllAtAngle && Math.abs(velocitySet) > 0.1) return;
 
         drivingPID.setReference(velocitySet * (flipMagnitude? -1 : 1), CANSparkMax.ControlType.kVelocity);
     }
 
     private void guidingPeriodic(){
-        if(Math.abs(velocitySet) < 0.1 && !calibrating) {
+        if(Math.abs(velocitySet) < 0.01 && !calibrating) {
             guidingMotor.set(0.0);
             return;
         }
 
         double angleDiff = getAngleDifference(angleSet, getAngle());
-        double p = guidingPID.calculate(angleDiff, 0.0);
+        double p = guidingPID.calculate(Math.abs(angleDiff), 0.0) * Math.signum(angleDiff);
         guidingMotor.set(p);
     }
 
@@ -188,7 +193,7 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         double angleDifference = getAngleDifference(currentAngle, angle);
 
         if(
-            Math.abs(getVelocityMeasured()) > 0.1
+            Math.abs(velocitySet) > 0.1
         ){
             if(flipMagnitude){
                 angle -= Math.PI;
@@ -253,8 +258,15 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     }
 
     public void savePID(){
-        guidingMotor.burnFlash();
-        drivingMotor.burnFlash();
+        REVLibError p;
+        do{
+            p = guidingMotor.burnFlash();
+        }while(p != REVLibError.kOk);
+        do{
+            p = drivingMotor.burnFlash();
+        }while(p != REVLibError.kOk);
+
+        System.out.println("Saved?!");
 
 //        System.out.printf(
 //            "P: %.2f, I: %.2f", guidingCANPID.getP(), guidingCANPID.getI()
