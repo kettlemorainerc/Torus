@@ -85,7 +85,7 @@ public class DriveStation {
     private void bindTechnicalControl(Joystick secondary) {
 
         new RaiseClimber(Climbers.Direction.UP).bind(new JoystickButton(secondary, 1));
-        new RaiseClimber(Climbers.Direction.UP).bind(new JoystickButton(secondary, 5));
+        new RaiseClimber(Climbers.Direction.DOWN).bind(new JoystickButton(secondary, 5));
 
 
     }

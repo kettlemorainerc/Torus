@@ -1,8 +1,8 @@
 package org.usfirst.frc.team2077.subsystem;
 
 
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
 public class Climbers implements Subsystem {
