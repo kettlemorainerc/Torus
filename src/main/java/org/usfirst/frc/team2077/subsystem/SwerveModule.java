@@ -10,7 +10,8 @@ import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.drivetrain.DriveModuleIF;
 import org.usfirst.frc.team2077.drivetrain.SwerveModuleIF;
 
-public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
+public class
+SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
     public enum MotorPosition{
 

@@ -2,9 +2,7 @@ package org.usfirst.frc.team2077;
 
 import org.usfirst.frc.team2077.common.HardwareRequirements;
 import org.usfirst.frc.team2077.common.WheelPosition;
-import org.usfirst.frc.team2077.common.drivetrain.DriveModuleIF;
 import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
-import org.usfirst.frc.team2077.subsystem.ScissorArm;
 import org.usfirst.frc.team2077.subsystem.SwerveModule;
 
 public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChassis> {
