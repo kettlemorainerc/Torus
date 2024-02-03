@@ -2,9 +2,9 @@ package org.usfirst.frc.team2077;
 
 import org.usfirst.frc.team2077.common.HardwareRequirements;
 import org.usfirst.frc.team2077.common.WheelPosition;
-import org.usfirst.frc.team2077.common.drivetrain.DriveModuleIF;
 import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
-import org.usfirst.frc.team2077.subsystem.ScissorArm;
+import org.usfirst.frc.team2077.subsystem.Climbers;
+import org.usfirst.frc.team2077.subsystem.Intake;
 import org.usfirst.frc.team2077.subsystem.SwerveModule;
 
 public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChassis> {
@@ -14,6 +14,9 @@ public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChas
         if(instance == null) instance = new RobotHardware();
         return instance;
     }
+
+    public final Climbers climbers = new Climbers();
+    public final Intake intake = new Intake();
 
     private final SwerveChassis chassis;
 

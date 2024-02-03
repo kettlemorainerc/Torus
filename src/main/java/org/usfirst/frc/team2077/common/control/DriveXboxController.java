@@ -80,6 +80,8 @@ public class DriveXboxController extends XboxController implements DriveStick {
     public double getRotation() {
         return DriveStick.adjustInputSensitivity(super.getRightX(), driveDeadBand, driveExponent);
     }
+
+
     
     private static class DPad {
         static final int NORTH = 0;
