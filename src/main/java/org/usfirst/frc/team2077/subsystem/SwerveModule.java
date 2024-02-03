@@ -3,9 +3,10 @@ package org.usfirst.frc.team2077.subsystem;
 import com.revrobotics.*;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.drivetrain.DriveModuleIF;
 import org.usfirst.frc.team2077.drivetrain.SwerveModuleIF;
@@ -55,6 +56,8 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     private final RelativeEncoder drivingEncoder;
     private final SparkMaxPIDController drivingPID;
 
+    private final SlewRateLimiter rateLimiter;
+
     private boolean calibrating = false;
     private double angleOffset = 0.0;
 
@@ -69,10 +72,12 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         this.position = position;
         angleOffset = position.angleOffset;
 
-        //"Factory reset, so we get the SPARKS MAX to a known state before configuring"
-        //"them. This is useful in case a SPARK MAX is swapped out."
-//        drivingMotor.restoreFactoryDefaults();
-//        guidingMotor.restoreFactoryDefaults();
+        rateLimiter = new SlewRateLimiter(6.0);
+
+        Preferences.initDouble(position.name() + "_DRIVING_P", 0.00004718000127468258);
+        Preferences.initDouble(position.name() + "_DRIVING_I", 0.00031408999348059297);
+        Preferences.initDouble(position.name() + "_GUIDING_P", 0.11240000277757645);
+        Preferences.initDouble(position.name() + "_GUIDING_I", 0.000039149999793153256);
 
         guidingMotor = new CANSparkMax(position.guidingCANid, MotorType.kBrushless);
         guidingMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
@@ -83,6 +88,9 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         guidingEncoder.setInverted(false);
 
         guidingCANPID = guidingMotor.getPIDController();
+        guidingCANPID.setP(getPreference("GUIDING_P"));
+        guidingCANPID.setI(getPreference("GUIDING_I"));
+
         guidingPID = new PIDController(guidingCANPID.getP(), guidingCANPID.getI(), 0.0);
 
 //        guidingPID.setFeedbackDevice(guidingEncoder);
@@ -100,21 +108,25 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         drivingMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         drivingMotor.setSmartCurrentLimit(drivingMotorCurrentLimit);
 
-        drivingMotor.setClosedLoopRampRate(1.0);
-
         drivingEncoder = drivingMotor.getEncoder();
         drivingEncoder.setVelocityConversionFactor(wheelCircumference / driveGearReduction / 60.0);
 
         drivingPID = drivingMotor.getPIDController();
+        drivingPID.setP(getPreference("DRIVING_P"));
+        drivingPID.setI(getPreference("DRIVING_I"));
 
         drivingMotor.burnFlash();
-//        guidingMotor.burnFlash();
-
-//        drivingPID.setP(0.08728395);
-//        drivingPID.setI(0.00107429);
-
+        guidingMotor.burnFlash();
 
         this.register();
+    }
+
+    private double getPreference(String key){
+        return Preferences.getDouble(position.name() + "_" + key, 0.0);
+    }
+
+    private void setPreference(String key, double value){
+        Preferences.setDouble(position.name() + "_" + key, value);
     }
 
     @Override
@@ -135,7 +147,12 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
 //        if(!calibrating && notAllAtAngle && Math.abs(velocitySet) > 0.1) return;
 
-        drivingPID.setReference(velocitySet * (flipMagnitude? -1 : 1), CANSparkMax.ControlType.kVelocity);
+        drivingPID.setReference(
+//                rateLimiter.calculate(
+                        (velocitySet) * (flipMagnitude? -1 : 1)
+//                )
+                , CANSparkMax.ControlType.kVelocity
+        );
     }
 
     private void guidingPeriodic(){
@@ -258,19 +275,13 @@ public class SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     }
 
     public void savePID(){
-        REVLibError p;
-        do{
-            p = guidingMotor.burnFlash();
-        }while(p != REVLibError.kOk);
-        do{
-            p = drivingMotor.burnFlash();
-        }while(p != REVLibError.kOk);
+        setPreference("DRIVING_P", drivingPID.getP());
+        setPreference("DRIVING_I", drivingPID.getI());
 
-        System.out.println("Saved?!");
-
-//        System.out.printf(
-//            "P: %.2f, I: %.2f", guidingCANPID.getP(), guidingCANPID.getI()
-//        );
+        setPreference("GUIDING_P", guidingCANPID.getP());
+        setPreference("GUIDING_I", guidingCANPID.getP());
     }
+
+
 
 }

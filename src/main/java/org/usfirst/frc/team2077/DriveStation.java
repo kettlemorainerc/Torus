@@ -9,6 +9,7 @@ import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.button.*;
 import org.usfirst.frc.team2077.command.ResetGyro;
+import org.usfirst.frc.team2077.command.RunLauncher;
 import org.usfirst.frc.team2077.command.SparkMaxPIDTuner;
 import org.usfirst.frc.team2077.command.ToggleFieldOriented;
 import org.usfirst.frc.team2077.common.command.*;
@@ -82,6 +83,18 @@ public class DriveStation {
     private void bindTechnicalControl(Joystick secondary) {
 //        InputMap.bindAxis(Claw.Input.CLOSE, secondary::getRightTriggerAxis);
 //        InputMap.bindAxis(ScissorArm.Input.EXTEND, secondary::getLeftY);
+
+//        new RunLauncher(5, "fast", 1).bind(new JoystickButton(secondary, 1));
+//        new RunLauncher(6, "fast", 1).bind(new JoystickButton(secondary, 1));
+//
+//        new RunLauncher(5, "in", -1).bind(new JoystickButton(secondary, 5));
+//        new RunLauncher(6, "in", -1).bind(new JoystickButton(secondary, 5));
+//
+//        new RunLauncher(7, "slow", 1).bind(new JoystickButton(secondary, 2));
+//        new RunLauncher(8, "slow", 1).bind(new JoystickButton(secondary, 2));
+//
+//        new RunLauncher(7, "slow", -1).bind(new JoystickButton(secondary, 6));
+//        new RunLauncher(8, "slow", -1).bind(new JoystickButton(secondary, 6));
 
 //        swerveVelocityPID(secondary);
 //        swerveAnglePID(secondary);
