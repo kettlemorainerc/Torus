@@ -1,15 +1,12 @@
 package org.usfirst.frc.team2077;
 
-import org.usfirst.frc.team2077.common.HardwareRequirements;
-import org.usfirst.frc.team2077.common.WheelPosition;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.usfirst.frc.team2077.common.*;
 import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
-import org.usfirst.frc.team2077.subsystem.Climbers;
-import org.usfirst.frc.team2077.subsystem.Intake;
-import org.usfirst.frc.team2077.subsystem.Launcher;
-import org.usfirst.frc.team2077.subsystem.LauncherRotater;
+import org.usfirst.frc.team2077.subsystem.*;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 
-public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChassis> {
+public class RobotHardware extends HardwareRequirements<SwerveChassis, SwerveModule, RectangularWheelPosition> {
     private static RobotHardware instance;
 
     public static RobotHardware getInstance() {
@@ -25,6 +22,7 @@ public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChas
     private final SwerveChassis chassis;
 
     public RobotHardware() {
+        super(new SubsystemBase() {}, new SubsystemBase() {}, null, null);
         instance = this;
 
         chassis = new SwerveChassis();
@@ -34,7 +32,7 @@ public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChas
         return chassis;
     }
 
-    @Override public SwerveModule getWheel(WheelPosition position) {
+    @Override public SwerveModule getWheel(RectangularWheelPosition position) {
         return chassis.getWheel(position);
     }
 }

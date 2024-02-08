@@ -4,8 +4,19 @@ plugins {
     id "idea"
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+var javaVersion = JavaVersion.VERSION_17
+allprojects {
+    apply plugin: "java"
+
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+
+    test {
+        useJUnitPlatform()
+        systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+    }
+}
+
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
@@ -49,6 +60,8 @@ def includeDesktopSupport = false
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
 dependencies {
+    implementation project(":common-classes")
+
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
 
@@ -69,11 +82,6 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
-}
-
-test {
-    useJUnitPlatform()
-    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
 }
 
 // Simulation configuration (e.g. environment variables).
@@ -97,18 +105,6 @@ wpi.java.configureTestTasks(test)
 // Configure string concat to always inline compile
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
-}
-
-idea {
-    project {
-        // The project.sourceCompatibility setting is not always picked up, so we set explicitly
-        languageLevel = JavaVersion.VERSION_11
-    }
-    module {
-        // Improve development experience (and IDEA's capabilities) by having source & javadoc attached
-        downloadJavadoc = true
-        downloadSources = true
-    }
 }
 
 task downloadDepsToLocal(type: Copy) {
@@ -146,4 +142,16 @@ task downloadDepsToLocal(type: Copy) {
         }
     }
     includeEmptyDirs = false
+}
+
+idea {
+    project {
+        // The project.sourceCompatibility setting is not always picked up, so we set explicitly
+        languageLevel = javaVersion
+    }
+    module {
+        // Improve development experience (and IDEA's capabilities) by having source & javadoc attached
+        downloadJavadoc = true
+        downloadSources = true
+    }
 }

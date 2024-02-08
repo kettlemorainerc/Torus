@@ -1,4 +1,4 @@
-package org.usfirst.frc.team2077.common.command.autonomous;
+package org.usfirst.frc.team2077.command.autonomous;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import org.usfirst.frc.team2077.RobotHardware;

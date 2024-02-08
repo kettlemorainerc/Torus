@@ -1,4 +1,4 @@
-package org.usfirst.frc.team2077.common.subsystem;
+package org.usfirst.frc.team2077;
 
 import java.util.EnumMap;
 import java.util.HashMap;

@@ -1,0 +1,4 @@
+[submodule "common-classes/src"]
+	path = common-classes/src
+	url = https://github.com/kettlemorainerc/common-robot-classes.git
+	branch = master
