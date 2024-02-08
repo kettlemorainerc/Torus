@@ -239,10 +239,10 @@ public class SwerveMath {
                 {getWFor(FRONT_LEFT, flC, flS), getWFor(BACK_LEFT, blC, blS), getWFor(BACK_RIGHT, brC, brS), getWFor(FRONT_RIGHT, frC, frS)},
         });
 
-        double flV = fl.getVelocity(),
-                blV = bl.getVelocity(),
-                brV = br.getVelocity(),
-                frV = fr.getVelocity();
+        double flV = fl.getVelocityMeasured(),
+                blV = bl.getVelocityMeasured(),
+                brV = br.getVelocityMeasured(),
+                frV = fr.getVelocityMeasured();
 
         Matrix velocities = new Matrix(new double[][] {
                 {flV},
