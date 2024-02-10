@@ -8,18 +8,14 @@ package org.usfirst.frc.team2077;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.button.*;
-import org.usfirst.frc.team2077.command.RaiseClimber;
-import org.usfirst.frc.team2077.command.ResetGyro;
-import org.usfirst.frc.team2077.command.RunLauncher;
-import org.usfirst.frc.team2077.command.SparkMaxPIDTuner;
-import org.usfirst.frc.team2077.command.ToggleFieldOriented;
+import org.usfirst.frc.team2077.command.*;
 import org.usfirst.frc.team2077.common.command.*;
 import org.usfirst.frc.team2077.common.control.DriveJoystick;
 import org.usfirst.frc.team2077.common.control.DriveStick;
 import org.usfirst.frc.team2077.common.control.DriveXboxController;
-import org.usfirst.frc.team2077.common.subsystem.InputMap;
 import org.usfirst.frc.team2077.subsystem.Climbers;
-import org.usfirst.frc.team2077.subsystem.SwerveModule;
+import org.usfirst.frc.team2077.subsystem.Intake;
+import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -100,8 +96,11 @@ public class DriveStation {
 //        swerveVelocityPID(secondary);
 //        swerveAnglePID(secondary);
 
-//        new RaiseClimber(Climbers.Direction.UP).bind(new JoystickButton(secondary, 1));
-//        new RaiseClimber(Climbers.Direction.DOWN).bind(new JoystickButton(secondary, 5));
+        new RaiseClimber(Climbers.Direction.UP).bind(new JoystickButton(secondary, 1));
+        new RaiseClimber(Climbers.Direction.DOWN).bind(new JoystickButton(secondary, 5));
+
+        new RunIntake().bind(new JoystickButton(secondary, 0));
+        //TODO:button num tbd
     }
 
     private static void swerveVelocityPID(Joystick stick){

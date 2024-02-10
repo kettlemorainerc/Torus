@@ -1,18 +1,12 @@
 package org.usfirst.frc.team2077.common.command.autonomous;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import org.usfirst.frc.team2077.RobotHardware;
-import org.usfirst.frc.team2077.common.Clock;
 import org.usfirst.frc.team2077.common.VelocityDirection;
 import org.usfirst.frc.team2077.common.drivetrain.AbstractChassis;
 import org.usfirst.frc.team2077.common.math.Position;
-import org.usfirst.frc.team2077.subsystem.SwerveModule;
 
-import java.util.Comparator;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 public class RobotOrientedMove extends CommandBase {
 

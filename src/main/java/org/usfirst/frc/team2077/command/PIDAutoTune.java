@@ -6,7 +6,7 @@ import org.usfirst.frc.team2077.common.Clock;
 import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.command.SelfDefinedCommand;
 import org.usfirst.frc.team2077.common.drivetrain.AbstractChassis;
-import org.usfirst.frc.team2077.subsystem.SwerveModule;
+import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 import org.usfirst.frc.team2077.util.SmartDashNumber;
 import org.usfirst.frc.team2077.util.SmartDashString;
 

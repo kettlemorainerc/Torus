@@ -5,7 +5,7 @@ import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
 import org.usfirst.frc.team2077.subsystem.Climbers;
 import org.usfirst.frc.team2077.subsystem.Intake;
-import org.usfirst.frc.team2077.subsystem.SwerveModule;
+import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 
 public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChassis> {
     private static RobotHardware instance;
