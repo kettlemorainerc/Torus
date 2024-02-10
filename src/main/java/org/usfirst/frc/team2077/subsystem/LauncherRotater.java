@@ -10,7 +10,13 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
         private TalonSRX RotaryEncoder = new TalonSRX(0);
         private double currentAngle;
         private double targetAngle;
-        private double speed;
+        private double deadZone =.05;
+
+        public enum InputDir{
+            FORWARD,
+            BACKWARD,
+            FRONT
+        }
 
         public LauncherRotater() {
 
@@ -18,18 +24,24 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
         @Override
         public void periodic() {
             currentAngle = RotaryEncoder.getSensorCollection().getPulseWidthPosition();
-        }
-        public void GetTargetAngle() {
-
-        }
-
-        public void GoToTarget(){
-
+            GoToTarget(targetAngle);
         }
 
         public void RotateToIntake() {
-
+            targetAngle = (2/3)*Math.PI;
         }
+        public void RotateForward(){
+            targetAngle += .1;
+        }
+        public void RotateBackward(){
+            targetAngle -= .1;
+        }
+
+        public void GoToTarget(double targetAngle){
+            RotationControllerMotor.set(TalonSRXControlMode.PercentOutput, targetAngle/Math.abs(currentAngle)-deadZone);
+        }
+
+
 
 
     }

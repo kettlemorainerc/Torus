@@ -5,6 +5,7 @@ import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
 import org.usfirst.frc.team2077.subsystem.Climbers;
 import org.usfirst.frc.team2077.subsystem.Intake;
+import org.usfirst.frc.team2077.subsystem.LauncherRotater;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 
 public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChassis> {
@@ -17,6 +18,7 @@ public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChas
 
     public final Climbers climbers = new Climbers();
     public final Intake intake = new Intake();
+    public final LauncherRotater launcherRotater = new LauncherRotater();
 
     private final SwerveChassis chassis;
 

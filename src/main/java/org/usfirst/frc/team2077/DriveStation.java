@@ -15,6 +15,7 @@ import org.usfirst.frc.team2077.common.control.DriveStick;
 import org.usfirst.frc.team2077.common.control.DriveXboxController;
 import org.usfirst.frc.team2077.subsystem.Climbers;
 import org.usfirst.frc.team2077.subsystem.Intake;
+import org.usfirst.frc.team2077.subsystem.LauncherRotater;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 
 import java.util.ArrayList;
@@ -101,6 +102,13 @@ public class DriveStation {
 
         new RunIntake().bind(new JoystickButton(secondary, 0));
         //TODO:button num tbd
+
+        new RotateLauncher(LauncherRotater.InputDir.FORWARD).bind(new JoystickButton(secondary, 0));
+        new RotateLauncher(LauncherRotater.InputDir.BACKWARD).bind(new JoystickButton(secondary, 0));
+        new RotateLauncher(LauncherRotater.InputDir.FRONT).bind(new JoystickButton(secondary, 0));
+
+
+
     }
 
     private static void swerveVelocityPID(Joystick stick){
