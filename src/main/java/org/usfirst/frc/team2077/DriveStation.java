@@ -100,6 +100,9 @@ public class DriveStation {
         new RaiseClimber(Climbers.Direction.UP).bind(new JoystickButton(secondary, 1));
         new RaiseClimber(Climbers.Direction.DOWN).bind(new JoystickButton(secondary, 5));
 
+        new RunLauncher(1,1).bind(new JoystickButton(secondary, 0)); //launcher
+        new RunLauncher(1,-1).bind(new JoystickButton(secondary, 0)); //intake to load
+
         new RunIntake().bind(new JoystickButton(secondary, 0));
         //TODO:button num tbd
 
