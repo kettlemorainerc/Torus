@@ -5,7 +5,6 @@
 
 package org.usfirst.frc.team2077;
 
-import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.button.*;
 import org.usfirst.frc.team2077.command.*;
@@ -14,7 +13,6 @@ import org.usfirst.frc.team2077.common.control.DriveJoystick;
 import org.usfirst.frc.team2077.common.control.DriveStick;
 import org.usfirst.frc.team2077.common.control.DriveXboxController;
 import org.usfirst.frc.team2077.subsystem.Climbers;
-import org.usfirst.frc.team2077.subsystem.Intake;
 import org.usfirst.frc.team2077.subsystem.LauncherRotater;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 import org.usfirst.frc.team2077.util.AutoPIable;
@@ -64,8 +62,8 @@ public class DriveStation {
     public void bind() {
         RobotHardware hardware = RobotHardware.getInstance();
 
-        hardware.getPosition().setDefaultCommand(new CardinalMovement(driveStick));
-        hardware.getHeading().setDefaultCommand(new RotationMovement(driveStick));
+        hardware.getPosition().setDefaultCommand(new CardinalMovement(hardware, driveStick));
+        hardware.getHeading().setDefaultCommand(new RotationMovement(hardware, driveStick));
 
         bindDriverControl(driveStick);
         bindTechnicalControl(technicalStick);
@@ -110,9 +108,6 @@ public class DriveStation {
         new RotateLauncher(LauncherRotater.InputDir.FORWARD).bind(new JoystickButton(secondary, 0));
         new RotateLauncher(LauncherRotater.InputDir.BACKWARD).bind(new JoystickButton(secondary, 0));
         new RotateLauncher(LauncherRotater.InputDir.FRONT).bind(new JoystickButton(secondary, 0));
-
-
-
     }
 
     private static void swerveVelocityPID(Joystick stick){

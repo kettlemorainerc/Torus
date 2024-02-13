@@ -2,7 +2,7 @@ package org.usfirst.frc.team2077.drivetrain;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.util.Units;
-import org.usfirst.frc.team2077.common.WheelPosition;
+import org.usfirst.frc.team2077.common.*;
 import org.usfirst.frc.team2077.common.drivetrain.AbstractChassis;
 import org.usfirst.frc.team2077.common.drivetrain.DriveModuleIF;
 import org.usfirst.frc.team2077.math.SwerveMath;
@@ -25,11 +25,11 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
     private double heading = 0.0;
     private boolean fieldOriented = true;
 
-    private static EnumMap<WheelPosition, SwerveModule> buildDriveTrain() {
-        EnumMap<WheelPosition, SwerveModule> map = new EnumMap<>(WheelPosition.class);
+    private static EnumMap<RectangularWheelPosition, SwerveModule> buildDriveTrain() {
+        EnumMap<RectangularWheelPosition, SwerveModule> map = new EnumMap<>(RectangularWheelPosition.class);
 
         for(SwerveModule.MotorPosition p : SwerveModule.MotorPosition.values()){
-            map.put(WheelPosition.valueOf(p.name()), new SwerveModule(p));
+            map.put(RectangularWheelPosition.valueOf(p.name()), new SwerveModule(p));
         }
 
         return map;
@@ -71,7 +71,7 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
         double gyroOffset = Math.toRadians(gyro.getAngle());
 
-        Map<WheelPosition, SwerveTargetValues> wheelTargets;
+        Map<RectangularWheelPosition, SwerveTargetValues> wheelTargets;
 
         if(fieldOriented) {
             wheelTargets = math.targetsForVelocities(
