@@ -17,6 +17,7 @@ import org.usfirst.frc.team2077.subsystem.Climbers;
 import org.usfirst.frc.team2077.subsystem.Intake;
 import org.usfirst.frc.team2077.subsystem.LauncherRotater;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
+import org.usfirst.frc.team2077.util.AutoPIable;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -115,37 +116,20 @@ public class DriveStation {
     }
 
     private static void swerveVelocityPID(Joystick stick){
-        ArrayList<SwerveModule> modules = new ArrayList<>(RobotHardware.getInstance().getChassis().getDriveModules().values());
-        ArrayList<SparkMaxPIDController> pids = new ArrayList<>(modules.stream().map(SwerveModule::getDrivingPID).collect(Collectors.toList()));
+        ArrayList<AutoPIable> modules = new ArrayList<>(RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::getDrivingMotor).collect(Collectors.toList()));
 
-        new SparkMaxPIDTuner<>(
-            modules,
-            pids,
-            SwerveModule::calibrationSetVelocity,
-            SwerveModule::getVelocityMeasured,
-            SwerveModule::savePID,
-            0.00015, 0.0004,
-            2.0, 4,
-            SparkMaxPIDTuner.ErrorMethod.DIFFERENCE,
-            50,
+        new AutoPITuner(
+            modules, 3, 4,
             new JoystickButton(stick, 2)
         ).bind(new JoystickButton(stick, 1));
 
     }
 
     private static void swerveAnglePID(Joystick stick){
-        ArrayList<SwerveModule> modules = new ArrayList<>(RobotHardware.getInstance().getChassis().getDriveModules().values());
-        ArrayList<SparkMaxPIDController> pids = new ArrayList<>(modules.stream().map(SwerveModule::getGuidingPID).collect(Collectors.toList()));
+        ArrayList<AutoPIable> modules = new ArrayList<>(RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::getGuidingMotor).collect(Collectors.toList()));
 
-        new SparkMaxPIDTuner<>(
-            modules, pids,
-            SwerveModule::calibrationSetAngle,
-            SwerveModule::getAngle,
-            SwerveModule::savePID,
-                0.1124, 0.00003915,
-            Math.PI / 2.0, 4,
-            SparkMaxPIDTuner.ErrorMethod.ANGLE_DIFFERENCE,
-            10,
+        new AutoPITuner(
+            modules, Math.PI / 2.0, 4,
             new JoystickButton(stick, 2)
         ).bind(new JoystickButton(stick, 1));
 

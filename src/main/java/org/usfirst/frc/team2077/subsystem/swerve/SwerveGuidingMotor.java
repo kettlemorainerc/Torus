@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 import edu.wpi.first.math.controller.PIDController;
+import org.usfirst.frc.team2077.command.AutoPITuner;
 import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule.MotorPosition;
 import org.usfirst.frc.team2077.util.AutoPIable;
@@ -52,6 +53,11 @@ public class SwerveGuidingMotor extends AutoPIable {
             return;
         }
 
+        if(parent.calibrating && angleSet == 0.0){
+            angleOffset -= getAngle();
+            motor.set(0.0);
+        }
+
         double angleDiff = SwerveChassis.getAngleDifference(angleSet, getAngle());
         double p = PID.calculate(Math.abs(angleDiff), 0.0) * Math.signum(angleDiff);
         motor.set(p);
@@ -67,7 +73,6 @@ public class SwerveGuidingMotor extends AutoPIable {
     public void setAngle(double angle) {
         if(parent.calibrating){
             return;
-
         }
 
         double currentAngle = getAngle();
@@ -113,5 +118,24 @@ public class SwerveGuidingMotor extends AutoPIable {
     @Override
     public void setI(double i) {
         PID.setI(i);
+    }
+
+    @Override
+    public double tunerGet() {
+        return getAngle();
+    }
+
+    @Override
+    public void tunerSet(double angle) {
+        parent.calibrating = true;
+
+        angle %= 2.0 * Math.PI;
+        if (angle < 0) angle += 2.0 * Math.PI;
+        angleSet = angle;
+    }
+
+    @Override
+    public AutoPITuner.ErrorMethod getErrorMethod() {
+        return AutoPITuner.ErrorMethod.ANGLE_DIFFERENCE;
     }
 }

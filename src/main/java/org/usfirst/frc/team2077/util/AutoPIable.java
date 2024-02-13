@@ -1,7 +1,7 @@
 package org.usfirst.frc.team2077.util;
 
 import edu.wpi.first.wpilibj.Preferences;
-import org.usfirst.frc.team2077.command.SparkMaxPIDTuner;
+import org.usfirst.frc.team2077.command.AutoPITuner;
 
 public abstract class AutoPIable {
 
@@ -34,11 +34,14 @@ public abstract class AutoPIable {
         return Preferences.getDouble(String.format("%s-I", saveKey), 0.0);
     }
 
+    public abstract double tunerGet();
+    public abstract void tunerSet(double setpoint);
+
     public void savePI(){
         Preferences.setDouble(String.format("%s_P", saveKey), getP());
         Preferences.setDouble(String.format("%s_I", saveKey), getI());
     }
 
-    public abstract SparkMaxPIDTuner.ErrorMethod getErrorMethod();
+    public abstract AutoPITuner.ErrorMethod getErrorMethod();
 
 }

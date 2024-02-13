@@ -4,8 +4,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.util.Units;
+import org.usfirst.frc.team2077.command.AutoPITuner;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule.MotorPosition;
 import org.usfirst.frc.team2077.util.AutoPIable;
 
@@ -96,5 +96,22 @@ public class SwerveDrivingMotor extends AutoPIable {
     @Override
     public void setI(double i) {
         PID.setI(i);
+    }
+
+    @Override
+    public double tunerGet() {
+        return getVelocityMeasured();
+    }
+
+    @Override
+    public void tunerSet(double velocity) {
+        parent.calibrating = true;
+
+        setVelocity(velocity);
+    }
+
+    @Override
+    public AutoPITuner.ErrorMethod getErrorMethod() {
+        return AutoPITuner.ErrorMethod.DIFFERENCE;
     }
 }

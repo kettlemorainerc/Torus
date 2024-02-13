@@ -28,7 +28,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
         }
 
         public void RotateToIntake() {
-            targetAngle = (2/3)*Math.PI;
+            targetAngle = (2.0/3.0)*Math.PI;
         }
         public void RotateForward(){
             targetAngle += .1;
@@ -38,7 +38,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
         }
 
         public void GoToTarget(double targetAngle){
-            RotationControllerMotor.set(TalonSRXControlMode.PercentOutput, targetAngle/Math.abs(currentAngle)-deadZone);
+            RotationControllerMotor.set(TalonSRXControlMode.PercentOutput, targetAngle/Math.abs(currentAngle));
         }
 
 
