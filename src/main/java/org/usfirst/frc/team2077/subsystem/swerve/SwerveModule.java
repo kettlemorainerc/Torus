@@ -17,9 +17,9 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     public enum MotorPosition{
 
         FRONT_LEFT(2, 1, 5, 1.5),//Based on some of the numbers from ZTPHVN, TODO: check these
-        BACK_LEFT(4, 3, 5, 1),
+        BACK_LEFT(8, 7, 5, 1),
         BACK_RIGHT(6, 5, 5, 0.5),
-        FRONT_RIGHT(8,7, 5, 0),
+        FRONT_RIGHT(4,3, 5, 0),
         ;
 
         public int drivingCANid;

@@ -26,7 +26,6 @@ public class SwerveGuidingMotor extends AutoPIable {
     private double angleSet = 0.0;
 
     public SwerveGuidingMotor(SwerveModule.MotorPosition position, SwerveModule parent) {
-        super(position.name() + "_GUIDING", 0.11240000277757645, 0.000039149999793153256);
 
         this.parent = parent;
         this.position = position;
@@ -45,21 +44,19 @@ public class SwerveGuidingMotor extends AutoPIable {
         // PID.getP(), guidingCANPID.getI(), 0.0);
 
         motor.burnFlash();
+
+        init(position.name() + "_GUIDING", 0.11240000277757645, 0.000039149999793153256);
     }
 
     public void update(){
-        if(Math.abs(parent.getDrivingMotor().getVelocitySet()) < 0.01 && !parent.calibrating) {
+        if(!parent.calibrating && Math.abs(parent.getDrivingMotor().getVelocitySet()) < 0.01) {
             motor.set(0.0);
             return;
         }
 
-        if(parent.calibrating && angleSet == 0.0){
-            angleOffset -= getAngle();
-            motor.set(0.0);
-        }
-
         double angleDiff = SwerveChassis.getAngleDifference(angleSet, getAngle());
         double p = PID.calculate(Math.abs(angleDiff), 0.0) * Math.signum(angleDiff);
+//        System.out.println(PID.getP());
         motor.set(p);
     }
 
@@ -107,7 +104,7 @@ public class SwerveGuidingMotor extends AutoPIable {
 
     @Override
     public double getI() {
-        return PID.getP();
+        return PID.getI();
     }
 
     @Override
@@ -129,9 +126,20 @@ public class SwerveGuidingMotor extends AutoPIable {
     public void tunerSet(double angle) {
         parent.calibrating = true;
 
+        if (angle == 0.0) {
+            angleOffset -= getAngle();
+            motor.set(0.0);
+            return;
+        }
+
         angle %= 2.0 * Math.PI;
         if (angle < 0) angle += 2.0 * Math.PI;
         angleSet = angle;
+
+        double angleDiff = SwerveChassis.getAngleDifference(angleSet, getAngle());
+        double p = PID.calculate(Math.abs(angleDiff), 0.0) * Math.signum(angleDiff);
+        System.out.println(p);
+        motor.set(p);
     }
 
     @Override

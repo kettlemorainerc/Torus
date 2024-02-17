@@ -83,33 +83,21 @@ public class DriveStation {
     /** Bind technical driver button commands here */
     private void bindTechnicalControl(Joystick secondary) {
 
-//        new RunLauncher(5, "fast", 1).bind(new JoystickButton(secondary, 1));
-//        new RunLauncher(6, "fast", 1).bind(new JoystickButton(secondary, 1));
-//
-//        new RunLauncher(5, "in", -1).bind(new JoystickButton(secondary, 5));
-//        new RunLauncher(6, "in", -1).bind(new JoystickButton(secondary, 5));
-//
-//        new RunLauncher(7, "slow", 1).bind(new JoystickButton(secondary, 2));
-//        new RunLauncher(8, "slow", 1).bind(new JoystickButton(secondary, 2));
-//
-//        new RunLauncher(7, "slow", -1).bind(new JoystickButton(secondary, 6));
-//        new RunLauncher(8, "slow", -1).bind(new JoystickButton(secondary, 6));
-
 //        swerveVelocityPID(secondary);
-//        swerveAnglePID(secondary);
+        swerveAnglePID(secondary);
 
-        new RaiseClimber(Climbers.Direction.UP).bind(new JoystickButton(secondary, 1));
-        new RaiseClimber(Climbers.Direction.DOWN).bind(new JoystickButton(secondary, 5));
-
-        new RunLauncher(1,1).bind(new JoystickButton(secondary, 0)); //launcher
-        new RunLauncher(1,-1).bind(new JoystickButton(secondary, 0)); //intake to load
-
-        new RunIntake().bind(new JoystickButton(secondary, 0));
-        //TODO:button num tbd
-
-        new RotateLauncher(LauncherRotater.InputDir.FORWARD).bind(new JoystickButton(secondary, 0));
-        new RotateLauncher(LauncherRotater.InputDir.BACKWARD).bind(new JoystickButton(secondary, 0));
-        new RotateLauncher(LauncherRotater.InputDir.FRONT).bind(new JoystickButton(secondary, 0));
+//        new RaiseClimber(Climbers.Direction.UP).bind(new JoystickButton(secondary, 1));
+//        new RaiseClimber(Climbers.Direction.DOWN).bind(new JoystickButton(secondary, 5));
+//
+//        new RunLauncher(1,1).bind(new JoystickButton(secondary, 0)); //launcher
+//        new RunLauncher(1,-1).bind(new JoystickButton(secondary, 0)); //intake to load
+//
+//        new RunIntake().bind(new JoystickButton(secondary, 0));
+//        //TODO:button num tbd
+//
+//        new RotateLauncher(LauncherRotater.InputDir.FORWARD).bind(new JoystickButton(secondary, 0));
+//        new RotateLauncher(LauncherRotater.InputDir.BACKWARD).bind(new JoystickButton(secondary, 0));
+//        new RotateLauncher(LauncherRotater.InputDir.FRONT).bind(new JoystickButton(secondary, 0));
 
 
 
@@ -119,7 +107,7 @@ public class DriveStation {
         ArrayList<AutoPIable> modules = new ArrayList<>(RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::getDrivingMotor).collect(Collectors.toList()));
 
         new AutoPITuner(
-            modules, 3, 4,
+            modules, 3, 3,
             new JoystickButton(stick, 2)
         ).bind(new JoystickButton(stick, 1));
 
@@ -129,7 +117,7 @@ public class DriveStation {
         ArrayList<AutoPIable> modules = new ArrayList<>(RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::getGuidingMotor).collect(Collectors.toList()));
 
         new AutoPITuner(
-            modules, Math.PI / 2.0, 4,
+            modules, Math.PI / 2.0, 3,
             new JoystickButton(stick, 2)
         ).bind(new JoystickButton(stick, 1));
 

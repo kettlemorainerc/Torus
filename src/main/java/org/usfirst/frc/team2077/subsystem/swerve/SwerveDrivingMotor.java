@@ -31,8 +31,6 @@ public class SwerveDrivingMotor extends AutoPIable {
     private boolean reversed = false;
 
     public SwerveDrivingMotor(MotorPosition position, SwerveModule parent){
-        super(position.name() + "_DRIVING", 0.00004718000127468258, 0.00031408999348059297);
-
         this.parent = parent;
         this.position = position;
 //        rateLimiter = new SlewRateLimiter(6.0);
@@ -47,6 +45,8 @@ public class SwerveDrivingMotor extends AutoPIable {
         PID = motor.getPIDController();
 
         motor.burnFlash();
+
+        init(position.name() + "_DRIVING", 0.00004718000127468258, 0.00031408999348059297);
     }
 
     public void update(){
@@ -107,7 +107,13 @@ public class SwerveDrivingMotor extends AutoPIable {
     public void tunerSet(double velocity) {
         parent.calibrating = true;
 
-        setVelocity(velocity);
+        if(velocity == 0.0){
+            motor.set(0.0);
+        }else{
+            setVelocity(velocity);
+            update();
+        }
+
     }
 
     @Override

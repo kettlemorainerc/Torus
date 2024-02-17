@@ -13,7 +13,7 @@ import java.util.List;
 
 //import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 //import org.usfirst.frc.team2077.util.SmartDashNumber;
-//import org.usfirst.frc.team2077.util.SmartDashString;
+import org.usfirst.frc.team2077.util.SmartDashString;
 //
 //import java.util.ArrayList;
 //import java.util.List;
@@ -29,7 +29,7 @@ public class AutoPITuner extends SelfDefinedCommand {
         ANGLE_DIFFERENCE
     }
 //
-    private final double walkPercent = 0.33;
+    private final double walkPercent = 0.45;
     private final double entropyPercent = 0.25;
 
     private final JoystickButton endButton;
@@ -45,11 +45,13 @@ public class AutoPITuner extends SelfDefinedCommand {
     private double trial = 0;
 
     private double pt, dt;
-//
+
+    private SmartDashString debug;
+
     public AutoPITuner(
-            List<AutoPIable> modules,
-            double setpoint, double testDuration,
-            JoystickButton endButton
+        List<AutoPIable> modules,
+        double setpoint, double testDuration,
+        JoystickButton endButton
     ){
         this.modules = modules;
         this.endButton = endButton;
@@ -67,6 +69,7 @@ public class AutoPITuner extends SelfDefinedCommand {
             );
         }
 
+        debug = new SmartDashString("AutoPID", "", true);
 //        start();
     }
 
@@ -105,10 +108,12 @@ public class AutoPITuner extends SelfDefinedCommand {
         for(Tester tester : testers){
             double error = tester.getError();
 
-            if(error < bestError){
+            if(error < bestError && error != 0.0){
                 bestError = error;
                 pBest = tester.getModule().getP();
                 iBest = tester.getModule().getI();
+
+                debug.set("P: " + pBest + " I: " + iBest + " Error: " + error);
             }
         }
 
@@ -141,6 +146,8 @@ public class AutoPITuner extends SelfDefinedCommand {
             t.getModule().setP(pBest);
             t.getModule().setI(iBest);
             t.getModule().savePI();
+
+            System.out.println(pBest);
         }
         testers.forEach(Tester::end);
     }
@@ -184,6 +191,8 @@ public class AutoPITuner extends SelfDefinedCommand {
                 return;
             }
 
+            getError();
+
             module.tunerSet(setpoint);
         }
 
@@ -213,6 +222,7 @@ public class AutoPITuner extends SelfDefinedCommand {
                     if(diff < 0){
                         mod = 500;
                     }
+
                     break;
                 case ANGLE_DIFFERENCE:
                     diff = SwerveChassis.getAngleDifference(set, mes);

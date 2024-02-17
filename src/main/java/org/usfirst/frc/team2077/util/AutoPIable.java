@@ -7,17 +7,14 @@ public abstract class AutoPIable {
 
     private String saveKey;
 
-    public AutoPIable(String saveKey, double defaultP, double defaultI){
+    public void init(String saveKey, double defaultP, double defaultI){
         this.saveKey = saveKey;
-        Preferences.initDouble(String.format("%s_P", saveKey), defaultP);
-        Preferences.initDouble(String.format("%s_I", saveKey), defaultI);
+
+        Preferences.initDouble(saveKey + "_P", defaultP);
+        Preferences.initDouble(saveKey + "_I", defaultI);
 
         setP(getSavedP());
         setI(getSavedI());
-    }
-
-    public AutoPIable(String saveKey){
-        this(saveKey, 0.0, 0.0);
     }
 
     public abstract double getP();
@@ -27,19 +24,19 @@ public abstract class AutoPIable {
     public abstract void setI(double i);
 
     public double getSavedP(){
-        return Preferences.getDouble(String.format("%s-P", saveKey), 0.0);
+        return Preferences.getDouble(saveKey + "_P", 0.0);
     }
 
     public double getSavedI(){
-        return Preferences.getDouble(String.format("%s-I", saveKey), 0.0);
+        return Preferences.getDouble(saveKey + "_I", 0.0);
     }
 
     public abstract double tunerGet();
     public abstract void tunerSet(double setpoint);
 
     public void savePI(){
-        Preferences.setDouble(String.format("%s_P", saveKey), getP());
-        Preferences.setDouble(String.format("%s_I", saveKey), getI());
+        Preferences.setDouble(saveKey + "_P", getP());
+        Preferences.setDouble(saveKey + "_I", getI());
     }
 
     public abstract AutoPITuner.ErrorMethod getErrorMethod();
