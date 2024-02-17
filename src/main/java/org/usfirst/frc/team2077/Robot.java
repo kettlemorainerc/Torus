@@ -2,10 +2,17 @@ package org.usfirst.frc.team2077;
 
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.*;
+import org.usfirst.frc.team2077.common.command.autonomous.AutoLauncher;
+import org.usfirst.frc.team2077.common.command.autonomous.AutoMoveEncoderBased;
+import org.usfirst.frc.team2077.common.command.autonomous.AutoRotate;
+import org.usfirst.frc.team2077.common.command.autonomous.AutoMoveVelocityBased;
+
+import java.util.Objects;
 
 public class Robot extends TimedRobot {
     private RobotHardware hardware;
     private DriveStation driveStation;
+    private SequentialCommandGroup commands;
 
     @Override public void robotInit() {
         hardware = new RobotHardware();
@@ -19,8 +26,10 @@ public class Robot extends TimedRobot {
     /**
      * When you click the "Autonomous" option in driver station
      */
+
     @Override public void autonomousInit() {
-//        move.schedule();
+        Command testMove = new AutoMoveEncoderBased(1,0);
+        testMove.schedule();
     }
 
     /**
@@ -46,4 +55,6 @@ public class Robot extends TimedRobot {
     @Override public void disabledInit() {}
 
     @Override public void disabledPeriodic() {}
+
+
 }

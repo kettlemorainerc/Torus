@@ -22,7 +22,6 @@ public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChas
 
     public RobotHardware() {
         instance = this;
-
         chassis = new SwerveChassis();
     }
 

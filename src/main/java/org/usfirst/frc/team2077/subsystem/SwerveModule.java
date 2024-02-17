@@ -11,6 +11,8 @@ import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.drivetrain.DriveModuleIF;
 import org.usfirst.frc.team2077.drivetrain.SwerveModuleIF;
 
+import java.sql.Array;
+
 public class
 SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
@@ -40,7 +42,7 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
     private static final double angleDeadZone = 0.25;
 
-    public static final double wheelRadius = Units.inchesToMeters(2);
+    public static final double wheelRadius = Units.inchesToMeters(1.5);
     public static final double wheelDiameter = wheelRadius * 2.0;
     public static final double wheelCircumference = wheelDiameter * Math.PI;
 
@@ -281,6 +283,10 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
         setPreference("GUIDING_P", guidingCANPID.getP());
         setPreference("GUIDING_I", guidingCANPID.getP());
+    }
+
+    public double getDrivingEncoderPosition(){
+        return drivingEncoder.getPosition();
     }
 
 

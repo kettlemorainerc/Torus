@@ -60,7 +60,7 @@ public class Position extends EnumMap<VelocityDirection, Double> {
         return new double[]{get(FORWARD), get(STRAFE), get(ROTATION)};
     }
 
-    public double get(VelocityDirection axis){return get(axis);}
+//    public double get(VelocityDirection axis){return super.get(axis);}
 
     public Position copy() {
         return new Position(this);
