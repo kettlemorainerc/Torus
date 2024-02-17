@@ -20,6 +20,9 @@ public class AutoMoveVelocityBased extends CommandBase {
     private Position from, to;
     private double remainingDistance;
 
+    private double speed;
+    private double minSpeed;
+
     private double forward;
     private double strafe;
     private double direction;
@@ -49,6 +52,9 @@ public class AutoMoveVelocityBased extends CommandBase {
 
         remainingDistance = Math.hypot(forward, strafe);
 
+        speed = (double) chassis.getMaximumVelocity().get(VelocityDirection.FORWARD) * 0.5;
+        minSpeed = speed * 0.05;
+
         RobotHardware.getInstance().getChassis().setFieldOriented(false);
     }
 
@@ -57,19 +63,18 @@ public class AutoMoveVelocityBased extends CommandBase {
         Map<VelocityDirection, Double> currentVelocity = chassis.getVelocityMeasured();
 
         double dt = getDeltaTime();
-        double forwardVelocity = currentVelocity.get(VelocityDirection.FORWARD);
-        double strafeVelocity = currentVelocity.get(VelocityDirection.STRAFE);
-        double velocity = Math.hypot(forwardVelocity, strafeVelocity);
+        double measuredSpeed = Math.hypot(currentVelocity.get(VelocityDirection.FORWARD), currentVelocity.get(VelocityDirection.STRAFE));
 
-        remainingDistance -= Math.hypot(forwardVelocity * dt, strafeVelocity * dt);
+        remainingDistance -= measuredSpeed;
 
-        double stoppingDistance = Math.pow(velocity, 2) / arbitraryAcceleration;
+        double stoppingDistance = Math.pow(measuredSpeed, 2) / arbitraryAcceleration;
 
         if(stoppingDistance > remainingDistance){
-
+            speed -= arbitraryAcceleration;
+            speed = Math.max(minSpeed, measuredSpeed);
         }
 
-        chassis.setVelocityPercent(forwardMultiplier * SPEED_LIMITER , strafeMultiplier * SPEED_LIMITER );
+        chassis.setVelocityPercent(speed * Math.sin(direction) , speed * Math.cos(direction) );
     }
 
     @Override
