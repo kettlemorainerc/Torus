@@ -1,20 +1,16 @@
-package org.usfirst.frc.team2077.common.command.autonomous;
+package org.usfirst.frc.team2077.command.autonomous;
 
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.common.Clock;
-import org.usfirst.frc.team2077.common.VelocityDirection;
+import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.drivetrain.AbstractChassis;
 import org.usfirst.frc.team2077.common.math.Position;
 
-
-import java.util.Map;
-
-public class AutoMoveVelocityBased extends CommandBase {
+public class AutoMoveEncoderBased extends CommandBase {
 
     private final double SPEED_LIMITER = 0.6;
-    private final double CONVERSION_VALUE = 0.25;
 
     private AbstractChassis chassis;
 
@@ -27,19 +23,19 @@ public class AutoMoveVelocityBased extends CommandBase {
     private double forwardMultiplier;
     private double strafeMultiplier;
 
-    public AutoMoveVelocityBased(double forward, double strafe){
-        this.forward = forward * CONVERSION_VALUE;
-        this.strafe = strafe * CONVERSION_VALUE;
-    }
-
     private double lastTime;
 
-    private double getDeltaTime(){
-        double t = Clock.getSeconds();
-        double dt = t - lastTime;
-        lastTime = t;
-        return dt;
+    private double startEncoders;
+    private double currentEncoders;
+
+    public AutoMoveEncoderBased(double forward, double strafe){
+        this.forward = forward;
+        this.strafe = strafe;
     }
+
+
+
+
     @Override
     public void initialize() {
         lastTime = Clock.getSeconds();
@@ -55,18 +51,26 @@ public class AutoMoveVelocityBased extends CommandBase {
         forwardMultiplier = Math.sin(direction);
         strafeMultiplier = Math.cos(direction);
 
+
+        startEncoders = RobotHardware.getInstance().getWheel(WheelPosition.FRONT_RIGHT).getDrivingEncoderPosition() +
+                                      RobotHardware.getInstance().getWheel(WheelPosition.BACK_RIGHT).getDrivingEncoderPosition() +
+                                      RobotHardware.getInstance().getWheel(WheelPosition.BACK_LEFT).getDrivingEncoderPosition() +
+                                      RobotHardware.getInstance().getWheel(WheelPosition.FRONT_LEFT).getDrivingEncoderPosition();
+        startEncoders *= 0.25;
+
         RobotHardware.getInstance().getChassis().setFieldOriented(false);
     }
 
     @Override
     public void execute() {
-        Map<VelocityDirection, Double> currentVelocity = chassis.getVelocityMeasured();
 
-        double dt = getDeltaTime();
-        double forwardVelocity = currentVelocity.get(VelocityDirection.FORWARD);
-        double strafeVelocity = currentVelocity.get(VelocityDirection.STRAFE);
 
-        remainingDistance -= Math.hypot(forwardVelocity * dt, strafeVelocity * dt);
+        currentEncoders = RobotHardware.getInstance().getWheel(WheelPosition.FRONT_RIGHT).getDrivingEncoderPosition() +
+                RobotHardware.getInstance().getWheel(WheelPosition.BACK_RIGHT).getDrivingEncoderPosition() +
+                RobotHardware.getInstance().getWheel(WheelPosition.BACK_LEFT).getDrivingEncoderPosition() +
+                RobotHardware.getInstance().getWheel(WheelPosition.FRONT_LEFT).getDrivingEncoderPosition();
+        currentEncoders *= 0.25;
+        remainingDistance = startEncoders-currentEncoders * -1;
 
         if(isFinished()){this.end(false);}
         chassis.setVelocityPercent(forwardMultiplier * SPEED_LIMITER , strafeMultiplier * SPEED_LIMITER );

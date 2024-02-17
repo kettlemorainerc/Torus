@@ -2,12 +2,10 @@ package org.usfirst.frc.team2077;
 
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.*;
-import org.usfirst.frc.team2077.common.command.autonomous.AutoLauncher;
-import org.usfirst.frc.team2077.common.command.autonomous.AutoMoveEncoderBased;
-import org.usfirst.frc.team2077.common.command.autonomous.AutoRotate;
-import org.usfirst.frc.team2077.common.command.autonomous.AutoMoveVelocityBased;
-
-import java.util.Objects;
+import org.usfirst.frc.team2077.command.autonomous.AutoLauncher;
+import org.usfirst.frc.team2077.command.autonomous.AutoMoveEncoderBased;
+import org.usfirst.frc.team2077.command.autonomous.AutoRotate;
+import org.usfirst.frc.team2077.command.autonomous.AutoMoveVelocityBased;
 
 public class Robot extends TimedRobot {
     private RobotHardware hardware;

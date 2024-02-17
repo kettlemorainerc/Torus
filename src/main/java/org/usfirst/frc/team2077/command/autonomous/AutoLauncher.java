@@ -1,4 +1,4 @@
-package org.usfirst.frc.team2077.common.command.autonomous;
+package org.usfirst.frc.team2077.command.autonomous;
 
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
