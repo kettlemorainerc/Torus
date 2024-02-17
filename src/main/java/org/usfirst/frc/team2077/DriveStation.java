@@ -8,18 +8,16 @@ package org.usfirst.frc.team2077;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.button.*;
-import org.usfirst.frc.team2077.command.RaiseClimber;
-import org.usfirst.frc.team2077.command.ResetGyro;
-import org.usfirst.frc.team2077.command.RunLauncher;
-import org.usfirst.frc.team2077.command.SparkMaxPIDTuner;
-import org.usfirst.frc.team2077.command.ToggleFieldOriented;
+import org.usfirst.frc.team2077.command.*;
 import org.usfirst.frc.team2077.common.command.*;
 import org.usfirst.frc.team2077.common.control.DriveJoystick;
 import org.usfirst.frc.team2077.common.control.DriveStick;
 import org.usfirst.frc.team2077.common.control.DriveXboxController;
-import org.usfirst.frc.team2077.common.subsystem.InputMap;
 import org.usfirst.frc.team2077.subsystem.Climbers;
-import org.usfirst.frc.team2077.subsystem.SwerveModule;
+import org.usfirst.frc.team2077.subsystem.Intake;
+import org.usfirst.frc.team2077.subsystem.LauncherRotater;
+import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
+import org.usfirst.frc.team2077.util.AutoPIable;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -85,57 +83,41 @@ public class DriveStation {
     /** Bind technical driver button commands here */
     private void bindTechnicalControl(Joystick secondary) {
 
-//        new RunLauncher(5, "fast", 1).bind(new JoystickButton(secondary, 1));
-//        new RunLauncher(6, "fast", 1).bind(new JoystickButton(secondary, 1));
-//
-//        new RunLauncher(5, "in", -1).bind(new JoystickButton(secondary, 5));
-//        new RunLauncher(6, "in", -1).bind(new JoystickButton(secondary, 5));
-//
-//        new RunLauncher(7, "slow", 1).bind(new JoystickButton(secondary, 2));
-//        new RunLauncher(8, "slow", 1).bind(new JoystickButton(secondary, 2));
-//
-//        new RunLauncher(7, "slow", -1).bind(new JoystickButton(secondary, 6));
-//        new RunLauncher(8, "slow", -1).bind(new JoystickButton(secondary, 6));
-
 //        swerveVelocityPID(secondary);
-//        swerveAnglePID(secondary);
+        swerveAnglePID(secondary);
 
 //        new RaiseClimber(Climbers.Direction.UP).bind(new JoystickButton(secondary, 1));
 //        new RaiseClimber(Climbers.Direction.DOWN).bind(new JoystickButton(secondary, 5));
+//
+//        new RunLauncher(1,1).bind(new JoystickButton(secondary, 0)); //launcher
+//        new RunLauncher(1,-1).bind(new JoystickButton(secondary, 0)); //intake to load
+//
+//        new RunIntake().bind(new JoystickButton(secondary, 0));
+//        //TODO:button num tbd
+//
+//        new RotateLauncher(LauncherRotater.InputDir.FORWARD).bind(new JoystickButton(secondary, 0));
+//        new RotateLauncher(LauncherRotater.InputDir.BACKWARD).bind(new JoystickButton(secondary, 0));
+//        new RotateLauncher(LauncherRotater.InputDir.FRONT).bind(new JoystickButton(secondary, 0));
+
+
+
     }
 
     private static void swerveVelocityPID(Joystick stick){
-        ArrayList<SwerveModule> modules = new ArrayList<>(RobotHardware.getInstance().getChassis().getDriveModules().values());
-        ArrayList<SparkMaxPIDController> pids = new ArrayList<>(modules.stream().map(SwerveModule::getDrivingPID).collect(Collectors.toList()));
+        ArrayList<AutoPIable> modules = new ArrayList<>(RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::getDrivingMotor).collect(Collectors.toList()));
 
-        new SparkMaxPIDTuner<>(
-            modules,
-            pids,
-            SwerveModule::calibrationSetVelocity,
-            SwerveModule::getVelocityMeasured,
-            SwerveModule::savePID,
-            0.00015, 0.0004,
-            2.0, 4,
-            SparkMaxPIDTuner.ErrorMethod.DIFFERENCE,
-            50,
+        new AutoPITuner(
+            modules, 3, 3,
             new JoystickButton(stick, 2)
         ).bind(new JoystickButton(stick, 1));
 
     }
 
     private static void swerveAnglePID(Joystick stick){
-        ArrayList<SwerveModule> modules = new ArrayList<>(RobotHardware.getInstance().getChassis().getDriveModules().values());
-        ArrayList<SparkMaxPIDController> pids = new ArrayList<>(modules.stream().map(SwerveModule::getGuidingPID).collect(Collectors.toList()));
+        ArrayList<AutoPIable> modules = new ArrayList<>(RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::getGuidingMotor).collect(Collectors.toList()));
 
-        new SparkMaxPIDTuner<>(
-            modules, pids,
-            SwerveModule::calibrationSetAngle,
-            SwerveModule::getAngle,
-            SwerveModule::savePID,
-                0.1124, 0.00003915,
-            Math.PI / 2.0, 4,
-            SparkMaxPIDTuner.ErrorMethod.ANGLE_DIFFERENCE,
-            10,
+        new AutoPITuner(
+            modules, Math.PI / 2.0, 3,
             new JoystickButton(stick, 2)
         ).bind(new JoystickButton(stick, 1));
 

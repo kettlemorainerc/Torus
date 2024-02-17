@@ -2,23 +2,16 @@ package org.usfirst.frc.team2077.drivetrain;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.ADIS16470_IMU;
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-import org.usfirst.frc.team2077.RobotHardware;
-import org.usfirst.frc.team2077.common.VelocityDirection;
 import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.drivetrain.AbstractChassis;
 import org.usfirst.frc.team2077.common.drivetrain.DriveModuleIF;
-import org.usfirst.frc.team2077.common.sensor.AngleSensor;
 import org.usfirst.frc.team2077.math.SwerveMath;
 import org.usfirst.frc.team2077.math.SwerveTargetValues;
-import org.usfirst.frc.team2077.subsystem.SwerveModule;
+import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.Map;
-
-import static org.usfirst.frc.team2077.common.VelocityDirection.*;
 
 public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
@@ -114,5 +107,11 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
     public void setFieldOriented(boolean v){
         fieldOriented = v;
+    }
+
+    public static double getAngleDifference(double from, double to) {
+        double diff = from - to;
+        if(Math.abs(diff) > Math.PI) diff -= 2 * Math.PI * Math.signum(diff);
+        return diff;
     }
 }

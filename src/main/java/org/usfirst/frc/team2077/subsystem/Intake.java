@@ -25,7 +25,7 @@ public class Intake implements Subsystem {
     }
     public void StopIntake(){
         BackMotor.set(TalonSRXControlMode.PercentOutput, 0f);
-
+        FrontMotor.set(TalonSRXControlMode.PercentOutput, 0f);
     }
 
 }
