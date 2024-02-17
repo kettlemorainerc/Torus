@@ -7,6 +7,7 @@ import org.usfirst.frc.team2077.common.Clock;
 import org.usfirst.frc.team2077.common.VelocityDirection;
 import org.usfirst.frc.team2077.common.drivetrain.AbstractChassis;
 import org.usfirst.frc.team2077.common.math.Position;
+import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
 
 
 import java.util.Map;
@@ -15,7 +16,7 @@ public class AutoMoveVelocityBased extends CommandBase {
 
     private static final double arbitraryAcceleration = 6.0;
 
-    private AbstractChassis chassis;
+    private SwerveChassis chassis;
 
     private Position from, to;
     private double remainingDistance;
@@ -52,10 +53,10 @@ public class AutoMoveVelocityBased extends CommandBase {
 
         remainingDistance = Math.hypot(forward, strafe);
 
-        speed = (double) chassis.getMaximumVelocity().get(VelocityDirection.FORWARD) * 0.5;
+        speed = chassis.getMaximumVelocity().get(VelocityDirection.FORWARD) * 0.5;
         minSpeed = speed * 0.05;
 
-        RobotHardware.getInstance().getChassis().setFieldOriented(false);
+        chassis.setFieldOriented(false);
     }
 
     @Override
@@ -71,15 +72,15 @@ public class AutoMoveVelocityBased extends CommandBase {
 
         if(stoppingDistance > remainingDistance){
             speed -= arbitraryAcceleration;
-            speed = Math.max(minSpeed, measuredSpeed);
+            speed = Math.max(minSpeed, speed);
         }
 
-        chassis.setVelocityPercent(speed * Math.sin(direction) , speed * Math.cos(direction) );
+        chassis.setVelocityPercent(speed * Math.sin(direction), speed * Math.cos(direction));
     }
 
     @Override
     public void end(boolean interrupted) {
-        RobotHardware.getInstance().getChassis().setFieldOriented(true);
+        chassis.setFieldOriented(true);
         chassis.halt();
     }
 
