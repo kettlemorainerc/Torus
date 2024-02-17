@@ -13,8 +13,7 @@ import java.util.Map;
 
 public class AutoMoveVelocityBased extends CommandBase {
 
-    private final double SPEED_LIMITER = 0.6;
-    private final double CONVERSION_VALUE = 0.25;
+    private static final double arbitraryAcceleration = 6.0;
 
     private AbstractChassis chassis;
 
@@ -24,12 +23,10 @@ public class AutoMoveVelocityBased extends CommandBase {
     private double forward;
     private double strafe;
     private double direction;
-    private double forwardMultiplier;
-    private double strafeMultiplier;
 
     public AutoMoveVelocityBased(double forward, double strafe){
-        this.forward = forward * CONVERSION_VALUE;
-        this.strafe = strafe * CONVERSION_VALUE;
+        this.forward = forward;
+        this.strafe = strafe;
     }
 
     private double lastTime;
@@ -52,9 +49,6 @@ public class AutoMoveVelocityBased extends CommandBase {
 
         remainingDistance = Math.hypot(forward, strafe);
 
-        forwardMultiplier = Math.sin(direction);
-        strafeMultiplier = Math.cos(direction);
-
         RobotHardware.getInstance().getChassis().setFieldOriented(false);
     }
 
@@ -65,20 +59,27 @@ public class AutoMoveVelocityBased extends CommandBase {
         double dt = getDeltaTime();
         double forwardVelocity = currentVelocity.get(VelocityDirection.FORWARD);
         double strafeVelocity = currentVelocity.get(VelocityDirection.STRAFE);
+        double velocity = Math.hypot(forwardVelocity, strafeVelocity);
 
         remainingDistance -= Math.hypot(forwardVelocity * dt, strafeVelocity * dt);
 
-        if(isFinished()){this.end(false);}
+        double stoppingDistance = Math.pow(velocity, 2) / arbitraryAcceleration;
+
+        if(stoppingDistance > remainingDistance){
+
+        }
+
         chassis.setVelocityPercent(forwardMultiplier * SPEED_LIMITER , strafeMultiplier * SPEED_LIMITER );
     }
 
     @Override
     public void end(boolean interrupted) {
+        RobotHardware.getInstance().getChassis().setFieldOriented(true);
         chassis.halt();
     }
 
     @Override public boolean isFinished(){
-        return(remainingDistance <= 0);
+        return (remainingDistance <= 0);
     }
 
 }
