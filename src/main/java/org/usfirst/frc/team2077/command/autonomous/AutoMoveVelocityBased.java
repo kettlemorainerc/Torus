@@ -7,30 +7,29 @@ import org.usfirst.frc.team2077.common.Clock;
 import org.usfirst.frc.team2077.common.VelocityDirection;
 import org.usfirst.frc.team2077.common.drivetrain.AbstractChassis;
 import org.usfirst.frc.team2077.common.math.Position;
-import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
 
 
 import java.util.Map;
 
 public class AutoMoveVelocityBased extends CommandBase {
 
-    private static final double arbitraryAcceleration = 6.0;
+    private final double SPEED_LIMITER = 0.6;
+    private final double CONVERSION_VALUE = 0.25;
 
-    private SwerveChassis chassis;
+    private AbstractChassis chassis;
 
     private Position from, to;
     private double remainingDistance;
 
-    private double speed;
-    private double minSpeed;
-
     private double forward;
     private double strafe;
     private double direction;
+    private double forwardMultiplier;
+    private double strafeMultiplier;
 
     public AutoMoveVelocityBased(double forward, double strafe){
-        this.forward = forward;
-        this.strafe = strafe;
+        this.forward = forward * CONVERSION_VALUE;
+        this.strafe = strafe * CONVERSION_VALUE;
     }
 
     private double lastTime;
@@ -53,10 +52,10 @@ public class AutoMoveVelocityBased extends CommandBase {
 
         remainingDistance = Math.hypot(forward, strafe);
 
-        speed = chassis.getMaximumVelocity().get(VelocityDirection.FORWARD) * 0.5;
-        minSpeed = speed * 0.05;
+        forwardMultiplier = Math.sin(direction);
+        strafeMultiplier = Math.cos(direction);
 
-        chassis.setFieldOriented(false);
+        RobotHardware.getInstance().getChassis().setFieldOriented(false);
     }
 
     @Override
@@ -64,28 +63,23 @@ public class AutoMoveVelocityBased extends CommandBase {
         Map<VelocityDirection, Double> currentVelocity = chassis.getVelocityMeasured();
 
         double dt = getDeltaTime();
-        double measuredSpeed = Math.hypot(currentVelocity.get(VelocityDirection.FORWARD), currentVelocity.get(VelocityDirection.STRAFE));
+        double forwardVelocity = currentVelocity.get(VelocityDirection.FORWARD);
+        double strafeVelocity = currentVelocity.get(VelocityDirection.STRAFE);
 
-        remainingDistance -= measuredSpeed;
+        remainingDistance -= Math.hypot(forwardVelocity * dt, strafeVelocity * dt);
 
-        double stoppingDistance = Math.pow(measuredSpeed, 2) / arbitraryAcceleration;
-
-        if(stoppingDistance > remainingDistance){
-            speed -= arbitraryAcceleration;
-            speed = Math.max(minSpeed, speed);
-        }
-
-        chassis.setVelocityPercent(speed * Math.sin(direction), speed * Math.cos(direction));
+        if(isFinished()){this.end(false);}
+        chassis.setVelocityPercent(forwardMultiplier * SPEED_LIMITER , strafeMultiplier * SPEED_LIMITER );
     }
 
     @Override
     public void end(boolean interrupted) {
-        chassis.setFieldOriented(true);
+        RobotHardware.getInstance().getChassis().setFieldOriented(true);
         chassis.halt();
     }
 
     @Override public boolean isFinished(){
-        return (remainingDistance <= 0);
+        return(remainingDistance <= 0);
     }
 
 }

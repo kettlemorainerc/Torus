@@ -79,7 +79,7 @@ public class SwerveGuidingMotor extends AutoPIable {
         boolean reversed = drivingMotor.getReversed();
         double velocitySet = drivingMotor.getVelocitySet();
 
-        if (Math.abs(velocitySet) > 0.1) {
+        if (Math.abs(velocitySet) > 0.5) {
             if (reversed) {
                 angle -= Math.PI;
             }

@@ -4,37 +4,31 @@ package org.usfirst.frc.team2077.subsystem;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import org.usfirst.frc.team2077.util.SmartDashNumber;
 
 public class Climbers implements Subsystem {
-    //TODO: determine device numbers
-    private TalonSRX rightMotor = new TalonSRX(0);
-    private TalonSRX leftMotor = new TalonSRX(0);
+    private TalonSRX rightMotor = new TalonSRX(14);
+    private TalonSRX leftMotor = new TalonSRX(15);
 
-    //TODO: determine directions
-    private double leftUpDirection = 1;
-    private double rightUpDirection = -1;
-    //TODO: speed TBD
-    private double speed = 0.1d;
-
-    public enum Direction {
-        UP,
-        DOWN;
-    }
+    private SmartDashNumber speed = new SmartDashNumber("climber percent", 0.0, true);
 
     public Climbers(){
-        //Dear Henry
-        //Yes
-        //Sincerely, Dustin
+
     }
 
-
-    public void raise(){
-        leftMotor.set(TalonSRXControlMode.PercentOutput, leftUpDirection * speed);
-        rightMotor.set(TalonSRXControlMode.PercentOutput, rightUpDirection * speed);
+    public void raise(boolean left, boolean right){
+        if(left) leftMotor.set(TalonSRXControlMode.PercentOutput, -speed.get());
+        if(right) rightMotor.set(TalonSRXControlMode.PercentOutput, speed.get());
     }
-    public void lower(){
-        leftMotor.set(TalonSRXControlMode.PercentOutput, -leftUpDirection * speed);
-        rightMotor.set(TalonSRXControlMode.PercentOutput, -rightUpDirection * speed);
+
+    public void lower(boolean left, boolean right){
+        if(left) leftMotor.set(TalonSRXControlMode.PercentOutput, speed.get());
+        if(right) rightMotor.set(TalonSRXControlMode.PercentOutput, -speed.get());
+    }
+
+    public void stop(){
+        leftMotor.set(TalonSRXControlMode.PercentOutput, 0.0);
+        rightMotor.set(TalonSRXControlMode.PercentOutput, 0.0);
     }
 
 }

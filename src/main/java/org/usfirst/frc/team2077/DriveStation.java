@@ -15,7 +15,6 @@ import org.usfirst.frc.team2077.common.control.DriveStick;
 import org.usfirst.frc.team2077.common.control.DriveXboxController;
 import org.usfirst.frc.team2077.subsystem.Climbers;
 import org.usfirst.frc.team2077.subsystem.Intake;
-import org.usfirst.frc.team2077.subsystem.LauncherRotater;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 import org.usfirst.frc.team2077.util.AutoPIable;
 
@@ -84,21 +83,20 @@ public class DriveStation {
     private void bindTechnicalControl(Joystick secondary) {
 
 //        swerveVelocityPID(secondary);
-        swerveAnglePID(secondary);
+//        swerveAnglePID(secondary);
 
-//        new RaiseClimber(Climbers.Direction.UP).bind(new JoystickButton(secondary, 1));
-//        new RaiseClimber(Climbers.Direction.DOWN).bind(new JoystickButton(secondary, 5));
-//
-//        new RunLauncher(1,1).bind(new JoystickButton(secondary, 0)); //launcher
-//        new RunLauncher(1,-1).bind(new JoystickButton(secondary, 0)); //intake to load
-//
-//        new RunIntake().bind(new JoystickButton(secondary, 0));
-//        //TODO:button num tbd
-//
-//        new RotateLauncher(LauncherRotater.InputDir.FORWARD).bind(new JoystickButton(secondary, 0));
-//        new RotateLauncher(LauncherRotater.InputDir.BACKWARD).bind(new JoystickButton(secondary, 0));
-//        new RotateLauncher(LauncherRotater.InputDir.FRONT).bind(new JoystickButton(secondary, 0));
+        new RunLauncher(RunLauncher.Speed.FAST).bind(new JoystickButton(secondary, 1));
+        new RunLauncher(RunLauncher.Speed.SLOW).bind(new JoystickButton(secondary, 5));
 
+        new FeedLauncher().bind(new JoystickButton(secondary, 2));
+
+        new RunIntake(RunIntake.Direction.IN).bind(new JoystickButton(secondary, 6));
+        new RunIntake(RunIntake.Direction.OUT).bind(new JoystickButton(secondary, 7));
+
+        new RotateLauncher(1).bind(new JoystickButton(secondary, 4));
+        new RotateLauncher(-1).bind(new JoystickButton(secondary, 8));
+
+        new SetLauncherAngle(-30).bind(new JoystickButton(secondary, 12));
 
 
     }

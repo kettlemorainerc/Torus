@@ -2,30 +2,29 @@ package org.usfirst.frc.team2077.subsystem;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import org.usfirst.frc.team2077.util.SmartDashNumber;
 
 public class Intake implements Subsystem {
-    //Banebots RS550 motors
-    //TODO: device number tbd
-    private TalonSRX FrontMotor = new TalonSRX(0);
-    private TalonSRX BackMotor = new TalonSRX(0);
+    private TalonSRX motor;
 
-    private double speed = 1;
-    //TODO: speed tbd
+    private SmartDashNumber speed = new SmartDashNumber("intake percent", 0.0, true);
 
-    public Intake(){
-
+    public Intake() {
+        motor = new TalonSRX(13);
     }
 
-    public void FrontIntakeRun(){
-        FrontMotor.set(TalonSRXControlMode.PercentOutput, speed);
+    public void run(){
+        motor.set(TalonSRXControlMode.PercentOutput, speed.get());
     }
-    public void BackIntakeRun(){
-        BackMotor.set(TalonSRXControlMode.PercentOutput, speed);
+
+    public void reverse(){
+        motor.set(TalonSRXControlMode.PercentOutput, -speed.get());
     }
-    public void StopIntake(){
-        BackMotor.set(TalonSRXControlMode.PercentOutput, 0f);
-        FrontMotor.set(TalonSRXControlMode.PercentOutput, 0f);
+
+    public void stop(){
+        motor.set(TalonSRXControlMode.PercentOutput, 0.0);
     }
 
 }

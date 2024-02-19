@@ -13,8 +13,8 @@ import org.usfirst.frc.team2077.drivetrain.SwerveModuleIF;
 
 import java.sql.Array;
 
-public class
-SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
+//UNUSED
+public class SwerveSubsystem implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
     public enum MotorPosition{
 
@@ -71,7 +71,7 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
     //P: 0.12839818, I: 0.00006161
 
-    public SwerveModule(MotorPosition position){
+    public SwerveSubsystem(MotorPosition position){
         this.position = position;
         angleOffset = position.angleOffset;
 
@@ -282,7 +282,7 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         setPreference("DRIVING_I", drivingPID.getI());
 
         setPreference("GUIDING_P", guidingCANPID.getP());
-        setPreference("GUIDING_I", guidingCANPID.getP());
+        setPreference("GUIDING_I", guidingCANPID.getI());
     }
 
     public double getDrivingEncoderPosition(){
