@@ -6,7 +6,9 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.util.Units;
+import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.command.AutoPITuner;
+import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule.MotorPosition;
 import org.usfirst.frc.team2077.util.AutoPIable;
 
@@ -34,7 +36,7 @@ public class SwerveDrivingMotor extends AutoPIable {
     public SwerveDrivingMotor(MotorPosition position, SwerveModule parent){
         this.parent = parent;
         this.position = position;
-        rateLimiter = new SlewRateLimiter(12.0);
+        rateLimiter = new SlewRateLimiter(10.0);
 
         motor = new CANSparkMax(position.drivingCANid, CANSparkMaxLowLevel.MotorType.kBrushless);
         motor.setIdleMode(CANSparkMax.IdleMode.kBrake);
@@ -51,6 +53,16 @@ public class SwerveDrivingMotor extends AutoPIable {
     }
 
     public void update(){
+        if(
+            (Math.abs(velocitySet) < 0.05 && RobotHardware.getInstance().getChassis().mode == SwerveChassis.DriveMode.BRAKE) ||
+            (!parent.atAngle && RobotHardware.getInstance().getChassis().mode == SwerveChassis.DriveMode.ANGLE_REQ)
+
+        ){
+            motor.set(0.0);
+            rateLimiter.reset(0.0);
+            return;
+        }
+
         PID.setReference(
             rateLimiter.calculate(
                 (velocitySet) * (reversed? -1 : 1)

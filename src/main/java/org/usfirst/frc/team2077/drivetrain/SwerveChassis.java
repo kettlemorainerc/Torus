@@ -16,7 +16,14 @@ import java.util.Map;
 public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
     public static final double wheelBaseLength = Units.inchesToMeters(36.5);//19.25);
+
+    public enum DriveMode{
+        BRAKE, COAST, ANGLE_REQ;
+    }
+
     public static final double wheelBaseWidth = Units.inchesToMeters(36.5);//22.5);
+
+    public DriveMode mode = DriveMode.COAST;
 
     private final SwerveMath math;
     //ADIS16470_IMU is the class used in the provided swerve code //TODO: check gyro

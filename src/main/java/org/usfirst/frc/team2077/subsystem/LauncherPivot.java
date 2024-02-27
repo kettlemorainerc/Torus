@@ -3,28 +3,36 @@ package org.usfirst.frc.team2077.subsystem;
 import com.ctre.phoenix.motorcontrol.SensorCollection;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
 import org.usfirst.frc.team2077.util.SmartDashNumber;
+import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
 
 public class LauncherPivot implements Subsystem {
 
-    private TalonSRX motor;
+    private CANSparkMax motor;
     private SensorCollection encoder;
 
     private double target = 0.0;
-    private static final double deadzone = 2.0;
+    private static final double deadzone = 1.0;
 
     private boolean targeting = false;
 
-    private final SmartDashNumber speed = new SmartDashNumber("Launcher rotator speed", 0.0, true);
+    private final SmartDashRobotPreference maxSpeed = new SmartDashRobotPreference("Launcher pivot max speed", 0.6);
+    private final SmartDashRobotPreference rampRate = new SmartDashRobotPreference("Launcher pivot inverse ramp rate", 35.0);
+    private final SmartDashRobotPreference minSpeed = new SmartDashRobotPreference("Launcher pivot min speed", 0.075);
+
     private final SmartDashNumber displayAngle = new SmartDashNumber("Launcher angle", 0.0, true);
 
-    private static final double zeroOffset = 1760;
+    private static final double zeroOffset = 214.1;
 
     public LauncherPivot(){
-        motor = new TalonSRX(14);
-        encoder = new TalonSRX(11).getSensorCollection();
+        motor = new CANSparkMax(15, CANSparkMaxLowLevel.MotorType.kBrushed);
+        encoder = new TalonSRX(16).getSensorCollection();
+
+        motor.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
         this.register();
     }
@@ -37,32 +45,41 @@ public class LauncherPivot implements Subsystem {
     }
 
     public void run(double p){
-        motor.set(TalonSRXControlMode.PercentOutput, p);
+        motor.set(p);
 
         double angle = getAngle();
-        double dir = Math.signum(p);
+        double d = Math.signum(p);
 
         //Softstops:
-        if(angle < -45 && dir == -1){
+        if(angle < -45 && d == -1){
             stop();
         }
 
-        if(angle > 120 && dir == 1){
+        if(angle > 120 && d == 1){
             stop();
         }
     }
 
     public void moveTowardsTarget(){
-        double angleDiff = SwerveChassis.getAngleDifferenceDegrees(getAngle(), target);
-        double p = -Math.signum(angleDiff) * speed.get();
+        double angleDiff = getAngle() - target;
+        double dir = -Math.signum(angleDiff);
+        double percent = maxSpeed.get();
+
+        System.out.println(angleDiff);
 
         if(Math.abs(angleDiff) > deadzone){
 
-            if(Math.abs(angleDiff) < 4){
-                p *= 0.5;
-            }
             //Ideally this is changed to be PID or some other form of feedback control
-            run(p);
+            double rate = rampRate.get();
+            if(rate == 0){
+                rate = 1;
+            }
+            percent *= (Math.abs(angleDiff) / rate);
+
+            if(percent < minSpeed.get()) percent = minSpeed.get();
+            if(percent > maxSpeed.get()) percent = maxSpeed.get();
+
+            run(percent * dir);
         }else{
             stop();
         }
@@ -75,15 +92,22 @@ public class LauncherPivot implements Subsystem {
     }
 
     public void stop(){
-        motor.set(TalonSRXControlMode.PercentOutput, 0.0);
+        motor.set(0.0);
         targeting = false;
     }
 
     public double getAngle() {
         double raw = encoder.getPulseWidthPosition();
-        double angle = (raw - zeroOffset) * 360.0 / -4096.0;
+        return raw * (360.0 / -4096.0) + zeroOffset;
+    }
 
-        return angle;
+    public void setTargeting(boolean t){
+        targeting = t;
+    }
+
+    public boolean atTarget(){
+        double angleDiff = SwerveChassis.getAngleDifferenceDegrees(getAngle(), target);
+        return Math.abs(angleDiff) < deadzone;
     }
 
 }

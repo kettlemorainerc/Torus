@@ -7,6 +7,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.drivetrain.DriveModuleIF;
 import org.usfirst.frc.team2077.drivetrain.SwerveModuleIF;
@@ -16,7 +17,7 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
     public enum MotorPosition{
 
-        FRONT_LEFT(2, 1, 5, 1.5),//Based on some of the numbers from ZTPHVN, TODO: check these
+        FRONT_LEFT(2, 1, 5, 1.5),
         BACK_LEFT(8, 7, 5, 1),
         BACK_RIGHT(6, 5, 5, 0.5),
         FRONT_RIGHT(4,3, 5, 0),
@@ -37,6 +38,7 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     private final MotorPosition position;
 
     public boolean calibrating = false;
+    public boolean atAngle = false;
 
     private final SwerveDrivingMotor drivingMotor;
     private final SwerveGuidingMotor guidingMotor;
@@ -53,6 +55,8 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     @Override
     public void periodic(){
         if(calibrating) return;
+
+        if(position == MotorPosition.FRONT_LEFT) atAngle = RobotHardware.getInstance().getChassis().getDriveModules().values().stream().allMatch(SwerveModule::isAtAngle);
 
         drivingMotor.update();
         guidingMotor.update();
@@ -86,6 +90,10 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     @Override
     public double getAngle() {
         return guidingMotor.getAngle();
+    }
+
+    public boolean isAtAngle(){
+        return guidingMotor.atAngle();
     }
 
     @Override

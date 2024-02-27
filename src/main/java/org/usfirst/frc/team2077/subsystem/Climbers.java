@@ -3,32 +3,44 @@ package org.usfirst.frc.team2077.subsystem;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.usfirst.frc.team2077.util.SmartDashNumber;
+import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
 
 public class Climbers implements Subsystem {
-    private TalonSRX rightMotor = new TalonSRX(14);
-    private TalonSRX leftMotor = new TalonSRX(15);
 
-    private SmartDashNumber speed = new SmartDashNumber("climber percent", 0.0, true);
+    public enum RobotSide{
+        LEFT, RIGHT;
+    }
+
+    private CANSparkMax rightMotor;
+    private CANSparkMax leftMotor;
+
+    private SmartDashRobotPreference speed = new SmartDashRobotPreference("climber percent", 0.8);
 
     public Climbers(){
+        rightMotor = new CANSparkMax(9, CANSparkMaxLowLevel.MotorType.kBrushed);
+        leftMotor = new CANSparkMax(10, CANSparkMaxLowLevel.MotorType.kBrushed);
 
+        rightMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+        rightMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
     }
 
-    public void raise(boolean left, boolean right){
-        if(left) leftMotor.set(TalonSRXControlMode.PercentOutput, -speed.get());
-        if(right) rightMotor.set(TalonSRXControlMode.PercentOutput, speed.get());
+    public void raise(RobotSide side){
+        if(side == RobotSide.LEFT)       leftMotor.set(-speed.get());
+        else if(side == RobotSide.RIGHT) rightMotor.set(speed.get());
     }
 
-    public void lower(boolean left, boolean right){
-        if(left) leftMotor.set(TalonSRXControlMode.PercentOutput, speed.get());
-        if(right) rightMotor.set(TalonSRXControlMode.PercentOutput, -speed.get());
+    public void lower(RobotSide side){
+        if(side == RobotSide.LEFT)       leftMotor.set(speed.get());
+        else if(side == RobotSide.RIGHT) rightMotor.set(-speed.get());
     }
 
-    public void stop(){
-        leftMotor.set(TalonSRXControlMode.PercentOutput, 0.0);
-        rightMotor.set(TalonSRXControlMode.PercentOutput, 0.0);
+    public void stop(RobotSide side){
+        if(side == RobotSide.LEFT)       leftMotor.set(0.0);
+        else if(side == RobotSide.RIGHT) rightMotor.set(0.0);
     }
 
 }

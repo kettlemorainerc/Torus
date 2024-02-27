@@ -75,6 +75,7 @@ public class DriveStation {
 
         new ResetGyro().bind(new JoystickButton(primary, 3));
         new ToggleFieldOriented().bind(new JoystickButton(primary, 6));
+        new ToggleBreakMode().bind(new JoystickButton(primary, 5));
 
 //        primary.getRightTriggerAxis()
     }
@@ -93,11 +94,18 @@ public class DriveStation {
         new RunIntake(RunIntake.Direction.IN).bind(new JoystickButton(secondary, 6));
         new RunIntake(RunIntake.Direction.OUT).bind(new JoystickButton(secondary, 7));
 
-        new RotateLauncher(1).bind(new JoystickButton(secondary, 4));
-        new RotateLauncher(-1).bind(new JoystickButton(secondary, 8));
+//        new RotateLauncher(1).bind(new JoystickButton(secondary, 4));
+//        new RotateLauncher(-1).bind(new JoystickButton(secondary, 8));
 
-        new SetLauncherAngle(-30).bind(new JoystickButton(secondary, 12));
+        new SetLauncherAngle("Launcher set angle 1", 119).bind(new JoystickButton(secondary, 4));
+        new SetLauncherAngle("Launcher set angle 2", -21).bind(new JoystickButton(secondary, 8));
+        new SetLauncherAngle("Launcher set angle 3", 21).bind(new JoystickButton(secondary, 12));
 
+        new RaiseClimber(Climbers.RobotSide.LEFT, RaiseClimber.Direction.RAISE).bind(new JoystickButton(secondary, 9));
+        new RaiseClimber(Climbers.RobotSide.RIGHT, RaiseClimber.Direction.RAISE).bind(new JoystickButton(secondary, 10));
+
+        new RaiseClimber(Climbers.RobotSide.LEFT, RaiseClimber.Direction.LOWER).bind(new JoystickButton(secondary, 13));
+        new RaiseClimber(Climbers.RobotSide.RIGHT, RaiseClimber.Direction.LOWER).bind(new JoystickButton(secondary, 14));
 
     }
 

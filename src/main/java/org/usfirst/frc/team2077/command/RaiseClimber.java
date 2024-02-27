@@ -6,44 +6,41 @@ import org.usfirst.frc.team2077.subsystem.Climbers;
 
 public class RaiseClimber extends RepeatedCommand {
 
-    public enum Climber{
-        LEFT, RIGHT;
-    }
-
     public enum Direction{
         RAISE, LOWER;
     }
 
-    private Climber climber;
+    private Climbers.RobotSide side;
     private Direction direction;
 
     private Climbers climbers;
 
-    public RaiseClimber(Climber climber, Direction direction){
+    public RaiseClimber(Climbers.RobotSide side, Direction direction){
         climbers = RobotHardware.getInstance().climbers;
 
-        this.climber = climber;
+        this.side = side;
         this.direction = direction;
     }
 
     public void initialize(){
-    }
-
-    @Override
-    public void execute() {
         switch(direction){
             case RAISE:
-                climbers.raise(climber == Climber.LEFT, climber == Climber.RIGHT);
+                climbers.raise(side);
                 break;
             case LOWER:
-                climbers.lower(climber == Climber.LEFT, climber == Climber.RIGHT);
+                climbers.lower(side);
                 break;
         }
     }
 
     @Override
+    public void execute() {
+        ;
+    }
+
+    @Override
     public void end(boolean interrupted) {
-        climbers.stop();
+        climbers.stop(side);
     }
 
 }
