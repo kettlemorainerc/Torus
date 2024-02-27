@@ -120,4 +120,9 @@ public class SwerveDrivingMotor extends AutoPIable {
     public AutoPITuner.ErrorMethod getErrorMethod() {
         return AutoPITuner.ErrorMethod.DIFFERENCE;
     }
+
+
+    public double getDrivingEncoderPosition(){
+        return encoder.getPosition();
+    }
 }

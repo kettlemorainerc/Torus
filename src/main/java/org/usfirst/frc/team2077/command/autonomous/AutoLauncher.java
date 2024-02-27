@@ -3,16 +3,20 @@ package org.usfirst.frc.team2077.command.autonomous;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.common.Clock;
-
+//TODO
 public class AutoLauncher extends CommandBase {
-    TalonSRX motor1 = new TalonSRX(5);
-    TalonSRX motor2 = new TalonSRX(6);
+    TalonSRX motor1;
+    TalonSRX motor2;
+
     double shootTime;
     double startTime;
-
-    public AutoLauncher(double time){
+    RobotHardware hardware;
+    public AutoLauncher(double time, RobotHardware hardware){
         shootTime = time;
+        this.hardware = hardware;
+
     }
 
     @Override
