@@ -1,36 +1,35 @@
 package org.usfirst.frc.team2077.command;
 
-import com.ctre.phoenix.motorcontrol.SensorCollection;
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import org.usfirst.frc.team2077.RobotHardware;
-import org.usfirst.frc.team2077.common.VelocityDirection;
 import org.usfirst.frc.team2077.common.command.RepeatedCommand;
+import org.usfirst.frc.team2077.common.command.SelfDefinedCommand;
 import org.usfirst.frc.team2077.subsystem.LauncherPivot;
 import org.usfirst.frc.team2077.util.SmartDashNumber;
 
-import java.util.Map;
+public class SetLauncherAngle extends RepeatedCommand {
 
-public class RotateLauncher extends RepeatedCommand {
-
-    private int d;
+    private double angle;
     private LauncherPivot pivot;
 
     private SmartDashNumber speed = new SmartDashNumber("Launcher rotator speed", 0.0, true);
 
-    public RotateLauncher(int d){
+    public SetLauncherAngle(double angle){
         pivot = RobotHardware.getInstance().pivot;
-        this.d = d;
+        this.angle = angle;
+    }
+
+    @Override
+    public void initialize() {
+        pivot.setTarget(angle);
     }
 
     @Override
     public void execute() {
-        pivot.run(d * speed.get());
+        ;
     }
-
 
     @Override
     public void end(boolean interrupted) {
-        pivot.stop();
+        ;
     }
 }

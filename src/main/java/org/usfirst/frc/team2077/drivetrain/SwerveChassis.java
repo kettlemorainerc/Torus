@@ -114,4 +114,10 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
         if(Math.abs(diff) > Math.PI) diff -= 2 * Math.PI * Math.signum(diff);
         return diff;
     }
+
+    public static double getAngleDifferenceDegrees(double from, double to) {
+        double diff = from - to;
+        if(Math.abs(diff) > 180) diff -= 360 * Math.signum(diff);
+        return diff;
+    }
 }

@@ -11,8 +11,15 @@ import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.drivetrain.DriveModuleIF;
 import org.usfirst.frc.team2077.drivetrain.SwerveModuleIF;
 
+<<<<<<< HEAD
 public class
 SwerveSubsystem implements Subsystem, DriveModuleIF, SwerveModuleIF {
+=======
+import java.sql.Array;
+
+//UNUSED
+public class SwerveSubsystem implements Subsystem, DriveModuleIF, SwerveModuleIF {
+>>>>>>> 9226b26f09428f910f7ae0b449a31e5c9132a444
 
     public enum MotorPosition{
 

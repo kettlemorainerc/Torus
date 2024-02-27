@@ -3,7 +3,11 @@ package org.usfirst.frc.team2077;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.*;
 import org.usfirst.frc.team2077.command.autonomous.AutoLauncher;
+<<<<<<< HEAD
 import org.usfirst.frc.team2077.command.autonomous.AutoMoveEncoderBased;
+=======
+import org.usfirst.frc.team2077.command.autonomous.AutoRotate;
+>>>>>>> 9226b26f09428f910f7ae0b449a31e5c9132a444
 import org.usfirst.frc.team2077.command.autonomous.AutoMoveVelocityBased;
 import org.usfirst.frc.team2077.command.autonomous.AutoRotate;
 
@@ -26,7 +30,11 @@ public class Robot extends TimedRobot {
      */
 
     @Override public void autonomousInit() {
+<<<<<<< HEAD
         Command testMove = new AutoMoveVelocityBased(1,0);
+=======
+        Command testMove = new AutoMoveVelocityBased(7,0);
+>>>>>>> 9226b26f09428f910f7ae0b449a31e5c9132a444
         testMove.schedule();
     }
 
