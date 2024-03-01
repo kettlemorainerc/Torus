@@ -25,7 +25,7 @@ public class SwerveGuidingMotor extends AutoPIable {
     private double angleOffset = 0.0;
     private double angleSet = 0.0;
 
-    private double atAngleDeadzone = Math.PI / 8.0;
+    private double atAngleDeadzone = Math.PI / 4.0;
 
     public SwerveGuidingMotor(SwerveModule.MotorPosition position, SwerveModule parent) {
 
@@ -152,4 +152,6 @@ public class SwerveGuidingMotor extends AutoPIable {
     public AutoPITuner.ErrorMethod getErrorMethod() {
         return AutoPITuner.ErrorMethod.ANGLE_DIFFERENCE;
     }
+
+
 }

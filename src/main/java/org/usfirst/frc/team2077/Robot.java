@@ -2,9 +2,8 @@ package org.usfirst.frc.team2077;
 
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.*;
-import org.usfirst.frc.team2077.command.autonomous.AutoLauncher;
-import org.usfirst.frc.team2077.command.autonomous.AutoRotate;
 import org.usfirst.frc.team2077.command.autonomous.AutoMoveVelocityBased;
+import org.usfirst.frc.team2077.command.autonomous.AutoRotate;
 
 public class Robot extends TimedRobot {
     private RobotHardware hardware;
@@ -25,8 +24,6 @@ public class Robot extends TimedRobot {
      */
 
     @Override public void autonomousInit() {
-        Command testMove = new AutoMoveVelocityBased(7,0);
-        testMove.schedule();
     }
 
     /**

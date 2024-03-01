@@ -1,6 +1,6 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2024.2.2"
+    id "edu.wpi.first.GradleRIO" version "2024.3.1"
     id "idea"
 }
 
@@ -12,7 +12,7 @@ def ROBOT_MAIN_CLASS = "frc.robot.Main"
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
 deploy {
-    targets {
+    targets {s
         roborio(getTargetTypeClass('RoboRIO')) {
             // Team number is loaded either from the .wpilib/wpilib_preferences.json
             // or from command line. If not found an exception will be thrown.

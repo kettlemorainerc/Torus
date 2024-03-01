@@ -55,8 +55,7 @@ public class SwerveDrivingMotor extends AutoPIable {
     public void update(){
         if(
             (Math.abs(velocitySet) < 0.05 && RobotHardware.getInstance().getChassis().mode == SwerveChassis.DriveMode.BRAKE) ||
-            (!parent.atAngle && RobotHardware.getInstance().getChassis().mode == SwerveChassis.DriveMode.ANGLE_REQ)
-
+            (!SwerveModule.notAllAtAngle && RobotHardware.getInstance().getChassis().mode == SwerveChassis.DriveMode.ANGLE_REQ)
         ){
             motor.set(0.0);
             rateLimiter.reset(0.0);
@@ -132,5 +131,10 @@ public class SwerveDrivingMotor extends AutoPIable {
     @Override
     public AutoPITuner.ErrorMethod getErrorMethod() {
         return AutoPITuner.ErrorMethod.DIFFERENCE;
+    }
+
+
+    public double getDrivingEncoderPosition(){
+        return encoder.getPosition();
     }
 }

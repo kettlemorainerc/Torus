@@ -6,10 +6,12 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import org.usfirst.frc.team2077.command.AutoPITuner;
+import org.usfirst.frc.team2077.util.AutoPIable;
 import org.usfirst.frc.team2077.util.SmartDashNumber;
 import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
 
-public class Launcher implements Subsystem {
+public class Launcher extends AutoPIable implements Subsystem {
     private final CANSparkMax launcherMotorLeft, launcherMotorRight;
 
     private final CANSparkMax feederMotorLeft, feederMotorRight;
@@ -78,5 +80,40 @@ public class Launcher implements Subsystem {
     public void stopLauncher(){
         launcherMotorLeft.set(0.0);
         launcherMotorRight.set(0.0);
+    }
+
+    @Override
+    public double getP() {
+        return 0;
+    }
+
+    @Override
+    public double getI() {
+        return 0;
+    }
+
+    @Override
+    public void setP(double p) {
+
+    }
+
+    @Override
+    public void setI(double i) {
+
+    }
+
+    @Override
+    public double tunerGet() {
+        return 0;
+    }
+
+    @Override
+    public void tunerSet(double setpoint) {
+
+    }
+
+    @Override
+    public AutoPITuner.ErrorMethod getErrorMethod() {
+        return null;
     }
 }

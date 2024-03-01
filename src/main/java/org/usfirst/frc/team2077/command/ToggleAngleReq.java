@@ -23,6 +23,6 @@ public class ToggleAngleReq extends RepeatedCommand {
 
     @Override
     public void end(boolean interrupted) {
-        chassis.mode = SwerveChassis.DriveMode.ANGLE_REQ;
+        chassis.mode = SwerveChassis.DriveMode.COAST;
     }
 }

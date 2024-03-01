@@ -11,11 +11,8 @@ import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.drivetrain.DriveModuleIF;
 import org.usfirst.frc.team2077.drivetrain.SwerveModuleIF;
 
-import java.sql.Array;
-
 //UNUSED
 public class SwerveSubsystem implements Subsystem, DriveModuleIF, SwerveModuleIF {
-
     public enum MotorPosition{
 
         FRONT_LEFT(2, 1, 5, 1.5),//Based on some of the numbers from ZTPHVN, TODO: check these
@@ -285,9 +282,7 @@ public class SwerveSubsystem implements Subsystem, DriveModuleIF, SwerveModuleIF
         setPreference("GUIDING_I", guidingCANPID.getI());
     }
 
-    public double getDrivingEncoderPosition(){
-        return drivingEncoder.getPosition();
-    }
+
 
 
 

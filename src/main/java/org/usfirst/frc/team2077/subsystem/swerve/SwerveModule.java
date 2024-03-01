@@ -40,6 +40,8 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     public boolean calibrating = false;
     public boolean atAngle = false;
 
+    public static boolean notAllAtAngle = false;
+
     private final SwerveDrivingMotor drivingMotor;
     private final SwerveGuidingMotor guidingMotor;
 
@@ -56,7 +58,7 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     public void periodic(){
         if(calibrating) return;
 
-        if(position == MotorPosition.FRONT_LEFT) atAngle = RobotHardware.getInstance().getChassis().getDriveModules().values().stream().allMatch(SwerveModule::isAtAngle);
+        if(position == MotorPosition.FRONT_LEFT) notAllAtAngle = RobotHardware.getInstance().getChassis().getDriveModules().values().stream().allMatch(SwerveModule::isAtAngle);
 
         drivingMotor.update();
         guidingMotor.update();
