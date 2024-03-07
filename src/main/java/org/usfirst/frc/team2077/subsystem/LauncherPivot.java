@@ -1,10 +1,9 @@
 package org.usfirst.frc.team2077.subsystem;
 
 import com.ctre.phoenix.motorcontrol.SensorCollection;
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
 import org.usfirst.frc.team2077.util.SmartDashNumber;
@@ -16,7 +15,7 @@ public class LauncherPivot implements Subsystem {
     private SensorCollection encoder;
 
     private double target = 0.0;
-    private static final double deadzone = 1.0;
+    private static final double deadZone = 1.0;
 
     private boolean targeting = false;
 
@@ -25,11 +24,13 @@ public class LauncherPivot implements Subsystem {
     private final SmartDashRobotPreference minSpeed = new SmartDashRobotPreference("Launcher pivot min speed", 0.075);
 
     private final SmartDashNumber displayAngle = new SmartDashNumber("Launcher angle", 0.0, true);
+    private final SmartDashNumber displayRaw = new SmartDashNumber("Launcher encoder raw", 0.0, true);
 
-    private static final double zeroOffset = 214.1;
+    private static final double zeroOffset = 66.3;
+    private static final double encoderOffset = 753;
 
     public LauncherPivot(){
-        motor = new CANSparkMax(15, CANSparkMaxLowLevel.MotorType.kBrushed);
+        motor = new CANSparkMax(15, CANSparkLowLevel.MotorType.kBrushed);
         encoder = new TalonSRX(16).getSensorCollection();
 
         motor.setIdleMode(CANSparkMax.IdleMode.kBrake);
@@ -47,17 +48,27 @@ public class LauncherPivot implements Subsystem {
     public void run(double p){
         motor.set(p);
 
+//        encoder.
+
+        double v = encoder.getPulseWidthVelocity();
+        //Encoder velocity opposes the direction of the motor
+//        if(Math.signum(v) == Math.signum(p)){
+//            stop();
+//            return;
+//        }
+
         double angle = getAngle();
         double d = Math.signum(p);
 
         //Softstops:
-        if(angle < -45 && d == -1){
-            stop();
-        }
-
-        if(angle > 120 && d == 1){
-            stop();
-        }
+//        if(angle < -45 && d == -1){
+//            stop();
+//            return;
+//        }
+//
+//        if(angle > 122 && d == 1){
+//            stop();
+//        }
     }
 
     public void moveTowardsTarget(){
@@ -65,9 +76,9 @@ public class LauncherPivot implements Subsystem {
         double dir = -Math.signum(angleDiff);
         double percent = maxSpeed.get();
 
-        System.out.println(angleDiff);
+//        System.out.println(angleDiff);
 
-        if(Math.abs(angleDiff) > deadzone){
+        if(Math.abs(angleDiff) > deadZone){
 
             //Ideally this is changed to be PID or some other form of feedback control
             double rate = rampRate.get();
@@ -97,8 +108,9 @@ public class LauncherPivot implements Subsystem {
     }
 
     public double getAngle() {
-        double raw = encoder.getPulseWidthPosition();
-        return raw * (360.0 / -4096.0) + zeroOffset;
+        double raw = (encoder.getPulseWidthPosition() - encoderOffset) % 4096;
+        displayRaw.set(raw);
+        return raw * (360.0 / 4096.0) - 180;
     }
 
     public void setTargeting(boolean t){
@@ -107,7 +119,7 @@ public class LauncherPivot implements Subsystem {
 
     public boolean atTarget(){
         double angleDiff = SwerveChassis.getAngleDifferenceDegrees(getAngle(), target);
-        return Math.abs(angleDiff) < deadzone;
+        return Math.abs(angleDiff) < deadZone;
     }
 
 }

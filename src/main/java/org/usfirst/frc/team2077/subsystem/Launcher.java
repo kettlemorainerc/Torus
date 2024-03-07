@@ -1,9 +1,10 @@
 package org.usfirst.frc.team2077.subsystem;
 
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkPIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.usfirst.frc.team2077.command.AutoPITuner;
@@ -11,53 +12,54 @@ import org.usfirst.frc.team2077.util.AutoPIable;
 import org.usfirst.frc.team2077.util.SmartDashNumber;
 import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
 
-public class Launcher extends AutoPIable implements Subsystem {
-    private final CANSparkMax launcherMotorLeft, launcherMotorRight;
+public class Launcher implements Subsystem {
 
+    public final LauncherMotor launcherMotorLeft, launcherMotorRight;
     private final CANSparkMax feederMotorLeft, feederMotorRight;
 
-    private final SmartDashRobotPreference launcherSpeedFast = new SmartDashRobotPreference("fast launcher launch percent", 0.525);
-    private final SmartDashRobotPreference launcherSpeedSlow = new SmartDashRobotPreference("slow launcher launch percent", 0.02);
+    private final SmartDashRobotPreference launcherSpeedFast = new SmartDashRobotPreference("fast launcher launch speed", 0.525);
+    private final SmartDashRobotPreference launcherSpeedSlow = new SmartDashRobotPreference("slow launcher launch speed", 0.2);
     private final SmartDashRobotPreference feederSpeed = new SmartDashRobotPreference("feeder feed percent", 1.0);
 
-    private final SmartDashRobotPreference launcherIntakeSpeed = new SmartDashRobotPreference("launcher intake percent", 0.325);
+    private final SmartDashRobotPreference launcherIntakeSpeed = new SmartDashRobotPreference("launcher intake speed", 0.325);
     private final SmartDashRobotPreference feederIntakeSpeed = new SmartDashRobotPreference("feeder intake percent", 0.2);
 
     private final PowerDistribution PDH;
 
     private final SmartDashNumber outputVoltageChange = new SmartDashNumber("feeder voltage delta", 0.0, true);
 
-    private double[] voltageSamples = new double[10];
+    private double launcherSpeedSet = 0.0;
 
     public Launcher(){
-        launcherMotorLeft = new CANSparkMax(11, CANSparkMaxLowLevel.MotorType.kBrushless);
-        launcherMotorRight = new CANSparkMax(12, CANSparkMaxLowLevel.MotorType.kBrushless);
+        launcherMotorLeft = new LauncherMotor(11, "LEFT_LAUNCHER");
+        launcherMotorRight = new LauncherMotor(12, "RIGHT_LAUNCHER");
 
-        launcherMotorLeft.setIdleMode(CANSparkMax.IdleMode.kCoast);
-        launcherMotorRight.setIdleMode(CANSparkMax.IdleMode.kCoast);
-
-        feederMotorLeft = new CANSparkMax(13, CANSparkMaxLowLevel.MotorType.kBrushed);
-        feederMotorRight = new CANSparkMax(14, CANSparkMaxLowLevel.MotorType.kBrushed);
+        feederMotorLeft = new CANSparkMax(13, CANSparkLowLevel.MotorType.kBrushed);
+        feederMotorRight = new CANSparkMax(14, CANSparkLowLevel.MotorType.kBrushed);
 
         feederMotorLeft.setIdleMode(CANSparkMax.IdleMode.kBrake);
         feederMotorRight.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
         PDH = new PowerDistribution(1, PowerDistribution.ModuleType.kRev);
+
+        this.register();
+    }
+
+    public void periodic(){
+        launcherMotorLeft.run(-launcherSpeedSet);
+        launcherMotorRight.run(launcherSpeedSet);
     }
 
     public void runLauncherFast(){
-        launcherMotorLeft.set(-launcherSpeedFast.get());
-        launcherMotorRight.set(launcherSpeedFast.get());
+        launcherSpeedSet = launcherSpeedFast.get();
     }
 
     public void runLauncherSlow(){
-        launcherMotorLeft.set(-launcherSpeedSlow.get());
-        launcherMotorRight.set(launcherSpeedSlow.get());
+        launcherSpeedSet = launcherSpeedSlow.get();
     }
 
     public void intake() {
-        launcherMotorLeft.set(launcherIntakeSpeed.get());
-        launcherMotorRight.set(-launcherIntakeSpeed.get());
+        launcherSpeedSet = -launcherIntakeSpeed.get();
 
         feederMotorLeft.set(-feederIntakeSpeed.get());
         feederMotorRight.set(feederIntakeSpeed.get());
@@ -78,42 +80,85 @@ public class Launcher extends AutoPIable implements Subsystem {
     }
 
     public void stopLauncher(){
-        launcherMotorLeft.set(0.0);
-        launcherMotorRight.set(0.0);
+        launcherSpeedSet = 0.0;
     }
 
-    @Override
-    public double getP() {
-        return 0;
-    }
+    public class LauncherMotor extends AutoPIable{
 
-    @Override
-    public double getI() {
-        return 0;
-    }
+        private final double wheelRadius = Units.inchesToMeters(2);
+        private final double wheelCircumference = wheelRadius * 2.0 * Math.PI;
 
-    @Override
-    public void setP(double p) {
+        private final CANSparkMax motor;
+        private final RelativeEncoder encoder;
+        private final SparkPIDController PID;
 
-    }
+        private boolean calibrating = false;
 
-    @Override
-    public void setI(double i) {
+        public LauncherMotor(int id, String key){
+            motor = new CANSparkMax(id, CANSparkLowLevel.MotorType.kBrushless);
 
-    }
+            motor.setIdleMode(CANSparkMax.IdleMode.kCoast);
 
-    @Override
-    public double tunerGet() {
-        return 0;
-    }
+            encoder = motor.getEncoder();
 
-    @Override
-    public void tunerSet(double setpoint) {
+            encoder.setVelocityConversionFactor(wheelCircumference / 60.0);
 
-    }
+            PID = motor.getPIDController();
 
-    @Override
-    public AutoPITuner.ErrorMethod getErrorMethod() {
-        return null;
+            this.init(key, 0.000001, 0.00001, false);
+        }
+
+        public void run(double speed){
+            if(calibrating) return;
+
+            if(Math.abs(speed) < 0.01){
+                motor.set(0.0);
+                return;
+            }
+
+            PID.setReference(speed, CANSparkMax.ControlType.kVelocity);
+        }
+
+        @Override
+        public double getP() {
+            return PID.getP();
+        }
+
+        @Override
+        public double getI() {
+            return PID.getI();
+        }
+
+        @Override
+        public void setP(double p) {
+            PID.setP(p);
+        }
+
+        @Override
+        public void setI(double i) {
+            PID.setI(i);
+        }
+
+        @Override
+        public double tunerGet() {
+            return encoder.getVelocity();
+        }
+
+        @Override
+        public void tunerSet(double speed) {
+            calibrating = true;
+
+            if(Math.abs(speed) < 0.01){
+                motor.set(0.0);
+                return;
+            }
+
+            PID.setReference(speed, CANSparkMax.ControlType.kVelocity);
+        }
+
+        @Override
+        public AutoPITuner.ErrorMethod getErrorMethod() {
+            return AutoPITuner.ErrorMethod.DIFFERENCE;
+        }
     }
 }

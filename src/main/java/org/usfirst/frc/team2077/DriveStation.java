@@ -5,7 +5,6 @@
 
 package org.usfirst.frc.team2077;
 
-import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.button.*;
 import org.usfirst.frc.team2077.command.*;
@@ -15,6 +14,7 @@ import org.usfirst.frc.team2077.common.control.DriveStick;
 import org.usfirst.frc.team2077.common.control.DriveXboxController;
 import org.usfirst.frc.team2077.subsystem.Climbers;
 import org.usfirst.frc.team2077.subsystem.Intake;
+import org.usfirst.frc.team2077.subsystem.Launcher;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 import org.usfirst.frc.team2077.util.AutoPIable;
 
@@ -86,23 +86,26 @@ public class DriveStation {
     private void bindTechnicalControl(Joystick secondary) {
 
 //        swerveVelocityPID(secondary);
-//        swerveAnglePID(secondary);
+        swerveAnglePID(secondary);
+//        launcherLaunchPID(secondary);
+//
+        if(true) return;
 
         new RunLauncher(RunLauncher.Speed.FAST).bind(new JoystickButton(secondary, 1));
         new RunLauncher(RunLauncher.Speed.SLOW).bind(new JoystickButton(secondary, 5));
-
+//
         new FeedLauncher().bind(new JoystickButton(secondary, 2));
-
+//
         new RunIntake(RunIntake.Direction.IN).bind(new JoystickButton(secondary, 6));
         new RunIntake(RunIntake.Direction.OUT).bind(new JoystickButton(secondary, 7));
-
-//        new RotateLauncher(1).bind(new JoystickButton(secondary, 4));
-//        new RotateLauncher(-1).bind(new JoystickButton(secondary, 8));
-
+//
+////        new RotateLauncher(1).bind(new JoystickButton(secondary, 4));
+////        new RotateLauncher(-1).bind(new JoystickButton(secondary, 8));
+//
         new SetLauncherAngle("Launcher set angle 1", 119).bind(new JoystickButton(secondary, 4));
         new SetLauncherAngle("Launcher set angle 2", -21).bind(new JoystickButton(secondary, 8));
         new SetLauncherAngle("Launcher set angle 3", 21).bind(new JoystickButton(secondary, 12));
-
+//
         new RaiseClimber(Climbers.RobotSide.LEFT, RaiseClimber.Direction.RAISE).bind(new JoystickButton(secondary, 9));
         new RaiseClimber(Climbers.RobotSide.RIGHT, RaiseClimber.Direction.RAISE).bind(new JoystickButton(secondary, 10));
 
@@ -124,9 +127,28 @@ public class DriveStation {
     private static void swerveAnglePID(Joystick stick){
         ArrayList<AutoPIable> modules = new ArrayList<>(RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::getGuidingMotor).collect(Collectors.toList()));
 
+//        new AutoPITuner(
+//            modules, Math.PI / 2.0, 3,
+//            new JoystickButton(stick, 2)
+//        ).bind(new JoystickButton(stick, 1));
+
+        for(int i = 0; i < modules.size(); i++) {
+            new AutoPITuner(
+                    modules.subList(i, i + 1), Math.PI / 2.0, 3,
+                    new JoystickButton(stick, 2)
+            ).bind(new JoystickButton(stick, 1));
+        }
+    }
+
+    public static void launcherLaunchPID(Joystick stick){
+        ArrayList<AutoPIable> l = new ArrayList<>();
+
+        l.add( RobotHardware.getInstance().launcher.launcherMotorLeft );
+        l.add( RobotHardware.getInstance().launcher.launcherMotorRight );
+
         new AutoPITuner(
-            modules, Math.PI / 2.0, 3,
-            new JoystickButton(stick, 2)
+                l, 12, 3,
+                new JoystickButton(stick, 2)
         ).bind(new JoystickButton(stick, 1));
 
     }

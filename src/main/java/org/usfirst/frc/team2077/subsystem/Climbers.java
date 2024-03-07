@@ -3,8 +3,8 @@ package org.usfirst.frc.team2077.subsystem;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.usfirst.frc.team2077.util.SmartDashNumber;
 import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
@@ -21,8 +21,8 @@ public class Climbers implements Subsystem {
     private SmartDashRobotPreference speed = new SmartDashRobotPreference("climber percent", 0.8);
 
     public Climbers(){
-        rightMotor = new CANSparkMax(9, CANSparkMaxLowLevel.MotorType.kBrushed);
-        leftMotor = new CANSparkMax(10, CANSparkMaxLowLevel.MotorType.kBrushed);
+        rightMotor = new CANSparkMax(9, CANSparkLowLevel.MotorType.kBrushed);
+        leftMotor = new CANSparkMax(10, CANSparkLowLevel.MotorType.kBrushed);
 
         rightMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         rightMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);

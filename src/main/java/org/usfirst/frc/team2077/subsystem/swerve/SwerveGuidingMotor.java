@@ -1,9 +1,6 @@
 package org.usfirst.frc.team2077.subsystem.swerve;
 
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
-import com.revrobotics.SparkMaxAbsoluteEncoder;
+import com.revrobotics.*;
 import edu.wpi.first.math.controller.PIDController;
 import org.usfirst.frc.team2077.command.AutoPITuner;
 import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
@@ -34,11 +31,14 @@ public class SwerveGuidingMotor extends AutoPIable {
 
         angleOffset = position.angleOffset;
 
-        motor = new CANSparkMax(position.guidingCANid, CANSparkMaxLowLevel.MotorType.kBrushless);
+        motor = new CANSparkMax(position.guidingCANid, CANSparkLowLevel.MotorType.kBrushless);
         motor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         motor.setSmartCurrentLimit(guidingMotorCurrentLimit);
 
-        encoder = motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
+//        Funny spot the difference
+//        motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
+        encoder = motor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+
         encoder.setPositionConversionFactor(2.0 * Math.PI);
         encoder.setInverted(false);
 
@@ -47,11 +47,11 @@ public class SwerveGuidingMotor extends AutoPIable {
 
         motor.burnFlash();
 
-        init(position.name() + "_GUIDING", 0.11240000277757645, 0.000039149999793153256);
+        init(position.name() + "_GUIDING", 0.11240000277757645, 0.000039149999793153256, false);
     }
 
     public void update(){
-        if(!parent.calibrating && Math.abs(parent.getDrivingMotor().getVelocitySet()) < 0.01) {
+        if(parent.calibrating) {
             motor.set(0.0);
             return;
         }
@@ -74,7 +74,7 @@ public class SwerveGuidingMotor extends AutoPIable {
     }
 
     public void setAngle(double angle) {
-        if(parent.calibrating){
+        if(parent.calibrating || Math.abs(parent.getDrivingMotor().getVelocitySet()) < 0.1){
             return;
         }
 
@@ -144,7 +144,6 @@ public class SwerveGuidingMotor extends AutoPIable {
 
         double angleDiff = SwerveChassis.getAngleDifference(angleSet, getAngle());
         double p = PID.calculate(Math.abs(angleDiff), 0.0) * Math.signum(angleDiff);
-        System.out.println(p);
         motor.set(p);
     }
 

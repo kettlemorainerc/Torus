@@ -103,8 +103,8 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
             if(velocity > maximumSpeed) velocity = maximumSpeed;
             if(velocity > 0.01) velocity = Math.max(velocity, minimumSpeed);
 
-            module.setAngle(value.getAngle());
             module.setVelocity(velocity);
+            module.setAngle(value.getAngle());
         });
     }
 

@@ -18,15 +18,20 @@ public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChas
         return instance;
     }
 
-    public final Climbers climbers = new Climbers();
-    public final Intake intake = new Intake();
-    public final Launcher launcher = new Launcher();
-    public final LauncherPivot pivot = new LauncherPivot();
+    public final Climbers climbers;
+    public final Intake intake;
+    public final Launcher launcher;
+    public final LauncherPivot pivot;
 
     private final SwerveChassis chassis;
 
     public RobotHardware() {
         instance = this;
+
+        climbers = new Climbers();
+        intake = new Intake();
+        launcher = new Launcher();
+        pivot = new LauncherPivot();
         chassis = new SwerveChassis();
     }
 

@@ -7,14 +7,22 @@ public abstract class AutoPIable {
 
     private String saveKey;
 
-    public void init(String saveKey, double defaultP, double defaultI){
+    public void init(String saveKey, double defaultP, double defaultI, boolean override){
         this.saveKey = saveKey;
 
         Preferences.initDouble(saveKey + "_P", defaultP);
         Preferences.initDouble(saveKey + "_I", defaultI);
 
-        setP(getSavedP());
-        setI(getSavedI());
+        if(!override){
+            setP(getSavedP());
+            setI(getSavedI());
+        }else{
+            Preferences.setDouble(saveKey + "_P", defaultP);
+            Preferences.setDouble(saveKey + "_I", defaultP);
+
+            setP(defaultP);
+            setI(defaultI);
+        }
     }
 
     public abstract double getP();

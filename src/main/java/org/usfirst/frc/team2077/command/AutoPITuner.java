@@ -146,8 +146,6 @@ public class AutoPITuner extends SelfDefinedCommand {
             t.getModule().setP(pBest);
             t.getModule().setI(iBest);
             t.getModule().savePI();
-
-            System.out.println(pBest);
         }
         testers.forEach(Tester::end);
     }

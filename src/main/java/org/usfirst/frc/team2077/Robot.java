@@ -24,6 +24,8 @@ public class Robot extends TimedRobot {
      */
 
     @Override public void autonomousInit() {
+//        Command auto = new AutoMoveVelocityBased(5,0);
+//        auto.schedule();
     }
 
     /**

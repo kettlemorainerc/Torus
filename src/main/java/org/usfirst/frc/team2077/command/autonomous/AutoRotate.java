@@ -52,7 +52,7 @@ public class AutoRotate extends CommandBase {
 
         // encoder based:
         gyroAngle = initialAngle - gyro.getAngle();
-        System.out.println(gyroAngle);
+//        System.out.println(gyroAngle);
 
 
 

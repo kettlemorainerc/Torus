@@ -1,9 +1,6 @@
 package org.usfirst.frc.team2077.subsystem.swerve;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.*;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.util.Units;
 import org.usfirst.frc.team2077.RobotHardware;
@@ -26,9 +23,10 @@ public class SwerveDrivingMotor extends AutoPIable {
 
     private final SlewRateLimiter rateLimiter;
 
+
     private final CANSparkMax motor;
     private final RelativeEncoder encoder;
-    private final SparkMaxPIDController PID;
+    private final SparkPIDController PID;
 
     private double velocitySet;
     private boolean reversed = false;
@@ -38,7 +36,7 @@ public class SwerveDrivingMotor extends AutoPIable {
         this.position = position;
         rateLimiter = new SlewRateLimiter(10.0);
 
-        motor = new CANSparkMax(position.drivingCANid, CANSparkMaxLowLevel.MotorType.kBrushless);
+        motor = new CANSparkMax(position.drivingCANid, CANSparkLowLevel.MotorType.kBrushless);
         motor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         motor.setSmartCurrentLimit(drivingMotorCurrentLimit);
 
@@ -49,7 +47,7 @@ public class SwerveDrivingMotor extends AutoPIable {
 
         motor.burnFlash();
 
-        init(position.name() + "_DRIVING", 0.00004718000127468258, 0.00031408999348059297);
+        init(position.name() + "_DRIVING", 0.00004718000127468258, 0.00031408999348059297, false);
     }
 
     public void update(){
@@ -125,7 +123,6 @@ public class SwerveDrivingMotor extends AutoPIable {
             setVelocity(velocity);
             update();
         }
-
     }
 
     @Override
