@@ -14,6 +14,8 @@ public class LauncherPivot implements Subsystem {
     private CANSparkMax motor;
     private SensorCollection encoder;
 
+    private static final double encoderCounts = 4096.0;
+
     private double target = 0.0;
     private static final double deadZone = 1.0;
 
@@ -108,9 +110,10 @@ public class LauncherPivot implements Subsystem {
     }
 
     public double getAngle() {
-        double raw = (encoder.getPulseWidthPosition() - encoderOffset) % 4096;
+        double raw = (encoder.getPulseWidthPosition() - encoderOffset) % encoderCounts;
+        if(raw < 0) raw += encoderCounts;
         displayRaw.set(raw);
-        return raw * (360.0 / 4096.0) - 180;
+        return raw * (360.0 / encoderCounts) - 180;
     }
 
     public void setTargeting(boolean t){
