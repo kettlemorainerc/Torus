@@ -7,13 +7,12 @@ import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.common.Clock;
 //TODO
 public class AutoLauncher extends CommandBase {
-    TalonSRX motor1;
-    TalonSRX motor2;
 
-    double shootTime;
-    double startTime;
-    RobotHardware hardware;
-    public AutoLauncher(double time, RobotHardware hardware){
+//    public enum LaunchTarget{
+//        AMP,
+//    }
+
+    public AutoLauncher(){
         shootTime = time;
         this.hardware = hardware;
 

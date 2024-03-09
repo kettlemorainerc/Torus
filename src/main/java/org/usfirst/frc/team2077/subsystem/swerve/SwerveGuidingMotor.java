@@ -22,6 +22,8 @@ public class SwerveGuidingMotor extends AutoPIable {
     private double angleOffset = 0.0;
     private double angleSet = 0.0;
 
+    private boolean zeroVelocity = false;
+
     private double atAngleDeadzone = Math.PI / 4.0;
 
     public SwerveGuidingMotor(SwerveModule.MotorPosition position, SwerveModule parent) {
@@ -74,7 +76,7 @@ public class SwerveGuidingMotor extends AutoPIable {
     }
 
     public void setAngle(double angle) {
-        if(parent.calibrating || Math.abs(parent.getDrivingMotor().getVelocitySet()) < 0.1){
+        if(parent.calibrating){
             return;
         }
 
@@ -83,9 +85,9 @@ public class SwerveGuidingMotor extends AutoPIable {
 
         SwerveDrivingMotor drivingMotor = parent.getDrivingMotor();
         boolean reversed = drivingMotor.getReversed();
-        double velocitySet = drivingMotor.getVelocitySet();
+        double velocitySet = Math.abs(drivingMotor.getVelocitySet());
 
-        if (Math.abs(velocitySet) > 0.05) {
+        if (zeroVelocity) {
             if (reversed) {
                 angle -= Math.PI;
             }
@@ -97,6 +99,30 @@ public class SwerveGuidingMotor extends AutoPIable {
         }
 
         drivingMotor.setReversed(reversed);
+        zeroVelocity = velocitySet < 0.05;
+
+        if(velocitySet < 0.05){
+            return;
+        }
+
+        angle %= 2.0 * Math.PI;
+        if (angle < 0) angle += 2.0 * Math.PI;
+        angleSet = angle;
+    }
+
+    //Use sparingly (duh)
+    public void setAngleForced(double angle){
+        double currentAngle = getAngle();
+        double angleDifference = SwerveChassis.getAngleDifference(currentAngle, angle);
+
+        SwerveDrivingMotor drivingMotor = parent.getDrivingMotor();
+
+        if (Math.abs(angleDifference) > 0.5 * Math.PI) {
+            angle -= Math.PI;
+            drivingMotor.setReversed(true);
+        } else {
+            drivingMotor.setReversed(false);
+        }
 
         angle %= 2.0 * Math.PI;
         if (angle < 0) angle += 2.0 * Math.PI;

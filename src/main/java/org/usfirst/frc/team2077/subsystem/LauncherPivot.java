@@ -28,8 +28,7 @@ public class LauncherPivot implements Subsystem {
     private final SmartDashNumber displayAngle = new SmartDashNumber("Launcher angle", 0.0, true);
     private final SmartDashNumber displayRaw = new SmartDashNumber("Launcher encoder raw", 0.0, true);
 
-    private static final double zeroOffset = 66.3;
-    private static final double encoderOffset = 753;
+    private static final double encoderOffset = 1721;
 
     public LauncherPivot(){
         motor = new CANSparkMax(15, CANSparkLowLevel.MotorType.kBrushed);
@@ -49,8 +48,6 @@ public class LauncherPivot implements Subsystem {
 
     public void run(double p){
         motor.set(p);
-
-//        encoder.
 
         double v = encoder.getPulseWidthVelocity();
         //Encoder velocity opposes the direction of the motor
@@ -75,7 +72,7 @@ public class LauncherPivot implements Subsystem {
 
     public void moveTowardsTarget(){
         double angleDiff = getAngle() - target;
-        double dir = -Math.signum(angleDiff);
+        double dir = Math.signum(angleDiff);
         double percent = maxSpeed.get();
 
 //        System.out.println(angleDiff);
@@ -110,10 +107,16 @@ public class LauncherPivot implements Subsystem {
     }
 
     public double getAngle() {
-        double raw = (encoder.getPulseWidthPosition() - encoderOffset) % encoderCounts;
-        if(raw < 0) raw += encoderCounts;
+        double raw = encoder.getPulseWidthPosition();
         displayRaw.set(raw);
-        return raw * (360.0 / encoderCounts) - 180;
+
+        raw = (raw - encoderOffset) % encoderCounts;
+        if(raw < 0) raw += encoderCounts;
+
+        double angle = raw * (360.0 / encoderCounts);
+        if(angle < 0) angle += 360;
+
+        return angle;
     }
 
     public void setTargeting(boolean t){

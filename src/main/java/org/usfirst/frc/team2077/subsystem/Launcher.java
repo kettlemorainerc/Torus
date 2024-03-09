@@ -14,14 +14,24 @@ import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
 
 public class Launcher implements Subsystem {
 
+    public enum Target{
+        INTAKE(-5, 0),
+        AMP(10, 120),
+        SPEAKER(15, 90);
+        public SmartDashRobotPreference speed, angle;
+        Target(double defaultSpeed, double defaultAngle){
+            speed = new SmartDashRobotPreference(String.format("Launcher %s speed", this.name()), defaultSpeed);
+            angle = new SmartDashRobotPreference(String.format("Launcher %s angle", this.name()), defaultSpeed);
+        }
+    }
+
     public final LauncherMotor launcherMotorLeft, launcherMotorRight;
     private final CANSparkMax feederMotorLeft, feederMotorRight;
 
-    private final SmartDashRobotPreference launcherSpeedFast = new SmartDashRobotPreference("fast launcher launch speed", 0.525);
-    private final SmartDashRobotPreference launcherSpeedSlow = new SmartDashRobotPreference("slow launcher launch speed", 0.2);
+//    private final SmartDashRobotPreference launcherSpeedFast =
+
     private final SmartDashRobotPreference feederSpeed = new SmartDashRobotPreference("feeder feed percent", 1.0);
 
-    private final SmartDashRobotPreference launcherIntakeSpeed = new SmartDashRobotPreference("launcher intake speed", 0.325);
     private final SmartDashRobotPreference feederIntakeSpeed = new SmartDashRobotPreference("feeder intake percent", 0.2);
 
     private final PowerDistribution PDH;
@@ -51,18 +61,18 @@ public class Launcher implements Subsystem {
     }
 
     public void runLauncherFast(){
-        launcherSpeedSet = launcherSpeedFast.get();
+//        launcherSpeedSet = launcherSpeedFast.get();
     }
 
     public void runLauncherSlow(){
-        launcherSpeedSet = launcherSpeedSlow.get();
+//        launcherSpeedSet = launcherSpeedSlow.get();
     }
 
     public void intake() {
-        launcherSpeedSet = -launcherIntakeSpeed.get();
-
-        feederMotorLeft.set(-feederIntakeSpeed.get());
-        feederMotorRight.set(feederIntakeSpeed.get());
+//        launcherSpeedSet = -launcherIntakeSpeed.get();
+//
+//        feederMotorLeft.set(-feederIntakeSpeed.get());
+//        feederMotorRight.set(feederIntakeSpeed.get());
 
         //TODO: Determine if this is a reliable way of detecting a ring in the Launcher, see if this can be used in other applications
 //        double voltage = feederMotorLeft.getAppliedOutput();
