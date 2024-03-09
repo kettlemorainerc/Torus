@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.*;
 import org.usfirst.frc.team2077.command.autonomous.AutoMoveVelocityBased;
 import org.usfirst.frc.team2077.command.autonomous.AutoRotate;
+import org.usfirst.frc.team2077.command.autonomous.StraightenWheels;
 
 public class Robot extends TimedRobot {
     private RobotHardware hardware;
@@ -24,8 +25,13 @@ public class Robot extends TimedRobot {
      */
 
     @Override public void autonomousInit() {
-//        Command auto = new AutoMoveVelocityBased(5,0);
-//        auto.schedule();
+        // keep this first in the scheduler:
+        Command straightenWheels = new StraightenWheels(0);
+
+
+        // add commands here (keep straightenWheels first):
+        SequentialCommandGroup autonomous = new SequentialCommandGroup(straightenWheels);
+        autonomous.schedule();
     }
 
     /**
