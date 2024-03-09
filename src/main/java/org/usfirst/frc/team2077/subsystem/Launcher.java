@@ -21,22 +21,16 @@ public class Launcher implements Subsystem {
         public SmartDashRobotPreference speed, angle;
         Target(double defaultSpeed, double defaultAngle){
             speed = new SmartDashRobotPreference(String.format("Launcher %s speed", this.name()), defaultSpeed);
-            angle = new SmartDashRobotPreference(String.format("Launcher %s angle", this.name()), defaultSpeed);
+            angle = new SmartDashRobotPreference(String.format("Launcher %s angle", this.name()), defaultAngle);
         }
     }
 
     public final LauncherMotor launcherMotorLeft, launcherMotorRight;
     private final CANSparkMax feederMotorLeft, feederMotorRight;
 
-//    private final SmartDashRobotPreference launcherSpeedFast =
-
     private final SmartDashRobotPreference feederSpeed = new SmartDashRobotPreference("feeder feed percent", 1.0);
 
     private final SmartDashRobotPreference feederIntakeSpeed = new SmartDashRobotPreference("feeder intake percent", 0.2);
-
-    private final PowerDistribution PDH;
-
-    private final SmartDashNumber outputVoltageChange = new SmartDashNumber("feeder voltage delta", 0.0, true);
 
     private double launcherSpeedSet = 0.0;
 
@@ -50,8 +44,6 @@ public class Launcher implements Subsystem {
         feederMotorLeft.setIdleMode(CANSparkMax.IdleMode.kBrake);
         feederMotorRight.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
-        PDH = new PowerDistribution(1, PowerDistribution.ModuleType.kRev);
-
         this.register();
     }
 
@@ -60,26 +52,24 @@ public class Launcher implements Subsystem {
         launcherMotorRight.run(launcherSpeedSet);
     }
 
-    public void runLauncherFast(){
-//        launcherSpeedSet = launcherSpeedFast.get();
+    public void run(Target target){
+        launcherSpeedSet = target.speed.get();
+
+        if(target == Target.INTAKE){
+            feederMotorLeft.set(-feederIntakeSpeed.get());
+            feederMotorRight.set(feederIntakeSpeed.get());
+        }
     }
 
-    public void runLauncherSlow(){
-//        launcherSpeedSet = launcherSpeedSlow.get();
-    }
-
-    public void intake() {
-//        launcherSpeedSet = -launcherIntakeSpeed.get();
-//
-//        feederMotorLeft.set(-feederIntakeSpeed.get());
-//        feederMotorRight.set(feederIntakeSpeed.get());
-
-        //TODO: Determine if this is a reliable way of detecting a ring in the Launcher, see if this can be used in other applications
-//        double voltage = feederMotorLeft.getAppliedOutput();
-//        double loss = PDH.getVoltage() * feederMotorLeft.get() - voltage;
+    public boolean atSpeed(){
+        return launcherMotorLeft.atSpeed() && !launcherMotorRight.atSpeed();
     }
 
     public void feed(){
+        if(!atSpeed()){
+            return;
+        }
+
         feederMotorLeft.set(feederSpeed.get());
         feederMotorRight.set(-feederSpeed.get());
     }
@@ -102,6 +92,9 @@ public class Launcher implements Subsystem {
         private final RelativeEncoder encoder;
         private final SparkPIDController PID;
 
+        private double speedUpDeadZone = 1.0;
+        private double target = 0.0;
+
         private boolean calibrating = false;
 
         public LauncherMotor(int id, String key){
@@ -115,11 +108,14 @@ public class Launcher implements Subsystem {
 
             PID = motor.getPIDController();
 
-            this.init(key, 0.000001, 0.00001, false);
+
+            this.init(key, 0.0000006847124041087227, 0.00002554714410507586, false);
         }
 
         public void run(double speed){
             if(calibrating) return;
+
+            target = speed;
 
             if(Math.abs(speed) < 0.01){
                 motor.set(0.0);
@@ -127,6 +123,10 @@ public class Launcher implements Subsystem {
             }
 
             PID.setReference(speed, CANSparkMax.ControlType.kVelocity);
+        }
+
+        public boolean atSpeed(){
+            return Math.abs(encoder.getVelocity() - target) < speedUpDeadZone;
         }
 
         @Override

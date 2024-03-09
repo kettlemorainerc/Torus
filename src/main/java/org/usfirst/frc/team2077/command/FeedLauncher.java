@@ -9,7 +9,7 @@ public class FeedLauncher extends RepeatedCommand {
     private Launcher launcher;
 
     public FeedLauncher(){
-//        launcher = RobotHardware.getInstance().launcher;
+        launcher = RobotHardware.getInstance().launcher;
     }
 
     @Override

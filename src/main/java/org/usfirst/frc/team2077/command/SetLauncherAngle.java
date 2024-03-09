@@ -3,23 +3,24 @@ package org.usfirst.frc.team2077.command;
 import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.common.command.RepeatedCommand;
 import org.usfirst.frc.team2077.common.command.SelfDefinedCommand;
+import org.usfirst.frc.team2077.subsystem.Launcher;
 import org.usfirst.frc.team2077.subsystem.LauncherPivot;
 import org.usfirst.frc.team2077.util.SmartDashNumber;
 import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
 
 public class SetLauncherAngle extends SelfDefinedCommand {
 
-    private SmartDashRobotPreference setAngle;
+    private Launcher.Target target;
     private LauncherPivot pivot;
 
-    public SetLauncherAngle(String key, double defaultValue){
+    public SetLauncherAngle(Launcher.Target target){
         pivot = RobotHardware.getInstance().pivot;
-        setAngle = new SmartDashRobotPreference(key, defaultValue);
+        this.target = target;
     }
 
     @Override
     public void initialize() {
-        pivot.setTarget(setAngle.get());
+        pivot.setTarget(target);
     }
 
     @Override

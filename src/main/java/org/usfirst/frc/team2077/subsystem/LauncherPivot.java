@@ -28,7 +28,7 @@ public class LauncherPivot implements Subsystem {
     private final SmartDashNumber displayAngle = new SmartDashNumber("Launcher angle", 0.0, true);
     private final SmartDashNumber displayRaw = new SmartDashNumber("Launcher encoder raw", 0.0, true);
 
-    private static final double encoderOffset = 1721;
+    private static final double encoderOffset = 1730;
 
     public LauncherPivot(){
         motor = new CANSparkMax(15, CANSparkLowLevel.MotorType.kBrushed);
@@ -49,8 +49,8 @@ public class LauncherPivot implements Subsystem {
     public void run(double p){
         motor.set(p);
 
-        double v = encoder.getPulseWidthVelocity();
-        //Encoder velocity opposes the direction of the motor
+//        double v = encoder.getPulseWidthVelocity();
+//        Encoder velocity opposes the direction of the motor
 //        if(Math.signum(v) == Math.signum(p)){
 //            stop();
 //            return;
@@ -60,22 +60,20 @@ public class LauncherPivot implements Subsystem {
         double d = Math.signum(p);
 
         //Softstops:
-//        if(angle < -45 && d == -1){
-//            stop();
-//            return;
-//        }
-//
-//        if(angle > 122 && d == 1){
-//            stop();
-//        }
+        if(angle < 0 && d == -1){
+            stop();
+            return;
+        }
+
+        if(angle > 120 && d == 1){
+            stop();
+        }
     }
 
     public void moveTowardsTarget(){
         double angleDiff = getAngle() - target;
         double dir = Math.signum(angleDiff);
         double percent = maxSpeed.get();
-
-//        System.out.println(angleDiff);
 
         if(Math.abs(angleDiff) > deadZone){
 
@@ -96,8 +94,8 @@ public class LauncherPivot implements Subsystem {
 
     }
 
-    public void setTarget(double target){
-        this.target = target;
+    public void setTarget(Launcher.Target target){
+        this.target = target.angle.get();
         targeting = true;
     }
 
@@ -114,7 +112,8 @@ public class LauncherPivot implements Subsystem {
         if(raw < 0) raw += encoderCounts;
 
         double angle = raw * (360.0 / encoderCounts);
-        if(angle < 0) angle += 360;
+        //Sets the angle to a range from (0-270) U (0, -90)
+        if(angle > 270) angle -= 360;
 
         return angle;
     }

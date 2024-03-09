@@ -91,8 +91,8 @@ public class DriveStation {
 //
 //        if(true) return;
 
-        new RunLauncher(RunLauncher.Speed.FAST).bind(new JoystickButton(secondary, 1));
-        new RunLauncher(RunLauncher.Speed.SLOW).bind(new JoystickButton(secondary, 5));
+        new RunLauncher(Launcher.Target.SPEAKER).bind(new JoystickButton(secondary, 1));
+        new RunLauncher(Launcher.Target.AMP).bind(new JoystickButton(secondary, 5));
 //
         new FeedLauncher().bind(new JoystickButton(secondary, 2));
 //
@@ -102,9 +102,9 @@ public class DriveStation {
 ////        new RotateLauncher(1).bind(new JoystickButton(secondary, 4));
 ////        new RotateLauncher(-1).bind(new JoystickButton(secondary, 8));
 //
-        new SetLauncherAngle("Launcher set angle 1", 0).bind(new JoystickButton(secondary, 4));
-        new SetLauncherAngle("Launcher set angle 2", 60).bind(new JoystickButton(secondary, 8));
-        new SetLauncherAngle("Launcher set angle 3", 120).bind(new JoystickButton(secondary, 12));
+        new SetLauncherAngle(Launcher.Target.INTAKE).bind(new JoystickButton(secondary, 4));
+        new SetLauncherAngle(Launcher.Target.SPEAKER).bind(new JoystickButton(secondary, 8));
+        new SetLauncherAngle(Launcher.Target.AMP).bind(new JoystickButton(secondary, 12));
 //
         new RaiseClimber(Climbers.RobotSide.LEFT, RaiseClimber.Direction.RAISE).bind(new JoystickButton(secondary, 9));
         new RaiseClimber(Climbers.RobotSide.RIGHT, RaiseClimber.Direction.RAISE).bind(new JoystickButton(secondary, 10));

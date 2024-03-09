@@ -6,29 +6,17 @@ import org.usfirst.frc.team2077.subsystem.Launcher;
 
 public class RunLauncher extends RepeatedCommand {
 
-    public enum Speed{
-        FAST, SLOW;
-    }
-
     private Launcher launcher;
-    private Speed speed;
+    private Launcher.Target target;
 
-    public RunLauncher(Speed speed){
+    public RunLauncher(Launcher.Target target){
         launcher = RobotHardware.getInstance().launcher;
-        this.speed = speed;
+        this.target = target;
     }
 
     @Override
     public void execute() {
-        switch(speed){
-            case FAST:
-                launcher.runLauncherFast();
-                break;
-            case SLOW:
-                launcher.runLauncherSlow();
-                break;
-            }
-
+        launcher.run(target);
     }
 
     @Override

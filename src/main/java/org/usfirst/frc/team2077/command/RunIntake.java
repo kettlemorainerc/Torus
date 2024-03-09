@@ -30,7 +30,7 @@ public class RunIntake extends RepeatedCommand {
         switch(direction){
             case IN:
                 intake.run();
-                launcher.intake();
+                launcher.run(Launcher.Target.INTAKE);
                 break;
             case OUT:
                 intake.reverse();
