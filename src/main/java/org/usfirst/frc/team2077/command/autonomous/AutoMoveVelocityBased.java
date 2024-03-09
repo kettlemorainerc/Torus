@@ -1,6 +1,7 @@
 package org.usfirst.frc.team2077.command.autonomous;
 
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.common.Clock;
@@ -11,7 +12,7 @@ import org.usfirst.frc.team2077.common.math.Position;
 
 import java.util.Map;
 
-public class AutoMoveVelocityBased extends CommandBase {
+public class AutoMoveVelocityBased extends Command {
 
     private final double SPEED_LIMITER = 0.6;
     private final double CONVERSION_VALUE = 0.25;

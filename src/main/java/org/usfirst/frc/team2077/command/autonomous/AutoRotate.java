@@ -1,13 +1,15 @@
 package org.usfirst.frc.team2077.command.autonomous;
 
 import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
+
+
 import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.common.Clock;
 import org.usfirst.frc.team2077.common.drivetrain.AbstractChassis;
 
 
-public class AutoRotate extends CommandBase {
+public class AutoRotate extends Command {
     private final double DEGREES_TO_ENCODER_TICKS = 0.1875;
     private double lastTime;
     private AbstractChassis chassis;
