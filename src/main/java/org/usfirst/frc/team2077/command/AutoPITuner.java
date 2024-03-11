@@ -29,8 +29,7 @@ public class AutoPITuner extends SelfDefinedCommand {
         ANGLE_DIFFERENCE
     }
 //
-    private final double walkPercent = 0.45;
-    private final double entropyPercent = 0.25;
+    private final double walkPercent = 0.75;
 
     private final JoystickButton endButton;
 
@@ -118,15 +117,23 @@ public class AutoPITuner extends SelfDefinedCommand {
         }
 
         for(Tester tester : testers){
-            tester.getModule().setP(walkValue(pBest));
-            tester.getModule().setI(walkValue(iBest));
+            double new_p = walkValue(pBest, tester.getError());
+            double new_i = walkValue(iBest, tester.getError());
+
+            if(new_i > new_p){//Ensures that I is less than or equal to P
+                new_i = new_p;
+            }
+
+            tester.getModule().setP(new_p);
+            tester.getModule().setI(new_i);
         }
 
     }
 
     //TODO: rename this method
-    private double walkValue(double value){
-        return value * (1 + walkPercent * (2 * Math.random() - 1));
+    private double walkValue(double value, double error){
+        double walk = walkPercent * error / (setpoint * testDuration);
+        return value * (1 + walk * (2 * Math.random() - 1));
     }
 
     private boolean finishedTesting(){
@@ -218,7 +225,7 @@ public class AutoPITuner extends SelfDefinedCommand {
                 case DIFFERENCE:
                     diff = set - mes;
                     if(diff < 0){
-                        mod = 500;
+                        mod = 20;
                     }
 
                     break;
