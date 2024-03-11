@@ -4,33 +4,32 @@ import edu.wpi.first.wpilibj2.command.Command;
 import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.drivetrain.AbstractChassis;
+import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
+import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class StraightenWheels extends Command {
-    private final double DEADBAND = 0.196;
-    private AbstractChassis chassis;
-    private RobotHardware hardware;
-    double targetAngle;
+
+    private final SwerveChassis chassis;
+    private final ArrayList<SwerveModule> modules;
+
+    private double targetAngle;
+
     public StraightenWheels(double targetAngle){
         this.targetAngle = targetAngle;
+        chassis = RobotHardware.getInstance().getChassis();
+        modules = new ArrayList<>(chassis.getDriveModules().values());
     }
 
     @Override
     public void initialize(){
-        hardware = RobotHardware.getInstance();
-        chassis = hardware.getChassis();
     }
 
     @Override
     public void execute(){
-        hardware.getWheel(WheelPosition.FRONT_LEFT).getGuidingMotor().setAngleForced(0);
-        hardware.getWheel(WheelPosition.FRONT_RIGHT).getGuidingMotor().setAngleForced(0);
-        hardware.getWheel(WheelPosition.BACK_RIGHT).getGuidingMotor().setAngleForced(0);
-        hardware.getWheel(WheelPosition.BACK_LEFT).getGuidingMotor().setAngleForced(0);
-        if(this.isFinished()){
-            this.end(false);
-        }
+        modules.stream().map(SwerveModule::getGuidingMotor).forEach(e -> e.setAngleForced(targetAngle));
     }
 
     @Override
@@ -40,11 +39,6 @@ public class StraightenWheels extends Command {
 
     @Override
     public boolean isFinished(){
-        return
-        Math.abs(hardware.getWheel(WheelPosition.BACK_LEFT).getGuidingMotor().getAngle() - targetAngle) < DEADBAND &&
-                Math.abs(hardware.getWheel(WheelPosition.BACK_RIGHT).getGuidingMotor().getAngle() - targetAngle) < DEADBAND &&
-                Math.abs(hardware.getWheel(WheelPosition.FRONT_RIGHT).getGuidingMotor().getAngle() - targetAngle) < DEADBAND &&
-                Math.abs(hardware.getWheel(WheelPosition.FRONT_LEFT).getGuidingMotor().getAngle() - targetAngle) < DEADBAND;
-
+        return modules.stream().allMatch(SwerveModule::isAtAngle);
     }
 }

@@ -1,18 +1,16 @@
 package org.usfirst.frc.team2077.command.autonomous;
 
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import org.usfirst.frc.team2077.RobotHardware;
-import org.usfirst.frc.team2077.common.Clock;
 import org.usfirst.frc.team2077.subsystem.Launcher;
 import org.usfirst.frc.team2077.subsystem.LauncherPivot;
 
-public class AutoLaunch extends CommandBase {
+public class AutoLaunch extends Command {
 
     private enum State{
         TO_ANGLE,
         SPIN_UP,
-        END;
+        END
     }
 
     private Launcher launcher;
@@ -67,7 +65,6 @@ public class AutoLaunch extends CommandBase {
                 end(false);
         }
     }
-
 
     @Override
     public void end(boolean interrupted) {

@@ -10,8 +10,8 @@ import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
 
 public class SetLauncherAngle extends SelfDefinedCommand {
 
-    private Launcher.Target target;
-    private LauncherPivot pivot;
+    private final Launcher.Target target;
+    private final LauncherPivot pivot;
 
     public SetLauncherAngle(Launcher.Target target){
         pivot = RobotHardware.getInstance().pivot;

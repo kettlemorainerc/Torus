@@ -9,10 +9,10 @@ import org.usfirst.frc.team2077.util.SmartDashNumber;
 import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
 
 public class Intake implements Subsystem {
-    private TalonSRX motor;
 
-    private SmartDashRobotPreference speed = new SmartDashRobotPreference("intake percent", 0.6);
-
+    private final SmartDashRobotPreference speed = new SmartDashRobotPreference("intake percent", 0.6);
+    private final TalonSRX motor;
+    
     public Intake() {
         motor = new TalonSRX(16);
 
@@ -25,6 +25,10 @@ public class Intake implements Subsystem {
 
     public void reverse(){
         motor.set(TalonSRXControlMode.PercentOutput, -speed.get());
+    }
+
+    public boolean running(){
+        return motor.getMotorOutputPercent() != 0.0;
     }
 
     public void stop(){

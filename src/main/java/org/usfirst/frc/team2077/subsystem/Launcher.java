@@ -16,9 +16,10 @@ public class Launcher implements Subsystem {
 
     public enum Target{
         INTAKE(-5, 0),
-        AMP(10, 120),
-        SPEAKER(15, 90);
-        public SmartDashRobotPreference speed, angle;
+        AMP(10, 140),
+        SPEAKER(15, 90),
+        STAGE(10, 130);
+        public final SmartDashRobotPreference speed, angle;
         Target(double defaultSpeed, double defaultAngle){
             speed = new SmartDashRobotPreference(String.format("Launcher %s speed", this.name()), defaultSpeed);
             angle = new SmartDashRobotPreference(String.format("Launcher %s angle", this.name()), defaultAngle);
@@ -28,9 +29,8 @@ public class Launcher implements Subsystem {
     public final LauncherMotor launcherMotorLeft, launcherMotorRight;
     private final CANSparkMax feederMotorLeft, feederMotorRight;
 
-    private final SmartDashRobotPreference feederSpeed = new SmartDashRobotPreference("feeder feed percent", 1.0);
-
     private final SmartDashRobotPreference feederIntakeSpeed = new SmartDashRobotPreference("feeder intake percent", 0.2);
+    private final SmartDashRobotPreference feederSpeed = new SmartDashRobotPreference("feeder feed percent", 1.0);
 
     private double launcherSpeedSet = 0.0;
 
@@ -92,10 +92,10 @@ public class Launcher implements Subsystem {
         private final RelativeEncoder encoder;
         private final SparkPIDController PID;
 
-        private double speedUpDeadZone = 1.0;
-        private double target = 0.0;
+        private final double speedUpDeadZone = 1.0;
 
         private boolean calibrating = false;
+        private double target = 0.0;
 
         public LauncherMotor(int id, String key){
             motor = new CANSparkMax(id, CANSparkLowLevel.MotorType.kBrushless);
@@ -107,7 +107,6 @@ public class Launcher implements Subsystem {
             encoder.setVelocityConversionFactor(wheelCircumference / 60.0);
 
             PID = motor.getPIDController();
-
 
             this.init(key, 0.0000006847124041087227, 0.00002554714410507586, false);
         }

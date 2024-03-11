@@ -11,11 +11,12 @@ import org.usfirst.frc.team2077.util.SmartDashNumber;
 
 public class RotateLauncher extends RepeatedCommand {
 
-    private int d;
     private LauncherPivot pivot;
+    private int d;
 
     private SmartDashNumber speed = new SmartDashNumber("Launcher rotator speed", 0.0, true);
 
+    //TODO: remove
     public RotateLauncher(int d){
         pivot = RobotHardware.getInstance().pivot;
         this.d = d;

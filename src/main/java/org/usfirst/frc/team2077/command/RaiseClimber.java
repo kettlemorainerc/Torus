@@ -10,10 +10,10 @@ public class RaiseClimber extends RepeatedCommand {
         RAISE, LOWER;
     }
 
-    private Climbers.RobotSide side;
-    private Direction direction;
+    private final Climbers.RobotSide side;
+    private final Direction direction;
 
-    private Climbers climbers;
+    private final Climbers climbers;
 
     public RaiseClimber(Climbers.RobotSide side, Direction direction){
         climbers = RobotHardware.getInstance().climbers;

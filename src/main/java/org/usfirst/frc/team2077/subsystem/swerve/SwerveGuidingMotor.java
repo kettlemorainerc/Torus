@@ -24,7 +24,7 @@ public class SwerveGuidingMotor extends AutoPIable {
 
     private boolean zeroVelocity = false;
 
-    private double atAngleDeadzone = Math.PI / 4.0;
+    private double atAngleDeadzone = Math.PI / 12.0;
 
     public SwerveGuidingMotor(SwerveModule.MotorPosition position, SwerveModule parent) {
 

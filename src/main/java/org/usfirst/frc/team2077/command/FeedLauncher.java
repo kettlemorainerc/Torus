@@ -6,7 +6,7 @@ import org.usfirst.frc.team2077.subsystem.Launcher;
 
 public class FeedLauncher extends RepeatedCommand {
 
-    private Launcher launcher;
+    private final Launcher launcher;
 
     public FeedLauncher(){
         launcher = RobotHardware.getInstance().launcher;

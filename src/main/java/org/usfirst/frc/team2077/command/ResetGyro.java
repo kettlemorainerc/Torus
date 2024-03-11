@@ -30,6 +30,6 @@ public class ResetGyro extends SelfDefinedCommand {
 
     @Override
     public void end(boolean interrupted) {
-
+        ;
     }
 }

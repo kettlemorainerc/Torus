@@ -23,10 +23,8 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         FRONT_RIGHT(4,3, 5, 0),
         ;
 
-        public int drivingCANid;
-        public int guidingCANid;
-        public double maxSpeed;
-        public double angleOffset;
+        public final int drivingCANid, guidingCANid;
+        public final double maxSpeed, angleOffset;
         MotorPosition(int drivingCANid, int guidingCANid, double maxSpeed, double angleOffset){
             this.drivingCANid = drivingCANid;
             this.guidingCANid = guidingCANid;

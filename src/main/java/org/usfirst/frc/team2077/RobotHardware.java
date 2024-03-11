@@ -11,7 +11,7 @@ import org.usfirst.frc.team2077.subsystem.LauncherPivot;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 
 public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChassis> {
-    private static RobotHardware instance;
+    private static RobotHardware instance = null;
 
     public static RobotHardware getInstance() {
         if(instance == null) instance = new RobotHardware();
@@ -29,10 +29,10 @@ public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChas
         instance = this;
 
         climbers = new Climbers();
-        intake = new Intake();
+        intake   = new Intake();
         launcher = new Launcher();
-        pivot = new LauncherPivot();
-        chassis = new SwerveChassis();
+        pivot    = new LauncherPivot();
+        chassis  = new SwerveChassis();
     }
 
     @Override public SwerveChassis getChassis() {

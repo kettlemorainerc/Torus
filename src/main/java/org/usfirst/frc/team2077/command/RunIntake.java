@@ -7,9 +7,9 @@ import org.usfirst.frc.team2077.subsystem.Launcher;
 
 public class RunIntake extends RepeatedCommand {
 
-    private Direction direction;
-    private Intake intake;
-    private Launcher launcher;
+    private final Direction direction;
+    private final Intake intake;
+    private final Launcher launcher;
 
     public enum Direction{
         IN,

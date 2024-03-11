@@ -12,13 +12,13 @@ import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
 public class Climbers implements Subsystem {
 
     public enum RobotSide{
-        LEFT, RIGHT;
+        LEFT, RIGHT
     }
 
-    private CANSparkMax rightMotor;
-    private CANSparkMax leftMotor;
+    private final CANSparkMax rightMotor;
+    private final CANSparkMax leftMotor;
 
-    private SmartDashRobotPreference speed = new SmartDashRobotPreference("climber percent", 0.8);
+    private final SmartDashRobotPreference speed = new SmartDashRobotPreference("climber percent", 0.8);
 
     public Climbers(){
         rightMotor = new CANSparkMax(9, CANSparkLowLevel.MotorType.kBrushed);

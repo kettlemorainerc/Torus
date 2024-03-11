@@ -6,7 +6,7 @@ import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
 
 public class ToggleBreakMode extends RepeatedCommand {
 
-    private SwerveChassis chassis;
+    private final SwerveChassis chassis;
 
     public ToggleBreakMode(){
         chassis = RobotHardware.getInstance().getChassis();

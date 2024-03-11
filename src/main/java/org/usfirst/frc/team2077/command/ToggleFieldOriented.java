@@ -6,7 +6,7 @@ import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
 
 public class ToggleFieldOriented extends RepeatedCommand {
 
-    private SwerveChassis chassis;
+    private final SwerveChassis chassis;
 
     public ToggleFieldOriented(){
         chassis = RobotHardware.getInstance().getChassis();

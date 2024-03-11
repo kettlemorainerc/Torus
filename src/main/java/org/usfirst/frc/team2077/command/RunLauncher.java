@@ -6,8 +6,8 @@ import org.usfirst.frc.team2077.subsystem.Launcher;
 
 public class RunLauncher extends RepeatedCommand {
 
-    private Launcher launcher;
-    private Launcher.Target target;
+    private final Launcher launcher;
+    private final Launcher.Target target;
 
     public RunLauncher(Launcher.Target target){
         launcher = RobotHardware.getInstance().launcher;

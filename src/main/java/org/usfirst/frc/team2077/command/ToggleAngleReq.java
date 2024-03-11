@@ -6,8 +6,9 @@ import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
 
 public class ToggleAngleReq extends RepeatedCommand {
 
-    private SwerveChassis chassis;
+    private final SwerveChassis chassis;
 
+    //TODO: remove this probably
     public ToggleAngleReq(){
         chassis = RobotHardware.getInstance().getChassis();
     }
