@@ -5,16 +5,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.common.math.Position;
 import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
+import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
+
 import static org.usfirst.frc.team2077.common.VelocityDirection.*;
 
 public class AutoSwerveMoveOdometryBased extends Command {
 
     //TODO: find out what these values should be
-    private static final double cardinal_p = 0.01;
-    private static final double rotation_p = 0.01;
+    private static final SmartDashRobotPreference cardinal_p = new SmartDashRobotPreference("Auto Cardinal P", 0.1);
+    private static final SmartDashRobotPreference rotation_p = new SmartDashRobotPreference("Auto Cardinal I", 0.1);
 
-    private static final double cardinalGoodEnoughThreshold = 0.2; //Meters
-    private static final double rotationGoodEnoughThreshold = Math.PI / 16; //Radians
+    private static final double cardinalGoodEnoughThreshold = 0.5; //Meters
+    private static final double rotationGoodEnoughThreshold = Math.PI / 8; //Radians
 
     protected SwerveChassis chassis;
     protected Position target;
@@ -61,8 +63,8 @@ public class AutoSwerveMoveOdometryBased extends Command {
 //            return;
         }
 
-        double forwardVelocity = deltaForward * cardinal_p;
-        double strafeVelocity = deltaStrafe * cardinal_p;
+        double forwardVelocity = deltaForward * cardinal_p.get();
+        double strafeVelocity = deltaStrafe * cardinal_p.get();
 
         double targetSpeed = Math.hypot(forwardVelocity, strafeVelocity);
         double maxSpeed = chassis.getMaximumVelocity().get(FORWARD);
@@ -73,7 +75,7 @@ public class AutoSwerveMoveOdometryBased extends Command {
             strafeVelocity = strafeVelocity * maxSpeed / targetSpeed;
         }
 
-        double rotationVelocity = deltaRotation * rotation_p;
+        double rotationVelocity = deltaRotation * rotation_p.get();
 
         double maxRotation = chassis.getMaximumVelocity().get(ROTATION);
         if(Math.abs(rotationVelocity) > maxRotation){

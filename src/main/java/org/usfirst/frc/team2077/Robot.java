@@ -26,7 +26,12 @@ public class Robot extends TimedRobot {
      */
 
     @Override public void autonomousInit() {
-        autoTick = 0;
+//        autoTick = 0;
+//        SequentialCommandGroup straightForwardCommands = new SequentialCommandGroup(
+////                new AutoLaunch(Launcher.Target.AMP)
+//                new AutoSwerveMoveOdometryBased(2,0)
+//        );
+//        straightForwardCommands.schedule();
 //        // keep this first in the scheduler:
 //        Command straightenWheels = new StraightenWheels(0);
 //        Command launch = new AutoLaunch(Launcher.Target.SPEAKER);
@@ -54,41 +59,41 @@ public class Robot extends TimedRobot {
      */
 
     @Override public void autonomousPeriodic() {
-        autoTick ++;
-        if(autoTick ==1){
-            int autonomousNumber = autoDash.get().intValue();
-            Command launchSpeaker = new AutoLaunch(Launcher.Target.SPEAKER);
-
-            switch (autonomousNumber) {
-                case(0):
-                    // Straight Forward
-                    SequentialCommandGroup straightForwardCommands = new SequentialCommandGroup(new StraightenWheels(0), new AutoSwerveMoveOdometryBased(10,0));
-                    straightForwardCommands.schedule();
-                    break;
-                case(1):
-                    //Shoot in speaker (line up on left angle side)
-                    Command straightenWheelsLeft = new StraightenWheels(-2.443);
-                    Command backwardLeft = new AutoSwerveMoveOdometryBased(Math.pow(Math.cos(-2.443),2)*10,Math.pow(Math.sin(-2.443),2)*10);
-                    SequentialCommandGroup leftSpeakerCommands = new SequentialCommandGroup(straightenWheelsLeft,launchSpeaker, backwardLeft);
-                    leftSpeakerCommands.schedule();
-                    break;
-
-                case(2):
-                    //Shoot in speaker (line up in middle)
-                    Command straightenWheelsBackwards = new StraightenWheels(Math.PI);
-                    Command backwards = new AutoSwerveMoveOdometryBased(-10,0);
-                    SequentialCommandGroup middleSpeakerCommands = new SequentialCommandGroup(straightenWheelsBackwards, launchSpeaker, backwards);
-                    middleSpeakerCommands.schedule();
-                    break;
-                case(3):
-                    //Shoot in speaker (line up on right)
-                    Command straightenWheelsRight = new StraightenWheels(2.443);
-                    Command backwardRight = new AutoSwerveMoveOdometryBased(Math.pow(Math.cos(2.443),2)*10,Math.pow(Math.sin(2.443),2)*10);
-                    SequentialCommandGroup rightSpeakerCommands = new SequentialCommandGroup(straightenWheelsRight, launchSpeaker, backwardRight);
-                    rightSpeakerCommands.schedule();
-                    break;
-            }
-        }
+//        autoTick ++;
+//        if(autoTick ==1){
+//            int autonomousNumber = autoDash.get().intValue();
+//            Command launchSpeaker = new AutoLaunch(Launcher.Target.SPEAKER);
+//
+//            switch (autonomousNumber) {
+//                case(0):
+//                    // Straight Forward
+//                    SequentialCommandGroup straightForwardCommands = new SequentialCommandGroup(new StraightenWheels(0), new AutoSwerveMoveOdometryBased(10,0));
+//                    straightForwardCommands.schedule();
+//                    break;
+//                case(1):
+//                    //Shoot in speaker (line up on left angle side)
+//                    Command straightenWheelsLeft = new StraightenWheels(-2.443);
+//                    Command backwardLeft = new AutoSwerveMoveOdometryBased(Math.pow(Math.cos(-2.443),2)*10,Math.pow(Math.sin(-2.443),2)*10);
+//                    SequentialCommandGroup leftSpeakerCommands = new SequentialCommandGroup(straightenWheelsLeft,launchSpeaker, backwardLeft);
+//                    leftSpeakerCommands.schedule();
+//                    break;
+//
+//                case(2):
+//                    //Shoot in speaker (line up in middle)
+//                    Command straightenWheelsBackwards = new StraightenWheels(Math.PI);
+//                    Command backwards = new AutoSwerveMoveOdometryBased(-10,0);
+//                    SequentialCommandGroup middleSpeakerCommands = new SequentialCommandGroup(straightenWheelsBackwards, launchSpeaker, backwards);
+//                    middleSpeakerCommands.schedule();
+//                    break;
+//                case(3):
+//                    //Shoot in speaker (line up on right)
+//                    Command straightenWheelsRight = new StraightenWheels(2.443);
+//                    Command backwardRight = new AutoSwerveMoveOdometryBased(Math.pow(Math.cos(2.443),2)*10,Math.pow(Math.sin(2.443),2)*10);
+//                    SequentialCommandGroup rightSpeakerCommands = new SequentialCommandGroup(straightenWheelsRight, launchSpeaker, backwardRight);
+//                    rightSpeakerCommands.schedule();
+//                    break;
+//            }
+//        }
 
     }
 

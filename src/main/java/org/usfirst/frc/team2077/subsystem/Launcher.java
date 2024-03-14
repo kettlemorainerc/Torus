@@ -62,13 +62,14 @@ public class Launcher implements Subsystem {
     }
 
     public boolean atSpeed(){
-        return launcherMotorLeft.atSpeed() && !launcherMotorRight.atSpeed();
+        return launcherMotorLeft.atSpeed() && launcherMotorRight.atSpeed();
     }
 
     public void feed(){
-        //if(!atSpeed()){
-        //    return;
-        //}
+        if(!atSpeed() || launcherSpeedSet < 1){
+            stopFeed();
+            return;
+        }
 
         feederMotorLeft.set(feederSpeed.get());
         feederMotorRight.set(-feederSpeed.get());
@@ -92,7 +93,7 @@ public class Launcher implements Subsystem {
         private final RelativeEncoder encoder;
         private final SparkPIDController PID;
 
-        private final double speedUpDeadZone = 1.0;
+        private final double speedUpDeadZone = 0.2;
 
         private boolean calibrating = false;
         private double target = 0.0;

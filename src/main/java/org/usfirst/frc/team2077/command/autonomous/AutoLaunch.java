@@ -31,7 +31,7 @@ public class AutoLaunch extends Command {
     @Override
     public void initialize(){
         updateState(State.TO_ANGLE);
-        launchTimer = 50;
+        launchTimer = 5;
     }
 
     @Override
@@ -43,6 +43,7 @@ public class AutoLaunch extends Command {
             case SPIN_UP:
                 if(launcher.atSpeed()) {
                     launchTimer--;
+                    launcher.feed();
                     if (launchTimer < 0) updateState(State.END);
                 }
                 return;
@@ -60,7 +61,6 @@ public class AutoLaunch extends Command {
                 return;
             case SPIN_UP:
                 launcher.run(target);
-                launcher.feed();
                 return;
             case END:
                 end(false);
