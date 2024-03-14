@@ -88,7 +88,7 @@ public class DriveStation {
 //        swerveVelocityPID(secondary);
 //        swerveAnglePID(secondary);
 //        launcherLaunchPID(secondary);
-//
+
 //        if(true) return;
 
         new RunLauncher(Launcher.Target.SPEAKER).bind(new JoystickButton(secondary, 1));
@@ -112,15 +112,24 @@ public class DriveStation {
         new RaiseClimber(Climbers.RobotSide.LEFT, RaiseClimber.Direction.LOWER).bind(new JoystickButton(secondary, 13));
         new RaiseClimber(Climbers.RobotSide.RIGHT, RaiseClimber.Direction.LOWER).bind(new JoystickButton(secondary, 14));
 
+        new CalibratePivot().bind(new JoystickButton(secondary, 17));
+
     }
 
     private static void swerveVelocityPID(Joystick stick){
         ArrayList<AutoPIable> modules = new ArrayList<>(RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::getDrivingMotor).collect(Collectors.toList()));
 
-        new AutoPITuner(
-            modules, 3, 3,
-            new JoystickButton(stick, 2)
-        ).bind(new JoystickButton(stick, 1));
+//        new AutoPITuner(
+//            modules, 3, 3,
+//            new JoystickButton(stick, 2)
+//        ).bind(new JoystickButton(stick, 1));
+
+        for(int i = 0; i < modules.size(); i++) {
+            new AutoPITuner(
+                    modules.subList(i, i + 1), 2, 3,
+                    new JoystickButton(stick, 2)
+            ).bind(new JoystickButton(stick, 1));
+        }
 
     }
 

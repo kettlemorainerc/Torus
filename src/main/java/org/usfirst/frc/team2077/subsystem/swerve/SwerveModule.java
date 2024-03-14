@@ -1,11 +1,5 @@
 package org.usfirst.frc.team2077.subsystem.swerve;
 
-import com.revrobotics.*;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.common.WheelPosition;
@@ -17,19 +11,24 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
     public enum MotorPosition{
 
-        FRONT_LEFT(2, 1, 5, 1.5),
-        BACK_LEFT(8, 7, 5, 1),
-        BACK_RIGHT(6, 5, 5, 0.5),
-        FRONT_RIGHT(4,3, 5, 0),
+        FRONT_LEFT (2, 1, 5, 1.5, 0.02534497156739235, 5.266545340418816E-4, 0.21738624169716303,4.901154428286607E-5),
+        BACK_LEFT  (8, 7, 5, 1,   0.0271705724298954, 5.447675357572734E-4, 0.13649542924766456,4.274157968845806E-5),
+        BACK_RIGHT (6, 5, 5, 0.5, 0.028750400990247726, 5.698913591913879E-4, 0.1456683635071653, 3.8270833863588663E-5),
+        FRONT_RIGHT(4, 3, 5, 0,    0.2636384963989258, 9.083933605325E-9, 0.1559794460625504, 5.3351600006803205E-5),
         ;
 
         public final int drivingCANid, guidingCANid;
         public final double maxSpeed, angleOffset;
-        MotorPosition(int drivingCANid, int guidingCANid, double maxSpeed, double angleOffset){
+        public final double drivingP, drivingI, guidingP, guidingI;
+        MotorPosition(int drivingCANid, int guidingCANid, double maxSpeed, double angleOffset, double drivingP, double drivingI, double guidingP, double guidingI){
             this.drivingCANid = drivingCANid;
             this.guidingCANid = guidingCANid;
             this.maxSpeed = maxSpeed;
             this.angleOffset = angleOffset * Math.PI;
+            this.drivingP = drivingP;
+            this.drivingI = drivingI;
+            this.guidingP = guidingP;
+            this.guidingI = guidingI;
         }
     }
 
@@ -58,7 +57,10 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
         if(position == MotorPosition.FRONT_LEFT) notAllAtAngle = RobotHardware.getInstance().getChassis().getDriveModules().values().stream().allMatch(SwerveModule::isAtAngle);
 
+        //if(!notAllAtAngle){
         drivingMotor.update();
+        //}
+
         guidingMotor.update();
     }
 

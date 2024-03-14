@@ -4,10 +4,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import org.usfirst.frc.team2077.common.HardwareRequirements;
 import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
-import org.usfirst.frc.team2077.subsystem.Climbers;
-import org.usfirst.frc.team2077.subsystem.Intake;
-import org.usfirst.frc.team2077.subsystem.Launcher;
-import org.usfirst.frc.team2077.subsystem.LauncherPivot;
+import org.usfirst.frc.team2077.subsystem.*;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 
 public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChassis> {
@@ -22,6 +19,7 @@ public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChas
     public final Intake intake;
     public final Launcher launcher;
     public final LauncherPivot pivot;
+    public final Flippah flippah;
 
     private final SwerveChassis chassis;
 
@@ -33,6 +31,7 @@ public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChas
         launcher = new Launcher();
         pivot    = new LauncherPivot();
         chassis  = new SwerveChassis();
+        flippah  = new Flippah();
     }
 
     @Override public SwerveChassis getChassis() {

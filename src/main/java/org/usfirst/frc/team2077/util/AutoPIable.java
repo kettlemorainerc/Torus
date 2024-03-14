@@ -45,6 +45,10 @@ public abstract class AutoPIable {
     public void savePI(){
         Preferences.setDouble(saveKey + "_P", getP());
         Preferences.setDouble(saveKey + "_I", getI());
+
+        System.out.println(saveKey + "_P " + getP());
+        System.out.println(saveKey + "_I " + getI());
+
     }
 
     public abstract AutoPITuner.ErrorMethod getErrorMethod();

@@ -24,7 +24,9 @@ public class SwerveGuidingMotor extends AutoPIable {
 
     private boolean zeroVelocity = false;
 
+
     private double atAngleDeadzone = Math.PI / 12.0;
+
 
     public SwerveGuidingMotor(SwerveModule.MotorPosition position, SwerveModule parent) {
 
@@ -49,7 +51,7 @@ public class SwerveGuidingMotor extends AutoPIable {
 
         motor.burnFlash();
 
-        init(position.name() + "_GUIDING", 0.11240000277757645, 0.000039149999793153256, false);
+        init(position.name() + "_GUIDING", position.guidingP, position.guidingI, true);
     }
 
     public void update(){
@@ -60,6 +62,10 @@ public class SwerveGuidingMotor extends AutoPIable {
 
         double angleDiff = SwerveChassis.getAngleDifference(angleSet, getAngle());
         double p = PID.calculate(Math.abs(angleDiff), 0.0) * Math.signum(angleDiff);
+
+        if(Math.abs(p) < 0.0001){
+            p = 0.0;
+        }
 //        System.out.println(PID.getP());
         motor.set(p);
     }
@@ -163,7 +169,6 @@ public class SwerveGuidingMotor extends AutoPIable {
             motor.set(0.0);
             return;
         }
-
         angle %= 2.0 * Math.PI;
         if (angle < 0) angle += 2.0 * Math.PI;
         angleSet = angle;

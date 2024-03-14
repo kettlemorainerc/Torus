@@ -66,9 +66,9 @@ public class Launcher implements Subsystem {
     }
 
     public void feed(){
-        if(!atSpeed()){
-            return;
-        }
+        //if(!atSpeed()){
+        //    return;
+        //}
 
         feederMotorLeft.set(feederSpeed.get());
         feederMotorRight.set(-feederSpeed.get());

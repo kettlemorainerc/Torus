@@ -4,38 +4,43 @@ import com.ctre.phoenix.motorcontrol.SensorCollection;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
 import org.usfirst.frc.team2077.util.SmartDashNumber;
 import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
-
-import java.sql.SQLOutput;
+import org.usfirst.frc.team2077.util.SmartDashString;
 
 public class LauncherPivot implements Subsystem {
 
-    private static final double encoderCounts = 4096.0; //Encoder counts
+    private enum State{
+        RUNNING,
+        CALIBRATING,
+        HALTED
+    }
+
     private static final double deadZone = 1.0; //Degrees
+    private static final int encoderCounts = 4096; //Encoder counts
 
     private static final SmartDashRobotPreference maxSpeed = new SmartDashRobotPreference("Launcher pivot max speed", 0.6); //Percent output
     private static final SmartDashRobotPreference rampRate = new SmartDashRobotPreference("Launcher pivot inverse ramp rate", 35.0); //Percent output
     private static final SmartDashRobotPreference minSpeed = new SmartDashRobotPreference("Launcher pivot min speed", 0.075); //Percent output
 
-    private static final SmartDashNumber displayAngle = new SmartDashNumber("Launcher angle", 0.0, true); //Degrees
-    private static final SmartDashNumber displayRaw = new SmartDashNumber("Launcher encoder raw", 0.0, true); //Encoder counts
+    private static final SmartDashNumber displayAngle = new SmartDashNumber("Launcher angle", 0.0, false); //Degrees
+    private static final SmartDashNumber displayRaw = new SmartDashNumber("Launcher encoder raw", 0.0, false); //Encoder counts
 
-    private static final int encoderOffset = 1730; //Encoder counts
+    private static final SmartDashString statusDebug = new SmartDashString("Pivot status", "", false);
 
-    private static final double lowerBound =   0.0; //Degrees
     private static final double upperBound = 170.0; //Degrees
+    private static final double lowerBound =   0.0; //Degrees
 
-    private static final double stallThreshold = 0.0; //Amps TODO: determine stall amperage on the 700:1 gearbox
-    private static final double stallTime = 50.0; //Ticks TODO: determine minimum stall time
+    private static int encoderOffset = 1743; //Encoder counts
+
+    private static final double stallTime = 10.0; //Ticks TODO: determine minimum stall time
 
     private final CANSparkMax motor;
     private final SensorCollection encoder;
 
-    private boolean halted = false;
+    private State state = State.RUNNING;
 
     private boolean targeting = false;
     private double stallTimer = 0.0; //Ticks
@@ -54,33 +59,60 @@ public class LauncherPivot implements Subsystem {
     public void periodic() {
         displayAngle.set(getAngle());
 
-        if(halted) {
-            System.out.println("LauncherPivot is halted");
-            stop();
-            return;
+        statusDebug.set(String.format("Launcher is %s", state.name()));
+
+        switch(state){
+            case RUNNING:
+                if(targeting) moveTowardsTarget();
+                return;
+            case CALIBRATING:
+                calibrate();
+                return;
+            case HALTED:
+                motor.set(0.0);
         }
 
-        if(targeting) moveTowardsTarget();
+    }
+
+    /**
+     * Slowly moves the pivot down until it reaches the lower hardstop
+     */
+    private void calibrate(){
+        motor.set(0.1);
+
+        double v = encoder.getPulseWidthVelocity();
+        double x = 1.0;
+        //If the encoder is moving less than 1 degree per second, then it is considered stalling
+        if(Math.abs(v) < x * 360.0 / encoderCounts ) {
+            stallTimer++;
+            if(stallTimer > stallTime){
+                encoderOffset = encoder.getPulseWidthPosition() % encoderCounts;
+                if(encoderOffset < 0.0) encoderOffset += encoderCounts;
+
+                state = State.RUNNING;
+            }
+        }else{
+            stallTimer = 0.0;
+        }
     }
 
     public void run(double p){
         motor.set(p);
 
-        double current = motor.getOutputCurrent();
-        if(current > stallThreshold){
-            //anytime the motor starts moving from being stationary, the current is going to be high
-            //we only want to halt the subsystem if this stall continues for an unreasonable amount of time
-            //unfortunately this can really only be reliable if the hard stop is strong enough
-            stallTimer++;
-            if(stallTimer > stallTime){
-                System.out.println("LauncherPivot motor has reached stalled");
-                System.out.println("Subsystem was automatically halted");
-                halted = true;
-                return;
-            }
-        }else{
-            stallTimer = 0.0;
-        }
+//        double v = encoder.getPulseWidthVelocity();
+//        double x = 1;s
+//        //If the encoder is moving less than 1 degree per second, then it is considered stalling
+//        if(Math.abs(v) < x * 360.0 / encoderCounts && Math.abs(p) > minSpeed.get() * 1.25 ){
+//            stallTimer++;
+//            if(stallTimer > stallTime){
+//                System.out.println("LauncherPivot motor has reached stalled");
+//                System.out.println("Subsystem was automatically halted");
+//                state = State.HALTED;
+//                return;
+//            }
+//        }else{
+//            stallTimer = 0.0;
+//        }
 
         double angle = getAngle();
         if(
@@ -89,9 +121,8 @@ public class LauncherPivot implements Subsystem {
         ) {
             System.out.println("LauncherPivot has reaching an unreasonable position");
             System.out.println("Subsystem was automatically halted");
-            halted = true;
+            state = State.HALTED;
         }
-
     }
 
     public void moveTowardsTarget(){
@@ -154,6 +185,14 @@ public class LauncherPivot implements Subsystem {
     public boolean atTarget(){
         double angleDiff = SwerveChassis.getAngleDifferenceDegrees(getAngle(), target);
         return Math.abs(angleDiff) < deadZone;
+    }
+
+    /**
+     * Begins auto-calibrating the pivot
+     */
+     public void reset(){
+//         if(state != State.HALTED) return;
+         state = State.CALIBRATING;
     }
 
 }

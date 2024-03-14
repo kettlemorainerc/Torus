@@ -47,13 +47,15 @@ public class SwerveDrivingMotor extends AutoPIable {
 
         motor.burnFlash();
 
-        init(position.name() + "_DRIVING", 0.00004718000127468258, 0.00031408999348059297, false);
+        init(position.name() + "_DRIVING", position.drivingP, position.drivingI, true);
     }
 
     public void update(){
         if(
-            (Math.abs(velocitySet) < 0.05 && RobotHardware.getInstance().getChassis().mode == SwerveChassis.DriveMode.BRAKE) ||
-            (!SwerveModule.notAllAtAngle && RobotHardware.getInstance().getChassis().mode == SwerveChassis.DriveMode.ANGLE_REQ)
+            Math.abs(velocitySet) < 0.05 && (
+                RobotHardware.getInstance().getChassis().mode == SwerveChassis.DriveMode.BRAKE ||
+                Math.abs(getVelocityMeasured()) < 0.01
+            )
         ){
             motor.set(0.0);
             rateLimiter.reset(0.0);

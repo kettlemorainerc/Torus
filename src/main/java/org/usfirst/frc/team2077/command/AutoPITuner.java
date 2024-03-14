@@ -100,7 +100,7 @@ public class AutoPITuner extends SelfDefinedCommand {
             t.execute();
         }
     }
-//
+
     //TODO: rename this method
     private void walk(){
 
@@ -117,8 +117,8 @@ public class AutoPITuner extends SelfDefinedCommand {
         }
 
         for(Tester tester : testers){
-            double new_p = walkValue(pBest, tester.getError());
-            double new_i = walkValue(iBest, tester.getError());
+            double new_p = walkValue(pBest, bestError);
+            double new_i = walkValue(iBest, bestError);
 
             if(new_i > new_p){//Ensures that I is less than or equal to P
                 new_i = new_p;
@@ -133,7 +133,10 @@ public class AutoPITuner extends SelfDefinedCommand {
     //TODO: rename this method
     private double walkValue(double value, double error){
         double walk = walkPercent * error / (setpoint * testDuration);
-        return value * (1 + walk * (2 * Math.random() - 1));
+        if(walk > walkPercent) walk = walkPercent;
+        value = value * (1 + walk * (2 * Math.random() - 1));
+        if(value < 0) value = 0.00000001;
+        return value;
     }
 
     private boolean finishedTesting(){
