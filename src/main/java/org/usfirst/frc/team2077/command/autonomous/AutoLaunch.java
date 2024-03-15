@@ -31,7 +31,7 @@ public class AutoLaunch extends Command {
     @Override
     public void initialize(){
         updateState(State.TO_ANGLE);
-        launchTimer = 5;
+        launchTimer = 20;
     }
 
     @Override

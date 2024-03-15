@@ -13,7 +13,6 @@ import org.usfirst.frc.team2077.common.control.DriveJoystick;
 import org.usfirst.frc.team2077.common.control.DriveStick;
 import org.usfirst.frc.team2077.common.control.DriveXboxController;
 import org.usfirst.frc.team2077.subsystem.Climbers;
-import org.usfirst.frc.team2077.subsystem.Intake;
 import org.usfirst.frc.team2077.subsystem.Launcher;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 import org.usfirst.frc.team2077.util.AutoPIable;
@@ -90,6 +89,8 @@ public class DriveStation {
 //        launcherLaunchPID(secondary);
 
 //        if(true) return;
+
+//        new RaiseFlippah().bind(new JoystickButton(secondary, 16));
 
         new RunLauncher(Launcher.Target.SPEAKER).bind(new JoystickButton(secondary, 1));
         new RunLauncher(Launcher.Target.AMP).bind(new JoystickButton(secondary, 5));

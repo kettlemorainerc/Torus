@@ -10,11 +10,11 @@ public class Robot extends TimedRobot {
     private RobotHardware hardware;
     private DriveStation driveStation;
     private int autoTick;
-    private SmartDashNumber autoDash = new SmartDashNumber("autonomous number: ", 0.0, true);
+    private SmartDashNumber autoDash;
     @Override public void robotInit() {
         hardware = new RobotHardware();
         driveStation = new DriveStation();
-
+        autoDash = new SmartDashNumber("autonomous number: ", 0.0, false);
     }
 
     @Override public void robotPeriodic() {
@@ -33,6 +33,7 @@ public class Robot extends TimedRobot {
      * When you click the "Teleoperated" option in driver station
      */
     @Override public void teleopInit() {
+
     }
 
     /**
@@ -48,13 +49,18 @@ public class Robot extends TimedRobot {
             double d, a; //Java is very funky, and aparently I can't redeclar a variable in a seperate case because it is the same scope.
             switch(autonomousNumber) {
                 case 0:
+                    auto.addCommands(
+                        new AutoLaunch(Launcher.Target.SPEAKER)
+                    );
+                    break;
+                case 1:
                     //Moves robot straight forward
                     auto.addCommands(
                         new StraightenWheels(0.0),
                         new AutoSwerveMoveOdometryBased(3, 0)
                     );
                     break;
-                case 1:
+                case 5:
                     //Shoots in Speaker when aligned with the left face of the Speaker, then drives towards the center of the field
                     d = 5;
                     a = -2.443;
@@ -86,13 +92,11 @@ public class Robot extends TimedRobot {
                         )
                     );
                     break;
-//                case 4:
-//                    //Shoots in Amp and then drives sideways
-//                    auto.addCommands(
-//                        new AutoLaunch(Launcher.Target.AMP),
-//                        new AutoSwerveMoveOdometryBased(0, 3)
-//                    );
-//                    break;
+                case 8:
+                    auto.addCommands(
+                        new AutoSwerveMoveOdometryBased(Math.PI)
+                    );
+                    break;
             }
 
             auto.schedule();

@@ -19,7 +19,6 @@ public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChas
     public final Intake intake;
     public final Launcher launcher;
     public final LauncherPivot pivot;
-    public final Flippah flippah;
 
     private final SwerveChassis chassis;
 
@@ -31,7 +30,6 @@ public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChas
         launcher = new Launcher();
         intake   = new Intake();
         chassis  = new SwerveChassis();
-        flippah  = new Flippah();
     }
 
     @Override public SwerveChassis getChassis() {

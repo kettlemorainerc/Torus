@@ -13,10 +13,10 @@ public class AutoSwerveMoveOdometryBased extends Command {
 
     //TODO: find out what these values should be
     private static final SmartDashRobotPreference cardinal_p = new SmartDashRobotPreference("Auto Cardinal P", 0.1);
-    private static final SmartDashRobotPreference rotation_p = new SmartDashRobotPreference("Auto Cardinal I", 0.1);
+    private static final SmartDashRobotPreference rotation_p = new SmartDashRobotPreference("Auto Rotation P", 0.1);
 
     private static final double cardinalGoodEnoughThreshold = 0.5; //Meters
-    private static final double rotationGoodEnoughThreshold = Math.PI / 8; //Radians
+    private static final double rotationGoodEnoughThreshold = Math.PI / 6; //Radians
 
     protected SwerveChassis chassis;
     protected Position target;
@@ -51,7 +51,10 @@ public class AutoSwerveMoveOdometryBased extends Command {
         double deltaForward = target.get(FORWARD) - current.get(FORWARD);
         double deltaStrafe = target.get(STRAFE) - current.get(STRAFE);
 
-        double deltaRotation = SwerveChassis.getAngleDifference(target.get(ROTATION), current.get(ROTATION));
+        double currentAngle = current.get(ROTATION) % 2 * Math.PI;
+        if(currentAngle < 0) currentAngle += 2 * Math.PI;
+
+        double deltaRotation = SwerveChassis.getAngleDifference(target.get(ROTATION), currentAngle);
 
         if(
             Math.abs(deltaForward) < cardinalGoodEnoughThreshold &&
