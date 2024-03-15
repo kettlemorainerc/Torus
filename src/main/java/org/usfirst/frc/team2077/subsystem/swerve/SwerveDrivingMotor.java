@@ -117,7 +117,7 @@ public class SwerveDrivingMotor extends AutoPIable {
 
     @Override
     public double tunerGet() {
-        return getVelocityMeasured();
+        return Math.abs(getVelocityMeasured());
     }
 
     @Override

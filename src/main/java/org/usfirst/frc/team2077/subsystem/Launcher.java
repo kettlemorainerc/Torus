@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -17,7 +18,7 @@ public class Launcher implements Subsystem {
     public enum Target{
         INTAKE(-5, 0),
         AMP(10, 140),
-        SPEAKER(15, 90),
+        SPEAKER(25, 90),
         STAGE(10, 130);
         public final SmartDashRobotPreference speed, angle;
         Target(double defaultSpeed, double defaultAngle){
@@ -33,6 +34,7 @@ public class Launcher implements Subsystem {
     private final SmartDashRobotPreference feederSpeed = new SmartDashRobotPreference("feeder feed percent", 1.0);
 
     private double launcherSpeedSet = 0.0;
+//    private SlewRateLimiter limiter = new SlewRateLimiter(0.02 / 0.002);
 
     public Launcher(){
         launcherMotorLeft = new LauncherMotor(11, "LEFT_LAUNCHER");
@@ -71,11 +73,15 @@ public class Launcher implements Subsystem {
             return;
         }
 
-        feederMotorLeft.set(feederSpeed.get());
-        feederMotorRight.set(-feederSpeed.get());
+//        double r = limiter.calculate(feederSpeed.get());
+        double r = feederSpeed.get();
+
+        feederMotorLeft.set(r);
+        feederMotorRight.set(-r);
     }
 
     public void stopFeed(){
+//        limiter.reset(0.0);
         feederMotorLeft.set(0.0);
         feederMotorRight.set(0.0);
     }
@@ -93,7 +99,7 @@ public class Launcher implements Subsystem {
         private final RelativeEncoder encoder;
         private final SparkPIDController PID;
 
-        private final double speedUpDeadZone = 0.2;
+        private final double speedUpDeadZone = 1.0;
 
         private boolean calibrating = false;
         private double target = 0.0;
@@ -109,7 +115,7 @@ public class Launcher implements Subsystem {
 
             PID = motor.getPIDController();
 
-            this.init(key, 0.0000006847124041087227, 0.00002554714410507586, false);
+            this.init(key, /*P:*/ 1.535287592560053E-4, /*I:*/ 2.9597107641166076E-5, true);
         }
 
         public void run(double speed){
@@ -117,7 +123,7 @@ public class Launcher implements Subsystem {
 
             target = speed;
 
-            if(Math.abs(speed) < 0.01){
+            if(Math.abs(speed) < 0.05){
                 motor.set(0.0);
                 return;
             }
@@ -158,7 +164,7 @@ public class Launcher implements Subsystem {
         public void tunerSet(double speed) {
             calibrating = true;
 
-            if(Math.abs(speed) < 0.01){
+            if(Math.abs(speed) < 0.05){
                 motor.set(0.0);
                 return;
             }

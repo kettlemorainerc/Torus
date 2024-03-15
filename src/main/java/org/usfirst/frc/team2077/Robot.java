@@ -50,6 +50,7 @@ public class Robot extends TimedRobot {
                 case 0:
                     //Moves robot straight forward
                     auto.addCommands(
+                        new StraightenWheels(0.0),
                         new AutoSwerveMoveOdometryBased(3, 0)
                     );
                     break;
@@ -59,6 +60,7 @@ public class Robot extends TimedRobot {
                     a = -2.443;
                     auto.addCommands(
                         new AutoLaunch(Launcher.Target.SPEAKER),
+                        new StraightenWheels(a),
                         new AutoSwerveMoveOdometryBased(
                             Math.cos(a) * d, Math.sin(a) * d
                         )
@@ -68,6 +70,7 @@ public class Robot extends TimedRobot {
                     //Shoots in Speaker when aligned with the middle face of the Speaker, then drives backwards
                     auto.addCommands(
                         new AutoLaunch(Launcher.Target.SPEAKER),
+                        new StraightenWheels(0.0),
                         new AutoSwerveMoveOdometryBased(-3, 0)
                     );
                     break;
@@ -77,18 +80,19 @@ public class Robot extends TimedRobot {
                     a = 2.443;
                     auto.addCommands(
                         new AutoLaunch(Launcher.Target.SPEAKER),
+                        new StraightenWheels(a),
                         new AutoSwerveMoveOdometryBased(
                             Math.cos(a) * d, Math.sin(a) * d
                         )
                     );
                     break;
-                case 4:
-                    //Shoots in Amp and then drives sideways
-                    auto.addCommands(
-                        new AutoLaunch(Launcher.Target.AMP),
-                        new AutoSwerveMoveOdometryBased(0, 3)
-                    );
-                    break;
+//                case 4:
+//                    //Shoots in Amp and then drives sideways
+//                    auto.addCommands(
+//                        new AutoLaunch(Launcher.Target.AMP),
+//                        new AutoSwerveMoveOdometryBased(0, 3)
+//                    );
+//                    break;
             }
 
             auto.schedule();

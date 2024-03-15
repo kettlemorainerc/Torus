@@ -44,7 +44,7 @@ public class LauncherPivot implements Subsystem {
 
     private boolean targeting = false;
     private double stallTimer = 0.0; //Ticks
-    private double target = 0.0; //Degrees
+    private Launcher.Target target = Launcher.Target.SPEAKER; //Degrees
 
     public LauncherPivot(){
         motor = new CANSparkMax(15, CANSparkLowLevel.MotorType.kBrushed);
@@ -126,7 +126,7 @@ public class LauncherPivot implements Subsystem {
     }
 
     public void moveTowardsTarget(){
-        double angleDiff = getAngle() - target;
+        double angleDiff = getAngle() - target.angle.get();
         double dir = Math.signum(angleDiff);
         double percent = maxSpeed.get();
 
@@ -155,7 +155,7 @@ public class LauncherPivot implements Subsystem {
             return;
         }
 
-        this.target = t;
+        this.target = target;
         targeting = true;
     }
 
@@ -182,8 +182,12 @@ public class LauncherPivot implements Subsystem {
         targeting = t;
     }
 
+    public Launcher.Target getTarget(){
+        return target;
+    }
+
     public boolean atTarget(){
-        double angleDiff = SwerveChassis.getAngleDifferenceDegrees(getAngle(), target);
+        double angleDiff = SwerveChassis.getAngleDifferenceDegrees(getAngle(), target.angle.get());
         return Math.abs(angleDiff) < deadZone;
     }
 

@@ -27,9 +27,9 @@ public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChas
         instance = this;
 
         climbers = new Climbers();
-        intake   = new Intake();
-        launcher = new Launcher();
         pivot    = new LauncherPivot();
+        launcher = new Launcher();
+        intake   = new Intake();
         chassis  = new SwerveChassis();
         flippah  = new Flippah();
     }

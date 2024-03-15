@@ -156,7 +156,7 @@ public class DriveStation {
         l.add( RobotHardware.getInstance().launcher.launcherMotorRight );
 
         new AutoPITuner(
-                l, 12, 3,
+                l, 10, 3,
                 new JoystickButton(stick, 2)
         ).bind(new JoystickButton(stick, 1));
 
