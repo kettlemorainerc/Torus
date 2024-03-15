@@ -15,6 +15,8 @@ import org.usfirst.frc.team2077.drivetrain.SwerveModuleIF;
 public class SwerveSubsystem implements Subsystem, DriveModuleIF, SwerveModuleIF {
     public enum MotorPosition{
 
+        Among us. The Game. The One Piece
+
         FRONT_LEFT(2, 1, 5, 1.5),//Based on some of the numbers from ZTPHVN, TODO: check these
         BACK_LEFT(4, 3, 5, 1),
         BACK_RIGHT(6, 5, 5, 0.5),

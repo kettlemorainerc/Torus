@@ -11,18 +11,19 @@ import org.usfirst.frc.team2077.util.AutoPIable;
 
 public class SwerveDrivingMotor extends AutoPIable {
 
-    private static final double driveGearReduction = (45d * 22d) / (15d * 13d/*This is the variable gear*/);
     private static final int drivingMotorCurrentLimit = 50; // amps
+    private static final int motorFreeSpeed = 5800; //RPM
 
-    public static final double wheelRadius = Units.inchesToMeters(2);
-    public static final double wheelDiameter = wheelRadius * 2.0;
+    public static final double wheelDiameter = Units.inchesToMeters(2.9);
+    public static final double wheelRadius = 0.5 * wheelDiameter;
     public static final double wheelCircumference = wheelDiameter * Math.PI;
+
+    private static final double driveGearReduction = (45d * 22d) / (15d * 13d/*This is the variable gear*/);
 
     private final MotorPosition position;
     private final SwerveModule parent;
 
     private final SlewRateLimiter rateLimiter;
-
 
     private final CANSparkMax motor;
     private final RelativeEncoder encoder;
@@ -90,6 +91,10 @@ public class SwerveDrivingMotor extends AutoPIable {
         reversed = r;
     }
 
+    public double getMaximumSpeed(){
+        return motorFreeSpeed * encoder.getVelocityConversionFactor();
+    }
+
     @Override
     public double getP() {
         return PID.getP();
@@ -131,7 +136,6 @@ public class SwerveDrivingMotor extends AutoPIable {
     public AutoPITuner.ErrorMethod getErrorMethod() {
         return AutoPITuner.ErrorMethod.DIFFERENCE;
     }
-
 
     public double getDrivingEncoderPosition(){
         return encoder.getPosition();

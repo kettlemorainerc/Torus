@@ -26,26 +26,7 @@ public class Robot extends TimedRobot {
      */
 
     @Override public void autonomousInit() {
-//        autoTick = 0;
-//        SequentialCommandGroup straightForwardCommands = new SequentialCommandGroup(
-////                new AutoLaunch(Launcher.Target.AMP)
-//                new AutoSwerveMoveOdometryBased(2,0)
-//        );
-//        straightForwardCommands.schedule();
-//        // keep this first in the scheduler:
-//        Command straightenWheels = new StraightenWheels(0);
-//        Command launch = new AutoLaunch(Launcher.Target.SPEAKER);
-////        Command move = new AutoMoveEncoderBased()
-//        Command move = new AutoSwerveMoveOdometryBased(1.0, 0.0);
-//        //Command forward = new AutoMoveEncoderBased(10,0);
-//
-//        // add commands here (keep straightenWheels first):
-//        SequentialCommandGroup autonomous = new SequentialCommandGroup(straightenWheels, launch, move);
-//        autonomous.schedule();
-        //forward.schedule();
-
-
-
+        autoTick = 0;
     }
 
     /**
@@ -59,41 +40,59 @@ public class Robot extends TimedRobot {
      */
 
     @Override public void autonomousPeriodic() {
-//        autoTick ++;
-//        if(autoTick ==1){
-//            int autonomousNumber = autoDash.get().intValue();
-//            Command launchSpeaker = new AutoLaunch(Launcher.Target.SPEAKER);
-//
-//            switch (autonomousNumber) {
-//                case(0):
-//                    // Straight Forward
-//                    SequentialCommandGroup straightForwardCommands = new SequentialCommandGroup(new StraightenWheels(0), new AutoSwerveMoveOdometryBased(10,0));
-//                    straightForwardCommands.schedule();
-//                    break;
-//                case(1):
-//                    //Shoot in speaker (line up on left angle side)
-//                    Command straightenWheelsLeft = new StraightenWheels(-2.443);
-//                    Command backwardLeft = new AutoSwerveMoveOdometryBased(Math.pow(Math.cos(-2.443),2)*10,Math.pow(Math.sin(-2.443),2)*10);
-//                    SequentialCommandGroup leftSpeakerCommands = new SequentialCommandGroup(straightenWheelsLeft,launchSpeaker, backwardLeft);
-//                    leftSpeakerCommands.schedule();
-//                    break;
-//
-//                case(2):
-//                    //Shoot in speaker (line up in middle)
-//                    Command straightenWheelsBackwards = new StraightenWheels(Math.PI);
-//                    Command backwards = new AutoSwerveMoveOdometryBased(-10,0);
-//                    SequentialCommandGroup middleSpeakerCommands = new SequentialCommandGroup(straightenWheelsBackwards, launchSpeaker, backwards);
-//                    middleSpeakerCommands.schedule();
-//                    break;
-//                case(3):
-//                    //Shoot in speaker (line up on right)
-//                    Command straightenWheelsRight = new StraightenWheels(2.443);
-//                    Command backwardRight = new AutoSwerveMoveOdometryBased(Math.pow(Math.cos(2.443),2)*10,Math.pow(Math.sin(2.443),2)*10);
-//                    SequentialCommandGroup rightSpeakerCommands = new SequentialCommandGroup(straightenWheelsRight, launchSpeaker, backwardRight);
-//                    rightSpeakerCommands.schedule();
-//                    break;
-//            }
-//        }
+        autoTick++;
+        if(autoTick == 1){
+            SequentialCommandGroup auto = new SequentialCommandGroup();
+            int autonomousNumber = autoDash.get().intValue();
+
+            double d, a; //Java is very funky, and aparently I can't redeclar a variable in a seperate case because it is the same scope.
+            switch(autonomousNumber) {
+                case 0:
+                    //Moves robot straight forward
+                    auto.addCommands(
+                        new AutoSwerveMoveOdometryBased(3, 0)
+                    );
+                    break;
+                case 1:
+                    //Shoots in Speaker when aligned with the left face of the Speaker, then drives towards the center of the field
+                    d = 5;
+                    a = -2.443;
+                    auto.addCommands(
+                        new AutoLaunch(Launcher.Target.SPEAKER),
+                        new AutoSwerveMoveOdometryBased(
+                            Math.cos(a) * d, Math.sin(a) * d
+                        )
+                    );
+                    break;
+                case 2:
+                    //Shoots in Speaker when aligned with the middle face of the Speaker, then drives backwards
+                    auto.addCommands(
+                        new AutoLaunch(Launcher.Target.SPEAKER),
+                        new AutoSwerveMoveOdometryBased(-3, 0)
+                    );
+                    break;
+                case 3:
+                    //Shoots in Speaker when aligned with the right face of the Speaker, then drives towards the center of the field.
+                    d = 5;
+                    a = 2.443;
+                    auto.addCommands(
+                        new AutoLaunch(Launcher.Target.SPEAKER),
+                        new AutoSwerveMoveOdometryBased(
+                            Math.cos(a) * d, Math.sin(a) * d
+                        )
+                    );
+                    break;
+                case 4:
+                    //Shoots in Amp and then drives sideways
+                    auto.addCommands(
+                        new AutoLaunch(Launcher.Target.AMP),
+                        new AutoSwerveMoveOdometryBased(0, 3)
+                    );
+                    break;
+            }
+
+            auto.schedule();
+        }
 
     }
 

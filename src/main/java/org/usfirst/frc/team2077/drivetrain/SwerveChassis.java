@@ -15,13 +15,13 @@ import java.util.Map;
 
 public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
-    public static final double wheelBaseLength = Units.inchesToMeters(36.5);//19.25);
+    public static final double wheelBaseLength = Units.inchesToMeters(29.5);//19.25);
 
     public enum DriveMode{
         BRAKE, COAST, ANGLE_REQ;
     }
 
-    public static final double wheelBaseWidth = Units.inchesToMeters(36.5);//22.5);
+    public static final double wheelBaseWidth = Units.inchesToMeters(29.5);//22.5);
 
     public DriveMode mode = DriveMode.COAST;
 
