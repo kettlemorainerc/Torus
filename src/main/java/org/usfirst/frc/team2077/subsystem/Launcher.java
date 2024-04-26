@@ -4,9 +4,7 @@ import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import org.usfirst.frc.team2077.util.AutoPITuner;
 import org.usfirst.frc.team2077.util.PIDTuneable;
 import org.usfirst.frc.team2077.util.SmartDash.SmartDashRobotPreference;
 
@@ -34,8 +32,8 @@ public class Launcher implements Subsystem {
 //    private SlewRateLimiter limiter = new SlewRateLimiter(0.02 / 0.002);
 
     public Launcher(){
-        launcherMotorLeft = new LauncherMotor(11, "LEFT_LAUNCHER");
-        launcherMotorRight = new LauncherMotor(12, "RIGHT_LAUNCHER");
+        launcherMotorLeft = new LauncherMotor(11,  0.0001, 0.00001);
+        launcherMotorRight = new LauncherMotor(12, 0.0001, 0.00001);
 
         feederMotorLeft = new CANSparkMax(13, CANSparkLowLevel.MotorType.kBrushed);
         feederMotorRight = new CANSparkMax(14, CANSparkLowLevel.MotorType.kBrushed);
@@ -127,16 +125,16 @@ public class Launcher implements Subsystem {
         }
 
         public boolean atSpeed(){
-            return Math.abs(encoder.getVelocity() - target) < speedUpDeadZone;
+            return Math.abs(encoder.getVelocity() - target) < atSpeedTheshold;
         }
 
         public double getP() { return PID.getP(); }
         public double getI() { return PID.getI(); }
         public double getD() { return PID.getD(); }
 
-        public double setP(double p) { return PID.setP(p); }
-        public double setI(double i) { return PID.setI(i); }
-        public double setD(double d) { return PID.setD(d); }
+        public void setP(double p) { PID.setP(p); }
+        public void setI(double i) { PID.setI(i); }
+        public void setD(double d) { PID.setD(d); }
 
         @Override
         public void tuningSet(double setpoint) {

@@ -15,12 +15,10 @@ import org.usfirst.frc.team2077.common.control.DriveXboxController;
 import org.usfirst.frc.team2077.subsystem.Climbers;
 import org.usfirst.frc.team2077.subsystem.Launcher;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
-import org.usfirst.frc.team2077.util.AutoPITuner;
 import org.usfirst.frc.team2077.util.PIDTuneable;
 import org.usfirst.frc.team2077.util.PIDTuner;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 /**
  * This class is intended to be the center point of defining actions that can be utilized during teleop segments of
