@@ -2,11 +2,10 @@ package org.usfirst.frc.team2077.subsystem.swerve;
 
 import com.revrobotics.*;
 import edu.wpi.first.math.controller.PIDController;
-import org.usfirst.frc.team2077.command.AutoPITuner;
 import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
-import org.usfirst.frc.team2077.util.AutoPIable;
+import org.usfirst.frc.team2077.util.PIDTuneable;
 
-public class SwerveGuidingMotor extends AutoPIable {
+public class SwerveGuidingMotor implements PIDTuneable {
 
     private static final int guidingMotorCurrentLimit = 20; // amps
 
@@ -16,19 +15,16 @@ public class SwerveGuidingMotor extends AutoPIable {
     private final CANSparkMax motor;
     private final AbsoluteEncoder encoder;
 
-    private final PIDController PID;
+    private  final PIDController PID;
 
     private double angleOffset = 0.0;
     private double angleSet = 0.0;
 
     private boolean zeroVelocity = false;
 
-
     private double atAngleDeadzone = Math.PI / 12.0;
 
-
     public SwerveGuidingMotor(SwerveModule.MotorPosition position, SwerveModule parent) {
-
         this.parent = parent;
         this.position = position;
 
@@ -38,19 +34,13 @@ public class SwerveGuidingMotor extends AutoPIable {
         motor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         motor.setSmartCurrentLimit(guidingMotorCurrentLimit);
 
-//        Funny spot the difference
-//        motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
         encoder = motor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
-
         encoder.setPositionConversionFactor(2.0 * Math.PI);
         encoder.setInverted(false);
 
-        PID = new PIDController(0.0, 0.0, 0.0);//TODO: FIX
-        // PID.getP(), guidingCANPID.getI(), 0.0);
+        PID = new PIDController(position.guidingP, position.guidingI, 0.0);
 
         motor.burnFlash();
-
-        init(position.name() + "_GUIDING", position.guidingP, position.guidingI, true);
     }
 
     public void update(){
@@ -59,13 +49,13 @@ public class SwerveGuidingMotor extends AutoPIable {
             return;
         }
 
-        double angleDiff = SwerveChassis.getAngleDifference(angleSet, getAngle());
+        double angleDiff = distanceToTarget();
         double p = PID.calculate(Math.abs(angleDiff), 0.0) * Math.signum(angleDiff);
 
-        if(Math.abs(p) < 0.0001){
+        if(Math.abs(p) < 0.001){
             p = 0.0;
         }
-//        System.out.println(PID.getP());
+
         motor.set(p);
     }
 
@@ -77,7 +67,7 @@ public class SwerveGuidingMotor extends AutoPIable {
     }
 
     public boolean atAngle(){
-        return Math.abs(SwerveChassis.getAngleDifference(angleSet, getAngle())) <= atAngleDeadzone;
+        return Math.abs(distanceToTarget()) <= atAngleDeadzone;
     }
 
     public void setAngle(double angle) {
@@ -85,8 +75,7 @@ public class SwerveGuidingMotor extends AutoPIable {
             return;
         }
 
-        double currentAngle = getAngle();
-        double angleDifference = SwerveChassis.getAngleDifference(currentAngle, angle);
+        double angleDifference = distanceToTarget();
 
         SwerveDrivingMotor drivingMotor = parent.getDrivingMotor();
         boolean reversed = drivingMotor.getReversed();
@@ -117,8 +106,7 @@ public class SwerveGuidingMotor extends AutoPIable {
 
     //Use sparingly (duh)
     public void setAngleForced(double angle){
-        double currentAngle = getAngle();
-        double angleDifference = SwerveChassis.getAngleDifference(currentAngle, angle);
+        double angleDifference = distanceToTarget();
 
         SwerveDrivingMotor drivingMotor = parent.getDrivingMotor();
 
@@ -134,53 +122,52 @@ public class SwerveGuidingMotor extends AutoPIable {
         angleSet = angle;
     }
 
-    @Override
-    public double getP() {
-        return PID.getP();
+    public double distanceToTarget(){
+        return SwerveChassis.getAngleDifference(angleSet, getAngle());
     }
 
-    @Override
-    public double getI() {
-        return PID.getI();
-    }
+    public double getP(){ return PID.getP(); }
+    public double getI(){ return PID.getI(); }
+    public double getD(){ return PID.getD(); }
+
+    public void setP(double p) { PID.setP(p); }
+    public void setI(double i) { PID.setI(i); }
+    public void setD(double d) { PID.setD(d); }
 
     @Override
-    public void setP(double p) {
-        PID.setP(p);
-    }
-
-    @Override
-    public void setI(double i) {
-        PID.setI(i);
-    }
-
-    @Override
-    public double tunerGet() {
-        return getAngle();
-    }
-
-    @Override
-    public void tunerSet(double angle) {
+    public void tuningSet(double setpoint) {
         parent.calibrating = true;
 
-        if (angle == 0.0) {
-            angleOffset -= getAngle();
-            motor.set(0.0);
-            return;
-        }
-        angle %= 2.0 * Math.PI;
-        if (angle < 0) angle += 2.0 * Math.PI;
-        angleSet = angle;
-
-        double angleDiff = SwerveChassis.getAngleDifference(angleSet, getAngle());
+        double angleDiff = distanceToTarget();
         double p = PID.calculate(Math.abs(angleDiff), 0.0) * Math.signum(angleDiff);
+
+        if(Math.abs(p) < 0.001){
+            p = 0.0;
+        }
+
         motor.set(p);
     }
 
     @Override
-    public AutoPITuner.ErrorMethod getErrorMethod() {
-        return AutoPITuner.ErrorMethod.ANGLE_DIFFERENCE;
+    public void tuningStop() {
+        parent.calibrating = true;
+
+        motor.set(0.0);
     }
 
+    @Override
+    public void zeroIntegral() {
+        angleOffset -= getAngle();
+        PID.reset();
+    }
 
+    @Override
+    public double tuningGetError() {
+        return Math.abs(distanceToTarget());
+    }
+
+    @Override
+    public boolean tuningReady() {
+        return Math.abs(motor.getEncoder().getVelocity()) < 0.01;
+    }
 }

@@ -6,8 +6,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.usfirst.frc.team2077.RobotHardware;
-import org.usfirst.frc.team2077.util.SmartDashNumber;
-import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
+import org.usfirst.frc.team2077.util.SmartDash.SmartDashRobotPreference;
 
 public class Intake implements Subsystem {
 

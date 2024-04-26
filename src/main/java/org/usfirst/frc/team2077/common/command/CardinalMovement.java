@@ -8,10 +8,8 @@ package org.usfirst.frc.team2077.common.command;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.*;
 import org.usfirst.frc.team2077.RobotHardware;
-import org.usfirst.frc.team2077.common.*;
 import org.usfirst.frc.team2077.common.control.DriveXboxController;
 import org.usfirst.frc.team2077.common.drivetrain.*;
-import org.usfirst.frc.team2077.util.SmartDashNumber;
 
 public class CardinalMovement extends CommandBase {
     protected DriveXboxController stick;

@@ -4,12 +4,12 @@ import com.revrobotics.*;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.util.Units;
 import org.usfirst.frc.team2077.RobotHardware;
-import org.usfirst.frc.team2077.command.AutoPITuner;
+import org.usfirst.frc.team2077.util.AutoPITuner;
 import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule.MotorPosition;
-import org.usfirst.frc.team2077.util.AutoPIable;
+import org.usfirst.frc.team2077.util.PIDTuneable;
 
-public class SwerveDrivingMotor extends AutoPIable {
+public class SwerveDrivingMotor implements PIDTuneable {
 
     private static final int drivingMotorCurrentLimit = 50; // amps
     private static final int motorFreeSpeed = 5800; //RPM
@@ -45,17 +45,21 @@ public class SwerveDrivingMotor extends AutoPIable {
         encoder.setVelocityConversionFactor(wheelCircumference / driveGearReduction / 60.0);
 
         PID = motor.getPIDController();
+        PID.setP(position.drivingP);
+        PID.setI(position.drivingI);
+        PID.setD(0.0);
 
         motor.burnFlash();
-
-        init(position.name() + "_DRIVING", position.drivingP, position.drivingI, true);
     }
 
     public void update(){
         if(
-            Math.abs(velocitySet) < 0.05 && (
-                RobotHardware.getInstance().getChassis().mode == SwerveChassis.DriveMode.BRAKE ||
-                Math.abs(getVelocityMeasured()) < 0.01
+            parent.calibrating ||
+            (
+                Math.abs(velocitySet) < 0.05 && (
+                    RobotHardware.getInstance().getChassis().mode == SwerveChassis.DriveMode.BRAKE ||
+                    Math.abs(getVelocityMeasured()) < 0.01
+                )
             )
         ){
             motor.set(0.0);
@@ -95,46 +99,57 @@ public class SwerveDrivingMotor extends AutoPIable {
         return motorFreeSpeed * encoder.getVelocityConversionFactor();
     }
 
-    @Override
     public double getP() {
         return PID.getP();
     }
-
-    @Override
     public double getI() {
         return PID.getI();
     }
+    public double getD() {
+        return PID.getD();
+    }
 
-    @Override
     public void setP(double p) {
         PID.setP(p);
     }
-
-    @Override
     public void setI(double i) {
         PID.setI(i);
     }
-
-    @Override
-    public double tunerGet() {
-        return Math.abs(getVelocityMeasured());
+    public void setD(double d) {
+        PID.setD(d);
     }
 
     @Override
-    public void tunerSet(double velocity) {
+    public void tuningSet(double setpoint) {
         parent.calibrating = true;
 
-        if(velocity == 0.0){
-            motor.set(0.0);
-        }else{
-            setVelocity(velocity);
-            update();
-        }
+        PID.setReference(
+            velocitySet,
+            CANSparkMax.ControlType.kVelocity
+        );
+
     }
 
     @Override
-    public AutoPITuner.ErrorMethod getErrorMethod() {
-        return AutoPITuner.ErrorMethod.DIFFERENCE;
+    public void tuningStop() {
+        parent.calibrating = true;
+
+        motor.set(0.0);
+    }
+
+    @Override
+    public void zeroIntegral() {
+        PID.setIAccum(0.0);
+    }
+
+    @Override
+    public double tuningGetError() {
+        return Math.abs(getVelocityMeasured() - getVelocitySet());
+    }
+
+    @Override
+    public boolean tuningReady() {
+        return Math.abs(getVelocityMeasured()) < 0.001;
     }
 
     public double getDrivingEncoderPosition(){

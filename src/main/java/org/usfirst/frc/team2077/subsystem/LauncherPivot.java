@@ -6,9 +6,9 @@ import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
-import org.usfirst.frc.team2077.util.SmartDashNumber;
-import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
-import org.usfirst.frc.team2077.util.SmartDashString;
+import org.usfirst.frc.team2077.util.SmartDash.SmartDashNumber;
+import org.usfirst.frc.team2077.util.SmartDash.SmartDashRobotPreference;
+import org.usfirst.frc.team2077.util.SmartDash.SmartDashString;
 
 public class LauncherPivot implements Subsystem {
 

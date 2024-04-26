@@ -1,8 +1,7 @@
-package org.usfirst.frc.team2077.util;
+package org.usfirst.frc.team2077.util.SmartDash;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableEvent.Kind;
 
 //import edu.wpi.first.networktables.NetworkTableType;
 import edu.wpi.first.networktables.NetworkTableInstance;

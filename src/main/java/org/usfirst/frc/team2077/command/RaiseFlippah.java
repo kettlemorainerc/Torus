@@ -4,7 +4,7 @@ import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import org.usfirst.frc.team2077.common.command.RepeatedCommand;
-import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
+import org.usfirst.frc.team2077.util.SmartDash.SmartDashRobotPreference;
 
 public class RaiseFlippah extends RepeatedCommand {
 

@@ -11,18 +11,13 @@ import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.math.*;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.usfirst.frc.team2077.common.math.Vector;
 
 import java.util.*;
 
 import static org.usfirst.frc.team2077.common.VelocityDirection.*;
 
 public abstract class AbstractChassis<DriveModule> extends SubsystemBase implements DriveChassisIF {
-
-    private static <T> EnumMap<VelocityDirection, T> defaultedDirectionMap(T defaultValue) {
-        EnumMap<VelocityDirection, T> newMap = new EnumMap<>(VelocityDirection.class);
-        for (VelocityDirection d : VelocityDirection.values()) newMap.put(d, defaultValue);
-        return newMap;
-    }
 
     public final Map<WheelPosition, DriveModule> driveModules;
 
@@ -36,8 +31,8 @@ public abstract class AbstractChassis<DriveModule> extends SubsystemBase impleme
 
     protected final Position position = new Position();
 
-    protected Map<VelocityDirection, Double> velocitySet = defaultedDirectionMap(0d);
-    protected Map<VelocityDirection, Double> velocityMeasured = defaultedDirectionMap(0d);
+    protected Vector velocitySet = new Vector();
+    protected Vector velocityMeasured = new Vector();
 
     public AbstractChassis(Map<WheelPosition, DriveModule> driveModules) {
         this.driveModules = driveModules;
@@ -45,7 +40,8 @@ public abstract class AbstractChassis<DriveModule> extends SubsystemBase impleme
         lastTime = Clock.getSeconds();
     }
 
-    @Override public void periodic() {
+    @Override
+    public void periodic() {
         double now = Clock.getSeconds();
         deltaTime = now - lastTime;
         lastTime = now;
@@ -77,66 +73,74 @@ public abstract class AbstractChassis<DriveModule> extends SubsystemBase impleme
      */
     protected abstract void measureVelocity();
 
-    @Override public Map<VelocityDirection, Double> getVelocitySet() {
-        return new EnumMap<>(velocitySet);
+    @Override
+    public Vector getVelocitySet() {
+        return velocitySet.copy();
     }
 
-    @Override public Map<VelocityDirection, Double> getVelocityMeasured() {
-        return new EnumMap<>(velocityMeasured);
+    @Override
+    public Vector getVelocityMeasured() {
+        return velocityMeasured.copy();
     }
 
-    @Override public Map<VelocityDirection, Double> getMaximumVelocity() {
-        Map<VelocityDirection, Double> max = new EnumMap<>(VelocityDirection.class);
-
-        max.put(FORWARD, maximumSpeed);
-        max.put(STRAFE, maximumSpeed);
-        max.put(ROTATION, maximumRotation);
-
-        return max;
+    @Override
+    public Vector getMaximumVelocity() {
+        return new Vector(
+            maximumSpeed,
+            maximumSpeed,
+            maximumRotation
+        );
     }
 
-    @Override public Map<VelocityDirection, Double> getMinimumVelocity() {
-        Map<VelocityDirection, Double> min = new EnumMap<>(VelocityDirection.class);
-
-        min.put(FORWARD, minimumSpeed);
-        min.put(STRAFE, minimumSpeed);
-        min.put(ROTATION, minimumRotation);
-
-        return min;
+    @Override
+    public Vector getMinimumVelocity() {
+        return new Vector(
+            minimumSpeed,
+            minimumSpeed,
+            minimumRotation
+        );
     }
 
-    @Override public Position getPosition() {
+    @Override
+    public Position getPosition() {
         return position.copy();
     }
 
-    @Override public void setVelocity(double forward, double strafe, double rotation){
+    @Override
+    public void setVelocity(double forward, double strafe, double rotation){
         setVelocity(forward, strafe);
         setRotation(rotation);
     }
 
-    @Override public void setVelocity(double forward, double strafe){
+    @Override
+    public void setVelocity(double forward, double strafe){
         velocitySet.put(FORWARD, forward);
         velocitySet.put(STRAFE, strafe);
     }
 
-    @Override public void setRotation(double rotation){
+    @Override
+    public void setRotation(double rotation){
         velocitySet.put(ROTATION, rotation);
     }
 
-    @Override public final void setVelocityPercent(double forward, double strafe, double rotation) {
+    @Override
+    public final void setVelocityPercent(double forward, double strafe, double rotation) {
         setVelocityPercent(forward, strafe);
         setRotationPercent(rotation);
     }
 
-    @Override public final void setVelocityPercent(double forward, double strafe) {
+    @Override
+    public final void setVelocityPercent(double forward, double strafe) {
         setVelocity(forward * maximumSpeed, strafe * maximumSpeed);
     }
 
-    @Override public final void setRotationPercent(double rotation) {
+    @Override
+    public final void setRotationPercent(double rotation) {
         setRotation(rotation * maximumRotation);
     }
 
-    @Override public void halt() {
+    @Override
+    public void halt() {
         setVelocity(0, 0, 0);
     }
 

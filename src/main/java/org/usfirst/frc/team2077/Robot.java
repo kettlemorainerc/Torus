@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.*;
 import org.usfirst.frc.team2077.command.autonomous.*;
 import org.usfirst.frc.team2077.subsystem.Launcher;
-import org.usfirst.frc.team2077.util.SmartDashNumber;
+import org.usfirst.frc.team2077.util.SmartDash.SmartDashNumber;
 
 public class Robot extends TimedRobot {
     private RobotHardware hardware;

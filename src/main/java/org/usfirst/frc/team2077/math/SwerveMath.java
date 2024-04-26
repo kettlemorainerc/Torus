@@ -4,6 +4,7 @@ import org.usfirst.frc.team2077.common.VelocityDirection;
 import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.control.DriveStick;
 import org.usfirst.frc.team2077.common.math.Matrix;
+import org.usfirst.frc.team2077.common.math.Vector;
 import org.usfirst.frc.team2077.drivetrain.SwerveModuleIF;
 
 import java.util.EnumMap;
@@ -43,138 +44,76 @@ import static org.usfirst.frc.team2077.common.WheelPosition.*;
  */
 public class SwerveMath {
     private static final EnumMap<WheelPosition, Multiplier> WHEEL_MULTIPLIERS = new EnumMap<>(WheelPosition.class);
-    private static final EnumMap<WheelPosition, JointKey> WHEEL_TO_SIDES = new EnumMap<>(WheelPosition.class);
     static {
-        WHEEL_TO_SIDES.put(FRONT_LEFT, new JointKey(RobotSide.FRONT, RobotSide.LEFT));
-        WHEEL_TO_SIDES.put(BACK_LEFT, new JointKey(RobotSide.BACK, RobotSide.LEFT));
         WHEEL_MULTIPLIERS.put(FRONT_LEFT, new Multiplier(-1, 1));
         WHEEL_MULTIPLIERS.put(BACK_LEFT, new Multiplier(-1, -1));
 
-        WHEEL_TO_SIDES.put(FRONT_RIGHT, new JointKey(RobotSide.FRONT, RobotSide.RIGHT));
-        WHEEL_TO_SIDES.put(BACK_RIGHT, new JointKey(RobotSide.BACK, RobotSide.RIGHT));
         WHEEL_MULTIPLIERS.put(FRONT_RIGHT, new Multiplier(1, 1));
         WHEEL_MULTIPLIERS.put(BACK_RIGHT, new Multiplier(1, -1));
     }
 
-    private static double pythag(double a, double b) {
-        return sqrt(pow(a, 2) + pow(b, 2));
+    private final double halfTrackwidth, halfWheelbase, wDenom;
+
+    private double maxSpeed, maxRotation;
+    private double length, width, diagonal;
+
+    public SwerveMath(double length, double width, double maxSpeed, double maxRotation) {
+        this.maxSpeed = maxSpeed;
+        this.maxRotation = maxRotation;
+
+        this.length = length;
+        this.width = width;
+
+        this.halfWheelbase = length / 2;
+        this.halfTrackwidth = width / 2;
+        this.wDenom = pow(length, 2) + pow(width, 2);
+
+        this.diagonal = Math.hypot(length, width);
     }
 
-    private double wheelbase, trackWidth, radius;
-    private double halfWheelbase, halfTrackwidth, wDenom;
+    /*
+     * David...
+     * why
+     * what was the point of the setWheelBase method?
+     * updateRadius?
+     * And they're all public too
+     * Why would the robot dimensions ever need to be changed after init?
+     * I mean, if hardware is ever ambitious enough to make a dynamic robot
+     * frame, then this code might be cool i guess
+     */
+//    public void setWheelbase(double wheelbase) {
+//        this.wheelbase = wheelbase;
+//        this.halfWheelbase = wheelbase / 2;
+//        updateRadius();
+//    }
 
-    public SwerveMath(double wheelbase, double trackWidth) {
-        setWheelbase(wheelbase);
-        setTrackWidth(trackWidth);
+    public Map<WheelPosition, SwerveWheelTarget> getWheelTargets(double forward, double strafe, double rotation) {
+        EnumMap<WheelPosition, SwerveWheelTarget> wheelTargets = new EnumMap<>(WheelPosition.class);
+
+        double back  = strafe - rotation * length / diagonal;
+        double front = strafe + rotation * length / diagonal;
+        double right = forward - rotation * width / diagonal;
+        double left  = forward + rotation * width / diagonal;
+
+        wheelTargets.put(FRONT_LEFT,    SwerveWheelTarget.fromCardinal(front, left));
+        wheelTargets.put(FRONT_RIGHT,   SwerveWheelTarget.fromCardinal(front, right));
+        wheelTargets.put(BACK_LEFT,     SwerveWheelTarget.fromCardinal(back,  left));
+        wheelTargets.put(BACK_RIGHT,    SwerveWheelTarget.fromCardinal(back,  right));
+
+        double max = wheelTargets.values().stream().mapToDouble(SwerveWheelTarget::getMagnitude).max().orElse(0d);
+        if(max > 1) wheelTargets.values().forEach(val -> val.setMagnitude(val.getMagnitude() / max));
+//
+        return wheelTargets;
     }
 
-    public void setWheelbase(double wheelbase) {
-        this.wheelbase = wheelbase;
-        this.halfWheelbase = wheelbase / 2;
-        updateRadius();
-    }
-
-    public void setTrackWidth(double trackWidth) {
-        this.trackWidth = trackWidth;
-        this.halfTrackwidth = trackWidth / 2;
-        updateRadius();
-    }
-
-    private void updateRadius() {
-        this.radius = pythag(wheelbase, trackWidth);
-        this.wDenom = pow(wheelbase, 2) + pow(trackWidth, 2);
-    }
-
-    private EnumMap<RobotSide, Double> createRobotSideValueMap(
-            double forward, double strafe, double rotation
+    public Map<WheelPosition, SwerveWheelTarget> getWheelTargets(
+            Vector target, double maxSpeed, double maxRotation
     ) {
-        EnumMap<RobotSide, Double> multipliers = new EnumMap<>(RobotSide.class);
-
-        // A
-        multipliers.put(RobotSide.BACK, strafe - rotation * wheelbase / radius);
-        // B
-        multipliers.put(RobotSide.FRONT, strafe + rotation * wheelbase / radius);
-        // C
-        multipliers.put(RobotSide.RIGHT, forward - rotation * trackWidth / radius);
-        // D
-        multipliers.put(RobotSide.LEFT, forward + rotation * trackWidth / radius);
-
-        return multipliers;
-    }
-
-    private SwerveTargetValues wheelTargets(
-            Map<RobotSide, Double> values,
-            RobotSide east,
-            RobotSide north
-    ) {
-        double mag = Math.sqrt(pow(values.get(east), 2) + pow(values.get(north), 2));
-        double ang = atan2(values.get(north), values.get(east));
-
-        if(Double.isNaN(mag)) mag = 0;
-        if(Double.isNaN(ang)) ang = 0;
-        else if(ang < 0) {
-            ang += 2 * Math.PI;
-        }
-
-        return new SwerveTargetValues(mag, ang);
-    }
-
-    public Map<WheelPosition, SwerveTargetValues> targetsForVelocities(
-            Map<VelocityDirection, Double> targetMagnitudes
-    ) {
-        double north = targetMagnitudes.get(FORWARD);
-        double strafe = targetMagnitudes.get(STRAFE);
-        double rotation = targetMagnitudes.get(ROTATION);
-
-        if(rotation == 0 && north == 0 && strafe == 0) {
-            return Map.of(
-                    FRONT_LEFT, new SwerveTargetValues(0, 0),
-                    FRONT_RIGHT, new SwerveTargetValues(0, 0),
-                    BACK_LEFT, new SwerveTargetValues(0, 0),
-                    BACK_RIGHT, new SwerveTargetValues(0, 0)
-            );
-        }
-
-        // Some mix of north/strafe/rotation
-        Map<RobotSide, Double> valueMap = createRobotSideValueMap(north, strafe, rotation);
-
-        Map<WheelPosition, SwerveTargetValues> targetValues = new EnumMap<>(WheelPosition.class);
-
-        WHEEL_TO_SIDES.forEach((position, sides) -> targetValues.put(position, wheelTargets(valueMap, sides.east, sides.north)));
-
-        double max = targetValues.values().stream().mapToDouble(SwerveTargetValues::getMagnitude).max().orElse(0d);
-        if(max > 1) targetValues.values().forEach(val -> val.setMagnitude(val.getMagnitude() / max));
-
-        return targetValues;
-    }
-
-    public Map<WheelPosition, SwerveTargetValues> targetsForVelocities(
-          Map<VelocityDirection, Double> targetMagnitudes,
-          double maxSpeed, double maxRotation
-    ) {
-       return targetsForVelocities(Map.of(
-             FORWARD, targetMagnitudes.get(FORWARD) / maxSpeed,
-             STRAFE, targetMagnitudes.get(STRAFE) / maxSpeed,
-             ROTATION, targetMagnitudes.get(ROTATION) / maxRotation
-       ));
-    }
-
-    public Map<WheelPosition, SwerveTargetValues> targetsForVelocities(
-            Map<VelocityDirection, Double> targetMagnitudes,
-            double maxSpeed, double maxRotation, double angleOffset
-    ){
-        return targetsForVelocities(rotateTargets(targetMagnitudes, angleOffset), maxSpeed, maxRotation);
-    }
-
-    public Map<VelocityDirection, Double> rotateTargets(
-            Map<VelocityDirection, Double> tar, double angle
-    ){
-        Map<VelocityDirection, Double> copy = new EnumMap<>(tar);
-
-        copy.put(FORWARD,Math.sin(angle) * tar.get(STRAFE) + Math.cos(angle) * tar.get(FORWARD));
-        copy.put(STRAFE, Math.cos(angle) * tar.get(STRAFE) - Math.sin(angle) * tar.get(FORWARD));
-
-        return copy;
+       return getWheelTargets(
+           target.get(FORWARD) / maxSpeed,
+           target.get(STRAFE) / maxSpeed,
+           target.get(ROTATION) / maxRotation
+       );
     }
 
     /**
@@ -203,23 +142,15 @@ public class SwerveMath {
         );
     }
 
-    public Map<VelocityDirection, Double> velocitiesForTargets( //TODO: potentially rename to something regarding forward kinematics
+    public Vector velocitiesForTargets( //TODO: potentially rename to something regarding forward kinematics
         Map<WheelPosition, ? extends SwerveModuleIF> targets
     ) {
+        //I don't understand any of this so I'm not gonna touch it
+        //However, I think this needs to be looked into more as the rotation does not seem to be accuracy
         SwerveModuleIF fl = targets.get(FRONT_LEFT);
         SwerveModuleIF bl = targets.get(BACK_LEFT);
         SwerveModuleIF br = targets.get(BACK_RIGHT);
         SwerveModuleIF fr = targets.get(FRONT_RIGHT);
-
-        // We have to convert our wheel angles to their unit circle equivalent
-        // We go 0 (north) - 360 clockwise
-        // The unit circle goes 0 (east) - 360 counter-clockwise
-        // So -angle inverts to counter-clockwise
-        // and + 90 (un)adjusts to make north 0
-//        double flA = toRadians(-fl.getAngle() + 90),
-//                blA = toRadians(-bl.getAngle() + 90),
-//                brA = toRadians(-br.getAngle() + 90),
-//                frA = toRadians(-fr.getAngle() + 90);
 
         double flA = fl.getAngle(),
                 blA = bl.getAngle(),
@@ -251,48 +182,11 @@ public class SwerveMath {
 
         Matrix result = pseudoPDotX.multiply(velocities);
 
-        return Map.of(
-                FORWARD,  result.get(0, 0),
-                STRAFE,   result.get(0, 1),
-                ROTATION, result.get(0, 2)
+        return new Vector(
+            result.get(0, 0),
+            result.get(0, 1),
+            result.get(0, 2)
         );
-    }
-
-    enum RobotSide {
-        LEFT(true), RIGHT(true), FRONT(false), BACK(false);
-        public final boolean east;
-
-        RobotSide(boolean east) {
-            this.east = east;
-        }
-    }
-
-    private static class JointKey {
-        final RobotSide east;
-        final RobotSide north;
-
-        JointKey(RobotSide north, RobotSide east) {
-            this.east = east;
-            this.north = north;
-        }
-
-        @Override public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            JointKey jointKey = (JointKey) o;
-            return east == jointKey.east && north == jointKey.north;
-        }
-
-        @Override public int hashCode() {
-            return Objects.hash(east, north);
-        }
-
-        @Override public String toString() {
-            return "JointKey{" +
-                   "east=" + east +
-                   ", north=" + north +
-                   '}';
-        }
     }
 
     private static class Multiplier {

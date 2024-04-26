@@ -15,7 +15,9 @@ import org.usfirst.frc.team2077.common.control.DriveXboxController;
 import org.usfirst.frc.team2077.subsystem.Climbers;
 import org.usfirst.frc.team2077.subsystem.Launcher;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
-import org.usfirst.frc.team2077.util.AutoPIable;
+import org.usfirst.frc.team2077.util.AutoPITuner;
+import org.usfirst.frc.team2077.util.PIDTuneable;
+import org.usfirst.frc.team2077.util.PIDTuner;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -84,10 +86,6 @@ public class DriveStation {
     /** Bind technical driver button commands here */
     private void bindTechnicalControl(Joystick secondary) {
 
-//        swerveVelocityPID(secondary);
-//        swerveAnglePID(secondary);
-//        launcherLaunchPID(secondary);
-
 //        if(true) return;
 
 //        new RaiseFlippah().bind(new JoystickButton(secondary, 16));
@@ -117,49 +115,45 @@ public class DriveStation {
 
     }
 
-    private static void swerveVelocityPID(Joystick stick){
-        ArrayList<AutoPIable> modules = new ArrayList<>(RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::getDrivingMotor).collect(Collectors.toList()));
-
-//        new AutoPITuner(
-//            modules, 3, 3,
-//            new JoystickButton(stick, 2)
-//        ).bind(new JoystickButton(stick, 1));
-
-        for(int i = 0; i < modules.size(); i++) {
-            new AutoPITuner(
-                    modules.subList(i, i + 1), 2, 3,
-                    new JoystickButton(stick, 2)
-            ).bind(new JoystickButton(stick, 1));
-        }
-
+    private static void tuneSwerveDrivingMotors(Joystick stick){
+        RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::getDrivingMotor).forEach(
+            (module) -> {
+                new PIDTuner(
+                    module,
+                    4,
+                    2
+                );
+            }
+        );
     }
 
-    private static void swerveAnglePID(Joystick stick){
-        ArrayList<AutoPIable> modules = new ArrayList<>(RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::getGuidingMotor).collect(Collectors.toList()));
-
-//        new AutoPITuner(
-//            modules, Math.PI / 2.0, 3,
-//            new JoystickButton(stick, 2)
-//        ).bind(new JoystickButton(stick, 1));
-
-        for(int i = 0; i < modules.size(); i++) {
-            new AutoPITuner(
-                    modules.subList(i, i + 1), Math.PI / 2.0, 3,
-                    new JoystickButton(stick, 2)
-            ).bind(new JoystickButton(stick, 1));
-        }
+    private static void tuneSwerveGuidingMotors(Joystick stick){
+        RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::getGuidingMotor).forEach(
+            (module) -> {
+                new PIDTuner(
+                        module,
+                        Math.PI / 2,
+                        2
+                );
+            }
+        );
     }
 
-    public static void launcherLaunchPID(Joystick stick){
-        ArrayList<AutoPIable> l = new ArrayList<>();
+    public static void tuneLauncherWheels(Joystick stick){
+        ArrayList<PIDTuneable> l = new ArrayList<>();
 
         l.add( RobotHardware.getInstance().launcher.launcherMotorLeft );
         l.add( RobotHardware.getInstance().launcher.launcherMotorRight );
 
-        new AutoPITuner(
-                l, 10, 3,
-                new JoystickButton(stick, 2)
-        ).bind(new JoystickButton(stick, 1));
+        l.forEach(
+            (module) -> {
+                new PIDTuner(
+                    module,
+                    500,
+                    2
+                );
+            }
+        );
 
     }
 

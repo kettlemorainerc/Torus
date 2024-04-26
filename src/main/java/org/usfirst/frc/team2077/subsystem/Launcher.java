@@ -4,14 +4,11 @@ import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import org.usfirst.frc.team2077.command.AutoPITuner;
-import org.usfirst.frc.team2077.util.AutoPIable;
-import org.usfirst.frc.team2077.util.SmartDashNumber;
-import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
+import org.usfirst.frc.team2077.util.AutoPITuner;
+import org.usfirst.frc.team2077.util.PIDTuneable;
+import org.usfirst.frc.team2077.util.SmartDash.SmartDashRobotPreference;
 
 public class Launcher implements Subsystem {
 
@@ -90,32 +87,30 @@ public class Launcher implements Subsystem {
         launcherSpeedSet = 0.0;
     }
 
-    public class LauncherMotor extends AutoPIable{
+    public class LauncherMotor implements PIDTuneable {
 
-        private final double wheelRadius = Units.inchesToMeters(2);
-        private final double wheelCircumference = wheelRadius * 2.0 * Math.PI;
+        private final double atSpeedTheshold = 10.0; //RPM
+        private boolean calibrating = false;
 
         private final CANSparkMax motor;
         private final RelativeEncoder encoder;
         private final SparkPIDController PID;
 
-        private final double speedUpDeadZone = 1.0;
-
-        private boolean calibrating = false;
         private double target = 0.0;
 
-        public LauncherMotor(int id, String key){
+        public LauncherMotor(int id, double p, double i){
             motor = new CANSparkMax(id, CANSparkLowLevel.MotorType.kBrushless);
 
             motor.setIdleMode(CANSparkMax.IdleMode.kCoast);
 
             encoder = motor.getEncoder();
 
-            encoder.setVelocityConversionFactor(wheelCircumference / 60.0);
+//            encoder.setVelocityConversionFactor(wheelCircumference / 60.0);
 
             PID = motor.getPIDController();
-
-            this.init(key, /*P:*/ 1.535287592560053E-4, /*I:*/ 2.9597107641166076E-5, true);
+            PID.setP(p);
+            PID.setI(i);
+            PID.setD(0.0);
         }
 
         public void run(double speed){
@@ -135,46 +130,39 @@ public class Launcher implements Subsystem {
             return Math.abs(encoder.getVelocity() - target) < speedUpDeadZone;
         }
 
-        @Override
-        public double getP() {
-            return PID.getP();
-        }
+        public double getP() { return PID.getP(); }
+        public double getI() { return PID.getI(); }
+        public double getD() { return PID.getD(); }
+
+        public double setP(double p) { return PID.setP(p); }
+        public double setI(double i) { return PID.setI(i); }
+        public double setD(double d) { return PID.setD(d); }
 
         @Override
-        public double getI() {
-            return PID.getI();
-        }
-
-        @Override
-        public void setP(double p) {
-            PID.setP(p);
-        }
-
-        @Override
-        public void setI(double i) {
-            PID.setI(i);
-        }
-
-        @Override
-        public double tunerGet() {
-            return encoder.getVelocity();
-        }
-
-        @Override
-        public void tunerSet(double speed) {
+        public void tuningSet(double setpoint) {
             calibrating = true;
-
-            if(Math.abs(speed) < 0.05){
-                motor.set(0.0);
-                return;
-            }
-
-            PID.setReference(speed, CANSparkMax.ControlType.kVelocity);
+            PID.setReference(setpoint, CANSparkMax.ControlType.kVelocity);
         }
 
         @Override
-        public AutoPITuner.ErrorMethod getErrorMethod() {
-            return AutoPITuner.ErrorMethod.DIFFERENCE;
+        public void tuningStop() {
+            calibrating = true;
+            motor.set(0.0);
+        }
+
+        @Override
+        public void zeroIntegral() {
+            PID.setIAccum(0.0);
+        }
+
+        @Override
+        public double tuningGetError() {
+            return Math.abs(encoder.getVelocity() - target);
+        }
+
+        @Override
+        public boolean tuningReady() {
+            return Math.abs(encoder.getVelocity()) < 0.1;
         }
     }
 }

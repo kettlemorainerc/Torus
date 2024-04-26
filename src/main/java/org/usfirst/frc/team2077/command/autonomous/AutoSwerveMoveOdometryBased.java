@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.common.math.Position;
 import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
-import org.usfirst.frc.team2077.util.SmartDashRobotPreference;
+import org.usfirst.frc.team2077.util.SmartDash.SmartDashRobotPreference;
 
 import static org.usfirst.frc.team2077.common.VelocityDirection.*;
 

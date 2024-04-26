@@ -5,8 +5,9 @@ import edu.wpi.first.math.util.Units;
 import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.drivetrain.AbstractChassis;
 import org.usfirst.frc.team2077.common.drivetrain.DriveModuleIF;
+import org.usfirst.frc.team2077.common.math.Vector;
 import org.usfirst.frc.team2077.math.SwerveMath;
-import org.usfirst.frc.team2077.math.SwerveTargetValues;
+import org.usfirst.frc.team2077.math.SwerveWheelTarget;
 import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 
 import java.util.Comparator;
@@ -16,19 +17,17 @@ import java.util.Map;
 public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
     public static final double wheelBaseLength = Units.inchesToMeters(29.5);//19.25);
+    public static final double wheelBaseWidth = Units.inchesToMeters(29.5);//22.5);
 
     public enum DriveMode{
         BRAKE, COAST, ANGLE_REQ;
     }
 
-    public static final double wheelBaseWidth = Units.inchesToMeters(29.5);//22.5);
-
     public DriveMode mode = DriveMode.COAST;
 
     private final SwerveMath math;
-    //ADIS16470_IMU is the class used in the provided swerve code //TODO: check gyro
-//    private final ADXRS450_Gyro gyro = new ADXRS450_Gyro();
     private final AHRS gyro = new AHRS();
+
     private double heading = 0.0;
     private boolean fieldOriented = true;
 
@@ -47,26 +46,21 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
 //        gyro = new ADIS16470_IMU();
 
-        math = new SwerveMath(wheelBaseLength, wheelBaseWidth);
-
         maximumSpeed = this.driveModules.values().stream().map(DriveModuleIF::getMaximumSpeed).min(Comparator.naturalOrder()).orElseThrow();
 
         //Dear David,
-        //  I am sorry that I did not like you clever work around
-        //  for finding the max rotation velocity, but it added a
-        //  lot of clutter and is likely too confusion to anybody
-        //  who did not watch you implement it directly.
+        //  I forgot what I was complaining about
         //Sincerely, Hank
 
-        //TODO: confirm that this works
         double circumference = Math.PI * Math.hypot(wheelBaseLength, wheelBaseWidth);
-        //The time it would take for a wheel traveling at maximum speed to travel the distance of the circumference
         double secondsPerRevolution = circumference / this.maximumSpeed;
         double radiansPerSecond = 2.0 * Math.PI / secondsPerRevolution;
 
         maximumRotation = radiansPerSecond;
 
         minimumSpeed = maximumSpeed * 0.1;
+
+        math = new SwerveMath(wheelBaseLength, wheelBaseWidth, maximumSpeed, maximumRotation);
     }
 
     @Override protected void measureVelocity(){
@@ -76,24 +70,13 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
     @Override protected void updateDriveModules() {
 //        System.out.println(velocitySet.get(FORWARD));
 
-        double gyroOffset = Math.toRadians(gyro.getAngle());
-
-        Map<WheelPosition, SwerveTargetValues> wheelTargets;
-
-        if(fieldOriented) {
-            wheelTargets = math.targetsForVelocities(
-                    velocitySet,
-                    maximumSpeed,
-                    maximumRotation,
-                    gyroOffset
-            );
-        }else{
-            wheelTargets = math.targetsForVelocities(
-                    velocitySet,
-                    maximumSpeed,
-                    maximumRotation
-            );
+        Vector target = velocitySet.copy();
+        if(fieldOriented){
+            double gyroOffset = Math.toRadians(gyro.getAngle());
+            target.rotate(gyroOffset);
         }
+
+        Map<WheelPosition, SwerveWheelTarget> wheelTargets = math.getWheelTargets(velocitySet, maximumSpeed, maximumRotation);
 
         wheelTargets.forEach((key, value) -> {
             SwerveModule module = this.driveModules.get(key);
@@ -116,13 +99,13 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
         fieldOriented = v;
     }
 
-    public static double getAngleDifference(double from, double to) {
+    public static double getAngleDifference(double to, double from) {
         double diff = from - to;
         if(Math.abs(diff) > Math.PI) diff -= 2 * Math.PI * Math.signum(diff);
         return diff;
     }
 
-    public static double getAngleDifferenceDegrees(double from, double to) {
+    public static double getAngleDifferenceDegrees(double to, double from) {
         double diff = from - to;
         if(Math.abs(diff) > 180) diff -= 360 * Math.signum(diff);
         return diff;
