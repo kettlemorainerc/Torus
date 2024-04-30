@@ -84,7 +84,9 @@ public class DriveStation {
     /** Bind technical driver button commands here */
     private void bindTechnicalControl(Joystick secondary) {
 
-//        if(true) return;
+        tuneSwerveGuidingMotors(secondary);
+
+        if(true) return;
 
 //        new RaiseFlippah().bind(new JoystickButton(secondary, 16));
 
@@ -119,8 +121,9 @@ public class DriveStation {
                 new PIDTuner(
                     module,
                     4,
-                    2
-                );
+                    2,
+                    new JoystickButton(stick, 2)
+                ).bind(new JoystickButton(stick, 1));
             }
         );
     }
@@ -129,10 +132,11 @@ public class DriveStation {
         RobotHardware.getInstance().getChassis().getDriveModules().values().stream().map(SwerveModule::getGuidingMotor).forEach(
             (module) -> {
                 new PIDTuner(
-                        module,
-                        Math.PI / 2,
-                        2
-                );
+                    module,
+                    Math.PI / 2,
+                    2,
+                    new JoystickButton(stick, 2)
+                ).bind(new JoystickButton(stick, 1));
             }
         );
     }
@@ -148,8 +152,9 @@ public class DriveStation {
                 new PIDTuner(
                     module,
                     500,
-                    2
-                );
+                    2,
+                    new JoystickButton(stick, 2)
+                ).bind(new JoystickButton(stick, 1));
             }
         );
 

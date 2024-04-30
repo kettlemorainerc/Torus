@@ -58,9 +58,11 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
         //if(!notAllAtAngle){
         drivingMotor.update();
-        //}
 
         guidingMotor.update();
+
+        //}
+
     }
 
     @Override

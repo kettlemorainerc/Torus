@@ -59,7 +59,7 @@ public class SwerveDrivingMotor implements PIDTuneable {
                     RobotHardware.getInstance().getChassis().mode == SwerveChassis.DriveMode.BRAKE ||
                     Math.abs(getVelocityMeasured()) < 0.01
                 )
-            )
+            ) || position != SwerveModule.MotorPosition.BACK_LEFT
         ){
             motor.set(0.0);
             rateLimiter.reset(0.0);

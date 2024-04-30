@@ -44,12 +44,12 @@ public class SwerveGuidingMotor implements PIDTuneable {
     }
 
     public void update(){
-        if(parent.calibrating) {
+        if(parent.calibrating || position != SwerveModule.MotorPosition.BACK_LEFT) {
             motor.set(0.0);
             return;
         }
 
-        double angleDiff = distanceToTarget();
+        double angleDiff = -distanceToTarget();
         double p = PID.calculate(Math.abs(angleDiff), 0.0) * Math.signum(angleDiff);
 
         if(Math.abs(p) < 0.001){
@@ -75,27 +75,31 @@ public class SwerveGuidingMotor implements PIDTuneable {
             return;
         }
 
-        double angleDifference = distanceToTarget();
-
+        double angleDifference = Math.abs(SwerveChassis.getAngleDifference(angle, getAngle()));
+//
         SwerveDrivingMotor drivingMotor = parent.getDrivingMotor();
         boolean reversed = drivingMotor.getReversed();
         double velocitySet = Math.abs(drivingMotor.getVelocitySet());
-
+//
+//        System.out.println(zeroVelocity);
+//
         if (!zeroVelocity) {
             if (reversed) {
                 angle -= Math.PI;
             }
-        } else if (Math.abs(angleDifference) > 0.5 * Math.PI) {
+        } else if (angleDifference > 0.5 * Math.PI) {
             angle -= Math.PI;
             reversed = true;
         } else {
             reversed = false;
         }
 
-        drivingMotor.setReversed(reversed);
-        zeroVelocity = velocitySet < 0.01;
 
-        if(velocitySet < 0.01){
+        drivingMotor.setReversed(reversed);
+
+        zeroVelocity = velocitySet < 0.1;
+
+        if(zeroVelocity){
             return;
         }
 
@@ -134,11 +138,14 @@ public class SwerveGuidingMotor implements PIDTuneable {
     public void setI(double i) { PID.setI(i); }
     public void setD(double d) { PID.setD(d); }
 
+    private double setpoint = 0;
+
     @Override
     public void tuningSet(double setpoint) {
         parent.calibrating = true;
 
-        double angleDiff = distanceToTarget();
+        this.setpoint = setpoint;
+        double angleDiff = -SwerveChassis.getAngleDifference(setpoint, getAngle());
         double p = PID.calculate(Math.abs(angleDiff), 0.0) * Math.signum(angleDiff);
 
         if(Math.abs(p) < 0.001){
@@ -163,7 +170,7 @@ public class SwerveGuidingMotor implements PIDTuneable {
 
     @Override
     public double tuningGetError() {
-        return Math.abs(distanceToTarget());
+        return Math.abs(SwerveChassis.getAngleDifference(setpoint, getAngle()));
     }
 
     @Override

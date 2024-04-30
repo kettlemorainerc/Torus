@@ -1,5 +1,6 @@
 package org.usfirst.frc.team2077.util;
 
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import org.usfirst.frc.team2077.common.Clock;
 import org.usfirst.frc.team2077.common.command.SelfDefinedCommand;
 
@@ -9,6 +10,7 @@ public class PIDTuner extends SelfDefinedCommand {
         RUNNING, STOPPING
     }
 
+    private final JoystickButton endButton;
     private final PIDTuneable module;
     private final double testDuration;
     private double[] setpoints;
@@ -20,11 +22,14 @@ public class PIDTuner extends SelfDefinedCommand {
     private double bestP, bestI, bestD;
 
     private double timeSinceLastReset = 0.0;
+    private double timeSinceLastUpdate = 0.0;
     private double error = 0.0;
 
     private int setpointIndex = -1;
 
-    public PIDTuner(PIDTuneable module, double[] setpoints, double duration){
+    public PIDTuner(PIDTuneable module, double[] setpoints, double duration, JoystickButton endButton){
+        this.endButton = endButton;
+
         this.module = module;
         this.setpoints = setpoints;
         this.testDuration = duration;
@@ -38,8 +43,8 @@ public class PIDTuner extends SelfDefinedCommand {
         for(double setpoint : setpoints) maxError += setpoint * duration;
     }
 
-    public PIDTuner(PIDTuneable module, double setpoint, double duration){
-        this(module, new double[]{setpoint}, duration);
+    public PIDTuner(PIDTuneable module, double setpoint, double duration, JoystickButton endButton){
+        this(module, new double[]{setpoint}, duration, endButton);
     }
 
     @Override
@@ -50,11 +55,13 @@ public class PIDTuner extends SelfDefinedCommand {
     @Override
     public void execute(){
         double timeRunning = Clock.getSeconds() - timeSinceLastReset;
+        double dt = Clock.getSeconds() - timeSinceLastUpdate;
+        timeSinceLastUpdate = Clock.getSeconds();
 
         switch (state){
             case RUNNING:
                 module.tuningSet(setpoints[setpointIndex]);
-                error += Math.abs(module.tuningGetError());
+                error += Math.abs(module.tuningGetError()) * dt;
 
                 if(timeRunning > testDuration){
                     state = State.STOPPING;
@@ -98,7 +105,7 @@ public class PIDTuner extends SelfDefinedCommand {
         }
 
 
-        double v = 5 * error / maxError;
+        double v = 3 * error / maxError;
         if(v > 1) v = 1;
 
         module.setP(vary(bestP, v));
@@ -108,7 +115,7 @@ public class PIDTuner extends SelfDefinedCommand {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return endButton.getAsBoolean();
     }
 
     @Override
@@ -119,7 +126,7 @@ public class PIDTuner extends SelfDefinedCommand {
 
         module.zeroIntegral();
 
-        System.out.printf("P: %.8f\nI: %.8f\nD: %.8f\n", bestP, bestI, bestD);
+        System.out.printf("P: %.15f\nI: %.15f\nD: %.15f\n", bestP, bestI, bestD);
     }
 
     public static double vary(double value, double variance){
