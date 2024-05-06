@@ -15,4 +15,6 @@ public interface PIDTuneable {
 
     double tuningGetError();
     boolean tuningReady();
+
+    String getName();
 }

@@ -177,4 +177,9 @@ public class SwerveGuidingMotor implements PIDTuneable {
     public boolean tuningReady() {
         return Math.abs(motor.getEncoder().getVelocity()) < 0.01;
     }
+
+    @Override
+    public String getName() {
+        return position.name() + "_GUIDING_MOTOR";
+    }
 }

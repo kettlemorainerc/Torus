@@ -151,6 +151,11 @@ public class SwerveDrivingMotor implements PIDTuneable {
         return Math.abs(getVelocityMeasured()) < 0.001;
     }
 
+    @Override
+    public String getName() {
+        return position.name() + "_DRIVING_MOTOR";
+    }
+
     public double getDrivingEncoderPosition(){
         return encoder.getPosition();
     }

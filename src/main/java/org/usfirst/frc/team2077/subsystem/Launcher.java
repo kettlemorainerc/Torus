@@ -163,5 +163,10 @@ public class Launcher implements Subsystem {
         public boolean tuningReady() {
             return Math.abs(encoder.getVelocity()) < 0.1;
         }
+
+        @Override
+        public String getName() {
+            return "Launcher Motor with ID: " + motor.getDeviceId();
+        }
     }
 }

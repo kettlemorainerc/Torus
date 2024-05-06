@@ -54,7 +54,7 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
     public void periodic(){
         if(calibrating) return;
 
-        if(position == MotorPosition.FRONT_LEFT) notAllAtAngle = RobotHardware.getInstance().getChassis().getDriveModules().values().stream().allMatch(SwerveModule::isAtAngle);
+//        if(position == MotorPosition.FRONT_LEFT) notAllAtAngle = RobotHardware.getInstance().getChassis().getDriveModules().values().stream().allMatch(SwerveModule::isAtAngle);
 
         //if(!notAllAtAngle){
         drivingMotor.update();
@@ -97,6 +97,14 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
     public boolean isAtAngle(){
         return guidingMotor.atAngle();
+    }
+
+    /**
+     * @Returns a value between 0 and 1 that represents how close the wheel is to its target angle.
+     * This is used for throttle, for what percent the driving motor should be set to.
+     * */
+    public double dotToAngle(){
+        return Math.abs(Math.cos(guidingMotor.distanceToTarget()));
     }
 
     @Override

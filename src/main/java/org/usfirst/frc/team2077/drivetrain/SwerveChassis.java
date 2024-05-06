@@ -13,6 +13,7 @@ import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.OptionalDouble;
 
 public class SwerveChassis extends AbstractChassis<SwerveModule> {
 
@@ -20,13 +21,16 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
     public static final double wheelBaseWidth = Units.inchesToMeters(29.5);//22.5);
 
     public enum DriveMode{
-        BRAKE, COAST, ANGLE_REQ;
+        BRAKE, COAST
     }
 
     public DriveMode mode = DriveMode.COAST;
 
     private final SwerveMath math;
     private final AHRS gyro = new AHRS();
+
+    private final double maxDrivePercent = 0.65;
+    private final double minDriveInputPercent = 0.001;
 
     private double heading = 0.0;
     private boolean fieldOriented = true;
@@ -68,25 +72,31 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
     }
 
     @Override protected void updateDriveModules() {
-//        System.out.println(velocitySet.get(FORWARD));
 
         Vector target = velocitySet.copy();
-        if(fieldOriented){
+        if(fieldOriented) {
             double gyroOffset = Math.toRadians(gyro.getAngle());
             target.rotate(gyroOffset);
         }
 
         Map<WheelPosition, SwerveWheelTarget> wheelTargets = math.getWheelTargets(velocitySet, maximumSpeed, maximumRotation);
 
+        double throttle = getDriveModules().values().stream().mapToDouble(SwerveModule::dotToAngle).min().getAsDouble();
+//        throttle = Math.pow(throttle, 2)
+        double maxDriveSpeed = maximumSpeed * throttle * maxDrivePercent;
+
         wheelTargets.forEach((key, value) -> {
             SwerveModule module = this.driveModules.get(key);
 
-            double velocity = maximumSpeed * 0.65 * Math.abs(value.getMagnitude());
+            double drivePercent = Math.abs(value.getMagnitude());
+            if(drivePercent > 1) drivePercent = 1;
+            if(drivePercent < minDriveInputPercent) drivePercent = 0.0;
 
-            if(velocity > maximumSpeed) velocity = maximumSpeed;
-            if(velocity > 0.01) velocity = Math.max(velocity, minimumSpeed);
+            double driveVelocity = drivePercent * maxDriveSpeed;
 
-            module.setVelocity(velocity);
+//            if(driveVelocity > 0.01) velocity = Math.max(velocity, minimumSpeed);
+
+            module.setVelocity(driveVelocity);
             module.setAngle(value.getAngle());
         });
     }

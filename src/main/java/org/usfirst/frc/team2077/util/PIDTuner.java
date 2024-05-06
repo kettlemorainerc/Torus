@@ -126,7 +126,7 @@ public class PIDTuner extends SelfDefinedCommand {
 
         module.zeroIntegral();
 
-        System.out.printf("P: %.15f\nI: %.15f\nD: %.15f\n", bestP, bestI, bestD);
+        System.out.printf("===%s===\nP: %.15f\nI: %.15f\nD: %.15f\n", module.getName(), bestP, bestI, bestD);
     }
 
     public static double vary(double value, double variance){
