@@ -11,30 +11,16 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
     public enum MotorPosition{
 
-//        ===FRONT_RIGHT_GUIDING_MOTOR===
-//        P: 0.126390047060793 ﻿
-//        I: 0.000032892147470 ﻿
-//        D: 0.000000000000000 ﻿===BACK_RIGHT_GUIDING_MOTOR=== ﻿
-//        P: 0.127227207164933 ﻿
-//        I: 0.000033676601302 ﻿
-//        D: 0.000000000000000 ﻿===BACK_LEFT_GUIDING_MOTOR=== ﻿
-//        P: 0.213612265713718 ﻿
-//        I: 0.000000000000000 ﻿
-//                ﻿﻿﻿﻿﻿﻿﻿﻿Warning ﻿﻿ 1 ﻿﻿ Loop time of 0.02s overrun
-// ﻿﻿ edu.wpi.first.wpilibj.IterativeRobotBase.printLoopOverrunMessage(IterativeRobotBase.java:412) ﻿﻿﻿
-//                ﻿﻿﻿﻿﻿﻿ D: 0.000000000000000 ﻿
-//                ﻿﻿﻿﻿﻿﻿ ﻿Warning﻿ at edu.wpi.first.wpilibj.IterativeRobotBase.printLoopOverrunMessage(IterativeRobotBase.java:412): Loop time of 0.02s overrun ﻿
-//                ﻿﻿﻿﻿﻿﻿  ﻿
-//                ﻿﻿﻿﻿﻿﻿ ===FRONT_LEFT_GUIDING_MOTOR=== ﻿
-//                ﻿﻿﻿﻿﻿﻿ P: 0.180890160307561 ﻿
-//                ﻿﻿﻿﻿﻿﻿ I: 0.000038191069037 ﻿
-//                ﻿﻿﻿﻿﻿﻿ D: 0.000000000000000 ﻿
-//                ﻿﻿﻿﻿﻿﻿ CommandScheduler loop overrun ﻿
+//        PID tuning finished
+//                 ===FRONT_RIGHT_GUIDING_MOTOR=== 1.80013e-01, 3.85633e-05
+//                 ===BACK_RIGHT_GUIDING_MOTOR===  2.63287e-01, 4.87870e-05
+//                 ===BACK_LEFT_GUIDING_MOTOR=== 1.89910e-01, 3.22729e-05
+//                 ===FRONT_LEFT_GUIDING_MOTOR=== 2.73380e-01, 6.20462e-05
 
-        FRONT_LEFT (2, 1, 1.5, /*P:*/ 0.02048513852059841, /*I:*/ 5.435076891444623E-4, 0.18089016030756128, 3.8191069037146064E-5),
-        BACK_LEFT  (8, 7, 1,   /*P:*/ 0.030933115631341934, /*I:*/ 6.17226876784116E-4, 0.13372843696123757, 4.350619756154357E-5),
-        BACK_RIGHT (6, 5, 0.5, /*P:*/ 0.022237218916416168, /*I:*/ 6.017343257553875E-4, 0.12722720716493266, 3.367660130168929E-5),
-        FRONT_RIGHT(4, 3, 0,    /*P:*/ 0.03256119787693024, /*I:*/ 7.328314241021872E-4, 0.12639004706079296, 3.2892147470342086E-5),
+        FRONT_LEFT (2, 1, 1.5, 2.14861e-02, 1.03070e-03, 2.73380e-01, 6.20462e-05),
+        BACK_LEFT  (8, 7, 1,   4.36126e-02, 1.01244e-03, 1.89910e-01, 3.22729e-05),
+        BACK_RIGHT (6, 5, 0.5, 4.11272e-02, 1.24478e-03, 2.63287e-01, 4.87870e-05),
+        FRONT_RIGHT(4, 3, 0,   3.83776e-02, 8.66882e-04, 1.80013e-01, 3.85633e-05),
         ;
 
         public final int drivingCANid, guidingCANid;
@@ -124,7 +110,7 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
      * This is used for throttle, for what percent the driving motor should be set to.
      * */
     public double dotToAngle(){
-        return Math.abs(Math.cos(guidingMotor.distanceToTarget()));
+        return Math.cos(Math.abs(guidingMotor.distanceToTarget()));
     }
 
     @Override

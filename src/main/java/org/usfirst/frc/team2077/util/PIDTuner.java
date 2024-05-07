@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import org.usfirst.frc.team2077.common.Clock;
 import org.usfirst.frc.team2077.common.command.SelfDefinedCommand;
 
+import java.sql.SQLOutput;
+
 public class PIDTuner extends SelfDefinedCommand {
 
     private enum State{
@@ -26,6 +28,7 @@ public class PIDTuner extends SelfDefinedCommand {
     private double error = 0.0;
 
     private int setpointIndex = -1;
+    private int trial = 0;
 
     public PIDTuner(PIDTuneable module, double[] setpoints, double duration, JoystickButton endButton){
         this.endButton = endButton;
@@ -76,7 +79,9 @@ public class PIDTuner extends SelfDefinedCommand {
                     setpointIndex++;
 
                     if(setpointIndex >= setpoints.length){
-                        randomWalk();
+                        if(trial > 0) {
+                            randomWalk();
+                        }
 
                         reset();
                         break;
@@ -93,6 +98,8 @@ public class PIDTuner extends SelfDefinedCommand {
         error = 0.0;
         timeSinceLastReset = Clock.getSeconds();
         setpointIndex = 0;
+
+        trial++;
     }
 
     private void randomWalk(){
@@ -110,7 +117,7 @@ public class PIDTuner extends SelfDefinedCommand {
 
         module.setP(vary(bestP, v));
         module.setI(vary(bestI, v));
-        module.setI(vary(bestD, v));
+        module.setD(vary(bestD, v));
     }
 
     @Override
@@ -126,7 +133,8 @@ public class PIDTuner extends SelfDefinedCommand {
 
         module.zeroIntegral();
 
-        System.out.printf("===%s===\nP: %.15f\nI: %.15f\nD: %.15f\n", module.getName(), bestP, bestI, bestD);
+        System.out.println("PID tuning finished");
+        System.out.printf("===%s===\nP: %.5e\nI: %.5e\nD: %.5e\n", module.getName(), bestP, bestI, bestD);
     }
 
     public static double vary(double value, double variance){

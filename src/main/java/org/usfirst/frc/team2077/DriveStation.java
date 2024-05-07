@@ -84,9 +84,10 @@ public class DriveStation {
     /** Bind technical driver button commands here */
     private void bindTechnicalControl(Joystick secondary) {
 
-        tuneSwerveGuidingMotors(secondary);
+//        tuneSwerveGuidingMotors(secondary);
+//        tuneSwerveDrivingMotors(secondary);
 
-        if(true) return;
+//        if(true) return;
 
 //        new RaiseFlippah().bind(new JoystickButton(secondary, 16));
 
@@ -120,7 +121,7 @@ public class DriveStation {
             (module) -> {
                 new PIDTuner(
                     module,
-                    4,
+                    3,
                     2,
                     new JoystickButton(stick, 2)
                 ).bind(new JoystickButton(stick, 1));

@@ -44,7 +44,7 @@ public class SwerveGuidingMotor implements PIDTuneable {
     }
 
     public void update(){
-        if(parent.calibrating || position != SwerveModule.MotorPosition.BACK_LEFT) {
+        if(parent.calibrating) {
             motor.set(0.0);
             return;
         }
@@ -83,11 +83,12 @@ public class SwerveGuidingMotor implements PIDTuneable {
 //
 //        System.out.println(zeroVelocity);
 //
-        if (!zeroVelocity) {
-            if (reversed) {
-                angle -= Math.PI;
-            }
-        } else if (angleDifference > 0.5 * Math.PI) {
+//        if (!zeroVelocity) {
+//            if (reversed) {
+//                angle -= Math.PI;
+//            }
+//        } else
+        if (angleDifference > 0.5 * Math.PI) {
             angle -= Math.PI;
             reversed = true;
         } else {
@@ -97,11 +98,11 @@ public class SwerveGuidingMotor implements PIDTuneable {
 
         drivingMotor.setReversed(reversed);
 
-        zeroVelocity = velocitySet < 0.1;
+//        zeroVelocity = velocitySet < 0.1;
 
-        if(zeroVelocity){
-            return;
-        }
+//        if(zeroVelocity){
+//            return;
+//        }
 
         angle %= 2.0 * Math.PI;
         if (angle < 0) angle += 2.0 * Math.PI;
