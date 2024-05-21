@@ -28,7 +28,7 @@ public class SwerveDrivingMotor implements PIDTuneable {
     private final RelativeEncoder encoder;
     private final SparkPIDController PID;
 
-    private double velocitySet;
+    private double velocitySet = 0;
     private boolean reversed = false;
 
     public SwerveDrivingMotor(MotorPosition position, SwerveModule parent){
@@ -52,17 +52,7 @@ public class SwerveDrivingMotor implements PIDTuneable {
     }
 
     public void update(){
-        if(
-            parent.calibrating ||
-            (
-                Math.abs(velocitySet) < 0.05 && (
-                    RobotHardware.getInstance().getChassis().mode == SwerveChassis.DriveMode.BRAKE ||
-                    Math.abs(getVelocityMeasured()) < 0.01
-                )
-            ) || position != SwerveModule.MotorPosition.BACK_LEFT
-        ){
-            motor.set(0.0);
-            rateLimiter.reset(0.0);
+        if(parent.calibrating){
             return;
         }
 
@@ -83,6 +73,9 @@ public class SwerveDrivingMotor implements PIDTuneable {
     }
 
     public void setVelocity(double velocity) {
+        if(parent.calibrating){
+            return;
+        }
         velocitySet = velocity;
     }
 
@@ -122,6 +115,8 @@ public class SwerveDrivingMotor implements PIDTuneable {
     public void tuningSet(double setpoint) {
         parent.calibrating = true;
 
+        velocitySet = setpoint;
+
         PID.setReference(
             velocitySet,
             CANSparkMax.ControlType.kVelocity
@@ -133,11 +128,14 @@ public class SwerveDrivingMotor implements PIDTuneable {
     public void tuningStop() {
         parent.calibrating = true;
 
+        velocitySet = 0.0;
+
         motor.set(0.0);
     }
 
     @Override
     public void zeroIntegral() {
+        setVelocity(0);
         PID.setIAccum(0.0);
     }
 
@@ -148,7 +146,7 @@ public class SwerveDrivingMotor implements PIDTuneable {
 
     @Override
     public boolean tuningReady() {
-        return Math.abs(getVelocityMeasured()) < 0.001;
+        return Math.abs(getVelocityMeasured()) < 0.01;
     }
 
     @Override

@@ -22,7 +22,6 @@ public class Launcher implements Subsystem {
         }
     }
 
-
     public final LauncherMotor launcherMotorLeft, launcherMotorRight;
     private final CANSparkMax feederMotorLeft, feederMotorRight;
 
