@@ -11,30 +11,10 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 
     public enum MotorPosition{
 
-//        ===FRONT_RIGHT_GUIDING_MOTOR===
-//        P: 0.126390047060793 ﻿
-//        I: 0.000032892147470 ﻿
-//        D: 0.000000000000000 ﻿===BACK_RIGHT_GUIDING_MOTOR=== ﻿
-//        P: 0.127227207164933 ﻿
-//        I: 0.000033676601302 ﻿
-//        D: 0.000000000000000 ﻿===BACK_LEFT_GUIDING_MOTOR=== ﻿
-//        P: 0.213612265713718 ﻿
-//        I: 0.000000000000000 ﻿
-//                ﻿﻿﻿﻿﻿﻿﻿﻿Warning ﻿﻿ 1 ﻿﻿ Loop time of 0.02s overrun
-// ﻿﻿ edu.wpi.first.wpilibj.IterativeRobotBase.printLoopOverrunMessage(IterativeRobotBase.java:412) ﻿﻿﻿
-//                ﻿﻿﻿﻿﻿﻿ D: 0.000000000000000 ﻿
-//                ﻿﻿﻿﻿﻿﻿ ﻿Warning﻿ at edu.wpi.first.wpilibj.IterativeRobotBase.printLoopOverrunMessage(IterativeRobotBase.java:412): Loop time of 0.02s overrun ﻿
-//                ﻿﻿﻿﻿﻿﻿  ﻿
-//                ﻿﻿﻿﻿﻿﻿ ===FRONT_LEFT_GUIDING_MOTOR=== ﻿
-//                ﻿﻿﻿﻿﻿﻿ P: 0.180890160307561 ﻿
-//                ﻿﻿﻿﻿﻿﻿ I: 0.000038191069037 ﻿
-//                ﻿﻿﻿﻿﻿﻿ D: 0.000000000000000 ﻿
-//                ﻿﻿﻿﻿﻿﻿ CommandScheduler loop overrun ﻿
-
-        FRONT_LEFT (2, 1, 1.5, /*P:*/ 0.02048513852059841, /*I:*/ 5.435076891444623E-4, 0.18089016030756128, 3.8191069037146064E-5),
-        BACK_LEFT  (8, 7, 1,   /*P:*/ 0.030933115631341934, /*I:*/ 6.17226876784116E-4, 0.13372843696123757, 4.350619756154357E-5),
-        BACK_RIGHT (6, 5, 0.5, /*P:*/ 0.022237218916416168, /*I:*/ 6.017343257553875E-4, 0.12722720716493266, 3.367660130168929E-5),
-        FRONT_RIGHT(4, 3, 0,    /*P:*/ 0.03256119787693024, /*I:*/ 7.328314241021872E-4, 0.12639004706079296, 3.2892147470342086E-5),
+        FRONT_LEFT (2, 1, 1.5, /*P:*/ 0.02048513852059841, /*I:*/ 5.435076891444623E-4, 0.05, 0.001),
+        BACK_LEFT  (8, 7, 1,   /*P:*/ 0.030933115631341934, /*I:*/ 6.17226876784116E-4, 0.05, 0.001),
+        BACK_RIGHT (6, 5, 0.5, /*P:*/ 0.022237218916416168, /*I:*/ 6.017343257553875E-4, 0.05, 0.001),
+        FRONT_RIGHT(4, 3, 0,    /*P:*/ 0.03256119787693024, /*I:*/ 7.328314241021872E-4, 0.05, 0.001),
         ;
 
         public final int drivingCANid, guidingCANid;
@@ -77,7 +57,7 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
 //        if(position == MotorPosition.FRONT_LEFT) notAllAtAngle = RobotHardware.getInstance().getChassis().getDriveModules().values().stream().allMatch(SwerveModule::isAtAngle);
 
         //if(!notAllAtAngle){
-        drivingMotor.update();
+//        drivingMotor.update();
 
         guidingMotor.update();
 

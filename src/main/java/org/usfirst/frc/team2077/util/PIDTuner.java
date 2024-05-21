@@ -70,7 +70,11 @@ public class PIDTuner extends SelfDefinedCommand {
 
             case STOPPING:
                 module.tuningStop();
+//                System.out.println("stopping");
+
                 if(module.tuningReady()){
+
+                    System.out.printf("===%s===\nP: %.15f\nI: %.15f\nD: %.15f\n", module.getName(), bestP, bestI, bestD);
 
                     timeSinceLastReset = Clock.getSeconds();
                     setpointIndex++;

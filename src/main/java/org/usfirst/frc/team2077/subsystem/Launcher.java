@@ -11,10 +11,10 @@ import org.usfirst.frc.team2077.util.SmartDash.SmartDashRobotPreference;
 public class Launcher implements Subsystem {
 
     public enum Target{
-        INTAKE(-5, 0),
-        AMP(10, 140),
-        SPEAKER(25, 90),
-        STAGE(10, 130);
+        INTAKE(-500, 0),
+        AMP(5000, 140),
+        SPEAKER(2500, 90),
+        STAGE(2000, 130);
         public final SmartDashRobotPreference speed, angle;
         Target(double defaultSpeed, double defaultAngle){
             speed = new SmartDashRobotPreference(String.format("Launcher %s speed", this.name()), defaultSpeed);
@@ -33,8 +33,8 @@ public class Launcher implements Subsystem {
 //    private SlewRateLimiter limiter = new SlewRateLimiter(0.02 / 0.002);
 
     public Launcher(){
-        launcherMotorLeft = new LauncherMotor(11,  0.0001, 0.00001);
-        launcherMotorRight = new LauncherMotor(12, 0.0001, 0.00001);
+        launcherMotorLeft = new LauncherMotor(11,  0.00003, 0.0000001);
+        launcherMotorRight = new LauncherMotor(12, 0.00003, 0.0000001);
 
         feederMotorLeft = new CANSparkMax(13, CANSparkLowLevel.MotorType.kBrushed);
         feederMotorRight = new CANSparkMax(14, CANSparkLowLevel.MotorType.kBrushed);
@@ -64,10 +64,10 @@ public class Launcher implements Subsystem {
     }
 
     public void feed(){
-        if(!atSpeed() || launcherSpeedSet < 1){
-            stopFeed();
-            return;
-        }
+//        if(!atSpeed() || launcherSpeedSet < 1){
+//            stopFeed();
+//            return;
+//        }
 
 //        double r = limiter.calculate(feederSpeed.get());
         double r = feederSpeed.get();
@@ -104,12 +104,14 @@ public class Launcher implements Subsystem {
 
             encoder = motor.getEncoder();
 
-//            encoder.setVelocityConversionFactor(wheelCircumference / 60.0);
+            encoder.setVelocityConversionFactor(1);
 
             PID = motor.getPIDController();
             PID.setP(p);
             PID.setI(i);
             PID.setD(0.0);
+
+            motor.burnFlash();
         }
 
         public void run(double speed){
@@ -117,12 +119,14 @@ public class Launcher implements Subsystem {
 
             target = speed;
 
-            if(Math.abs(speed) < 0.05){
-                motor.set(0.0);
-                return;
-            }
+//            if(Math.abs(speed) < 0.05){
+//                motor.set(0.0);
+//                return;
+//            }
 
-            PID.setReference(speed, CANSparkMax.ControlType.kVelocity);
+            motor.set(speed * (12d / 11004d));
+
+//            PID.setReference(speed, CANSparkMax.ControlType.kVelocity);
         }
 
         public boolean atSpeed(){
@@ -140,6 +144,7 @@ public class Launcher implements Subsystem {
         @Override
         public void tuningSet(double setpoint) {
             calibrating = true;
+            target = setpoint;
             PID.setReference(setpoint, CANSparkMax.ControlType.kVelocity);
         }
 
@@ -161,7 +166,7 @@ public class Launcher implements Subsystem {
 
         @Override
         public boolean tuningReady() {
-            return Math.abs(encoder.getVelocity()) < 0.1;
+            return Math.abs(encoder.getVelocity()) < 1;
         }
 
         @Override

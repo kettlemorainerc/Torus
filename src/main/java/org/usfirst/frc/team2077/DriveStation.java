@@ -86,6 +86,8 @@ public class DriveStation {
 
         tuneSwerveGuidingMotors(secondary);
 
+//        tuneLauncherWheels(secondary);
+
         if(true) return;
 
 //        new RaiseFlippah().bind(new JoystickButton(secondary, 16));
@@ -151,7 +153,7 @@ public class DriveStation {
             (module) -> {
                 new PIDTuner(
                     module,
-                    500,
+                    2000,
                     2,
                     new JoystickButton(stick, 2)
                 ).bind(new JoystickButton(stick, 1));
