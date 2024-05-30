@@ -14,7 +14,7 @@ import org.usfirst.frc.team2077.common.control.DriveStick;
 import org.usfirst.frc.team2077.common.control.DriveXboxController;
 import org.usfirst.frc.team2077.subsystem.Climbers;
 import org.usfirst.frc.team2077.subsystem.Launcher;
-import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
+import org.usfirst.frc.team2077.drivetrain.swerve.SwerveModule;
 import org.usfirst.frc.team2077.util.PIDTuneable;
 import org.usfirst.frc.team2077.util.PIDTuner;
 
@@ -76,8 +76,7 @@ public class DriveStation {
 
 //        new ToggleAngleReq().bind(new JoystickButton(primary, 2));
         new ToggleFieldOriented().bind(new JoystickButton(primary, 6));
-        new ToggleBreakMode().bind(new JoystickButton(primary, 5));
-
+        
 //        primary.getRightTriggerAxis()
     }
 

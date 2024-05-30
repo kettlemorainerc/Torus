@@ -1,15 +1,13 @@
 package org.usfirst.frc.team2077.math;
 
-import org.usfirst.frc.team2077.common.VelocityDirection;
 import org.usfirst.frc.team2077.common.WheelPosition;
 import org.usfirst.frc.team2077.common.control.DriveStick;
 import org.usfirst.frc.team2077.common.math.Matrix;
 import org.usfirst.frc.team2077.common.math.Vector;
-import org.usfirst.frc.team2077.drivetrain.SwerveModuleIF;
+import org.usfirst.frc.team2077.drivetrain.swerve.SwerveModuleIF;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Objects;
 
 import static java.lang.Math.*;
 import static org.usfirst.frc.team2077.common.VelocityDirection.*;

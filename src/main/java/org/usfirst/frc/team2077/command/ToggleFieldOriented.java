@@ -2,7 +2,7 @@ package org.usfirst.frc.team2077.command;
 
 import org.usfirst.frc.team2077.RobotHardware;
 import org.usfirst.frc.team2077.common.command.RepeatedCommand;
-import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
+import org.usfirst.frc.team2077.drivetrain.swerve.SwerveChassis;
 
 public class ToggleFieldOriented extends RepeatedCommand {
 

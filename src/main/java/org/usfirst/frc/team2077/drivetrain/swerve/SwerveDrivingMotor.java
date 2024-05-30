@@ -1,25 +1,14 @@
-package org.usfirst.frc.team2077.subsystem.swerve;
+package org.usfirst.frc.team2077.drivetrain.swerve;
 
 import com.revrobotics.*;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.util.Units;
-import org.usfirst.frc.team2077.RobotHardware;
-import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
-import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule.MotorPosition;
 import org.usfirst.frc.team2077.util.PIDTuneable;
 
 public class SwerveDrivingMotor implements PIDTuneable {
 
-    private static final int drivingMotorCurrentLimit = 50; // amps
     private static final int motorFreeSpeed = 5800; //RPM
 
-    public static final double wheelDiameter = Units.inchesToMeters(2.9);
-    public static final double wheelRadius = 0.5 * wheelDiameter;
-    public static final double wheelCircumference = wheelDiameter * Math.PI;
-
-    private static final double driveGearReduction = (45d * 22d) / (15d * 13d/*This is the variable gear*/);
-
-    private final MotorPosition position;
+    private final SwerveConstants.MotorPosition position;
     private final SwerveModule parent;
 
     private final SlewRateLimiter rateLimiter;
@@ -31,17 +20,17 @@ public class SwerveDrivingMotor implements PIDTuneable {
     private double velocitySet = 0;
     private boolean reversed = false;
 
-    public SwerveDrivingMotor(MotorPosition position, SwerveModule parent){
+    public SwerveDrivingMotor(SwerveConstants.MotorPosition position, SwerveModule parent){
         this.parent = parent;
         this.position = position;
         rateLimiter = new SlewRateLimiter(10.0);
 
         motor = new CANSparkMax(position.drivingCANid, CANSparkLowLevel.MotorType.kBrushless);
         motor.setIdleMode(CANSparkMax.IdleMode.kBrake);
-        motor.setSmartCurrentLimit(drivingMotorCurrentLimit);
+        motor.setSmartCurrentLimit(SwerveConstants.drivingMotorCurrentLimit);
 
         encoder = motor.getEncoder();
-        encoder.setVelocityConversionFactor(wheelCircumference / driveGearReduction / 60.0);
+        encoder.setVelocityConversionFactor(SwerveConstants.wheelCircumference / SwerveConstants.driveGearReduction / 60.0);
 
         PID = motor.getPIDController();
         PID.setP(position.drivingP);
@@ -57,9 +46,8 @@ public class SwerveDrivingMotor implements PIDTuneable {
         }
 
         PID.setReference(
-            rateLimiter.calculate(
-                (velocitySet) * (reversed? -1 : 1)
-            ),
+//            rateLimiter.calculate(
+            (velocitySet) * (reversed? -1 : 1),
             CANSparkMax.ControlType.kVelocity
         );
     }

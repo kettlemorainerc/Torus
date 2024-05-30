@@ -1,24 +1,19 @@
-package org.usfirst.frc.team2077.subsystem.swerve;
+package org.usfirst.frc.team2077.drivetrain.swerve;
 
 import com.revrobotics.*;
 import edu.wpi.first.math.controller.PIDController;
-import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
 import org.usfirst.frc.team2077.util.PIDTuneable;
-import org.usfirst.frc.team2077.util.SmartDash.SmartDashNumber;
 
 public class SwerveGuidingMotor implements PIDTuneable {
 
-    private static final int guidingMotorCurrentLimit = 20; // amps
-
-    private final SwerveModule.MotorPosition position;
+    private final SwerveConstants.MotorPosition position;
     private final SwerveModule parent;
-
-    private final CANSparkMax motor;
 
     private final AbsoluteEncoder absoluteEncoder;
     private final RelativeEncoder relativeEncoder;
 
-    private  final PIDController PID;
+    private final CANSparkMax motor;
+    private final PIDController PID;
 
     private double angleOffset = 0.0;
     private double angleSet = 0.0;
@@ -27,36 +22,35 @@ public class SwerveGuidingMotor implements PIDTuneable {
 
     private double atAngleDeadzone = Math.PI / 12.0;
 
-    private static SmartDashNumber p = new SmartDashNumber("Guiding P", 0.0, true);
-    private static SmartDashNumber v = new SmartDashNumber("Guiding V", 0.0, true);
-
-    private static final double azimuthRatio = 203d / 9424d;
-
-    public SwerveGuidingMotor(SwerveModule.MotorPosition position, SwerveModule parent) {
+    public SwerveGuidingMotor(SwerveConstants.MotorPosition position, SwerveModule parent) {
         this.parent = parent;
         this.position = position;
 
         angleOffset = position.angleOffset;
 
         motor = new CANSparkMax(position.guidingCANid, CANSparkLowLevel.MotorType.kBrushless);
-        motor.setIdleMode(CANSparkMax.IdleMode.kCoast);
-        motor.setSmartCurrentLimit(guidingMotorCurrentLimit);
+        motor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+        motor.setSmartCurrentLimit(SwerveConstants.guidingMotorCurrentLimit);
 
         absoluteEncoder = motor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
         absoluteEncoder.setPositionConversionFactor(2.0 * Math.PI);
         absoluteEncoder.setVelocityConversionFactor(2.0 * Math.PI);
+        //Note: a relative encoder has a .setInverte() method, however it causes WPIlib to brick.
+        //Instead we just subtract it always ig ¯\_(ツ)_/¯
         absoluteEncoder.setInverted(false);
 
+        //The reading from the absolute encoder only updates at about 5hz. This is why swerve for the
+        //first two years was dogwater. The relative encoder updates as fast as the RIO does.
+        //So far there have been no problems with reading accuracy.
         relativeEncoder = motor.getEncoder();
-        relativeEncoder.setPositionConversionFactor(2.0 * Math.PI * azimuthRatio);
-        relativeEncoder.setVelocityConversionFactor(2.0 * Math.PI * azimuthRatio);
-//        relativeEncoder.setInverted(true);
+        relativeEncoder.setPositionConversionFactor(2.0 * Math.PI * SwerveConstants.azimuthRatio);
+        relativeEncoder.setVelocityConversionFactor(2.0 * Math.PI * SwerveConstants.azimuthRatio);
 
-
+        //This basically just means we use the absolute encoder only once on startup
         relativeEncoder.setPosition(0.0);
         angleOffset += absoluteEncoder.getPosition();
 
-        PID = new PIDController(position.guidingP, position.guidingI, 0.0);
+        PID = new PIDController(position.guidingP, 0.0, 0.0);
 
         motor.burnFlash();
     }
@@ -67,27 +61,20 @@ public class SwerveGuidingMotor implements PIDTuneable {
             return;
         }
 
-        double p = distanceToTarget();
-        double v = relativeEncoder.getVelocity();
+        double angleDiff = distanceToTarget();
+        double percent = PID.calculate(angleDiff, 0.0);
 
-//        double c = p * position.guidingP - v * position.guidingI;
+        if(Math.abs(percent) < 0.005){
+            percent = 0.0;
+        }
 
-        double c = p * SwerveGuidingMotor.p.get() - v * SwerveGuidingMotor.v.get();
-
-
-//        double c = PID.calculate(Math.abs(p), 0.0) * Math.signum(p);
-//d
-//        if(Math.abs(p) < 0.001){
-//            p = 0.0;
-//        }
-
-        motor.set(c);
+        motor.set(percent);
     }
 
     public double getAngle() {
-        double angle = Math.PI * 2 - relativeEncoder.getPosition();
+        //See previous comment about setting inverted
+        double angle = angleOffset - relativeEncoder.getPosition();
 
-        angle = angle + angleOffset;
         angle %= 2.0 * Math.PI;
         if(angle < 0) angle += 2.0 * Math.PI;
         return angle;
@@ -102,33 +89,30 @@ public class SwerveGuidingMotor implements PIDTuneable {
             return;
         }
 
-//        double angleDifference = Math.abs(SwerveChassis.getAngleDifference(angle, getAngle()));
-////
-////        SwerveDrivingMotor drivingMotor = parent.getDrivingMotor();
-////        boolean reversed = drivingMotor.getReversed();
-////        double velocitySet = Math.abs(drivingMotor.getVelocitySet());
-//////
-//////        System.out.println(zeroVelocity);
-//////
-////        if (!zeroVelocity) {
-////            if (reversed) {
-////                angle -= Math.PI;
-////            }
-////        } else if (angleDifference > 0.5 * Math.PI) {
-////            angle -= Math.PI;
-////            reversed = true;
-////        } else {
-////            reversed = false;
-////        }
-////
-////
-////        drivingMotor.setReversed(reversed);
-////
-////        zeroVelocity = velocitySet < 0.1;
-////
-////        if(zeroVelocity){
-////            return;
-////        }
+        double angleDifference = Math.abs(SwerveChassis.getAngleDifference(angle, getAngle()));
+
+        SwerveDrivingMotor drivingMotor = parent.getDrivingMotor();
+        boolean reversed = drivingMotor.getReversed();
+        double velocitySet = Math.abs(drivingMotor.getVelocitySet());
+
+        if (!zeroVelocity) {
+            if (reversed) {
+                angle -= Math.PI;
+            }
+        } else if (angleDifference > 0.5 * Math.PI) {
+            angle -= Math.PI;
+            reversed = true;
+        } else {
+            reversed = false;
+        }
+
+        drivingMotor.setReversed(reversed);
+
+        zeroVelocity = velocitySet < 0.1;
+
+        if(zeroVelocity){
+            return;
+        }
 
         angle %= 2.0 * Math.PI;
         if (angle < 0) angle += 2.0 * Math.PI;
@@ -172,20 +156,14 @@ public class SwerveGuidingMotor implements PIDTuneable {
         parent.calibrating = true;
 
         this.setpoint = setpoint;
-        double p = SwerveChassis.getAngleDifference(setpoint, getAngle());
-        double v = absoluteEncoder.getVelocity();
+        double angleDiff = SwerveChassis.getAngleDifference(setpoint, getAngle());
+        double p = PID.calculate(Math.abs(angleDiff), 0.0) * Math.signum(angleDiff);
 
-//        double c = p * position.guidingP - v * position.guidingI;
+        if(Math.abs(p) < 0.001){
+            p = 0.0;
+        }
 
-        double c = p * PID.getP() - v * PID.getI();
-
-//        double p = PID.calculate(Math.abs(angleDiff), 0.0) * Math.signum(angleDiff);
-//
-//        if(Math.abs(p) < 0.001){
-//            p = 0.0;
-//        }
-
-        motor.set(c);
+        motor.set(p);
     }
 
     @Override

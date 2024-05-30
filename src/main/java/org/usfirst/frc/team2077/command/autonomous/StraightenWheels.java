@@ -2,12 +2,9 @@ package org.usfirst.frc.team2077.command.autonomous;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import org.usfirst.frc.team2077.RobotHardware;
-import org.usfirst.frc.team2077.common.WheelPosition;
-import org.usfirst.frc.team2077.common.drivetrain.AbstractChassis;
-import org.usfirst.frc.team2077.drivetrain.SwerveChassis;
-import org.usfirst.frc.team2077.subsystem.swerve.SwerveModule;
+import org.usfirst.frc.team2077.drivetrain.swerve.SwerveChassis;
+import org.usfirst.frc.team2077.drivetrain.swerve.SwerveModule;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 public class StraightenWheels extends Command {
