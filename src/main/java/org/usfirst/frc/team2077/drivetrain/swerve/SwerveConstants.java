@@ -17,21 +17,20 @@ public class SwerveConstants {
     public static final int drivingMotorCurrentLimit = 40; // amps
 
     public enum MotorPosition{
-        FRONT_LEFT (2, 1, 1.5, /*P:*/ 0.02048513852059841, /*I:*/ 5.435076891444623E-4, 0.05),
-        BACK_LEFT  (8, 7, 1,   /*P:*/ 0.030933115631341934, /*I:*/ 6.17226876784116E-4, 0.05),
-        BACK_RIGHT (6, 5, 0.5, /*P:*/ 0.022237218916416168, /*I:*/ 6.017343257553875E-4, 0.05),
-        FRONT_RIGHT(4, 3, 0,    /*P:*/ 0.03256119787693024, /*I:*/ 7.328314241021872E-4, 0.05),
+        FRONT_LEFT (2, 1, 1.5, 0.217766, 4.33481e-01),
+        BACK_LEFT  (8, 7, 1,   0.218972, 5.56800e-01),
+        BACK_RIGHT (6, 5, 0.5, 0.22107, 4.41048e-01),
+        FRONT_RIGHT(4, 3, 0,    0.215694, 3.03550e-01),
         ;
 
         public final int drivingCANid, guidingCANid;
         public final double angleOffset;
-        public final double drivingP, drivingI, guidingP;
-        MotorPosition(int drivingCANid, int guidingCANid, double angleOffset, double drivingP, double drivingI, double guidingP){
+        public final double drivingF, guidingP;
+        MotorPosition(int drivingCANid, int guidingCANid, double angleOffset, double drivingF, double guidingP){
             this.drivingCANid = drivingCANid;
             this.guidingCANid = guidingCANid;
             this.angleOffset = angleOffset * Math.PI;
-            this.drivingP = drivingP;
-            this.drivingI = drivingI;
+            this.drivingF = drivingF;
             this.guidingP = guidingP;
         }
     }

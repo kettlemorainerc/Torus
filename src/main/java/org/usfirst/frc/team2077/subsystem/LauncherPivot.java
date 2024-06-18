@@ -33,7 +33,7 @@ public class LauncherPivot implements Subsystem {
     private static final double upperBound = 170.0; //Degrees
     private static final double lowerBound =   0.0; //Degrees
 
-    private static int encoderOffset = 1743; //Encoder counts
+    private static int encoderOffset = 3793; //Encoder counts
 
     private static final double stallTime = 10.0; //Ticks TODO: determine minimum stall time
 

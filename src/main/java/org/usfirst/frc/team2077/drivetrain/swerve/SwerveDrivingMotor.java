@@ -23,7 +23,7 @@ public class SwerveDrivingMotor implements PIDTuneable {
     public SwerveDrivingMotor(SwerveConstants.MotorPosition position, SwerveModule parent){
         this.parent = parent;
         this.position = position;
-        rateLimiter = new SlewRateLimiter(10.0);
+        rateLimiter = new SlewRateLimiter(6.0);
 
         motor = new CANSparkMax(position.drivingCANid, CANSparkLowLevel.MotorType.kBrushless);
         motor.setIdleMode(CANSparkMax.IdleMode.kBrake);
@@ -33,9 +33,9 @@ public class SwerveDrivingMotor implements PIDTuneable {
         encoder.setVelocityConversionFactor(SwerveConstants.wheelCircumference / SwerveConstants.driveGearReduction / 60.0);
 
         PID = motor.getPIDController();
-        PID.setP(position.drivingP);
-        PID.setI(position.drivingI);
-        PID.setD(0.0);
+//        PID.setP(position.drivingP);
+//        PID.setI(position.drivingI);
+//        PID.setD(0.0);
 
         motor.burnFlash();
     }
@@ -45,11 +45,18 @@ public class SwerveDrivingMotor implements PIDTuneable {
             return;
         }
 
-        PID.setReference(
-//            rateLimiter.calculate(
-            (velocitySet) * (reversed? -1 : 1),
-            CANSparkMax.ControlType.kVelocity
+        motor.set(
+                rateLimiter.calculate(
+                        velocitySet
+                ) *  position.drivingF * (reversed? -1 : 1)
         );
+
+//        PID.setReference(
+//            rateLimiter.calculate(
+//                (velocitySet * position.drivingF * (reversed? -1 : 1)
+//            ),
+//            CANSparkMax.ControlType.kVelocity
+//        );
     }
 
     public double getVelocityMeasured(){
@@ -106,8 +113,8 @@ public class SwerveDrivingMotor implements PIDTuneable {
         velocitySet = setpoint;
 
         PID.setReference(
-            velocitySet,
-            CANSparkMax.ControlType.kVelocity
+                velocitySet,
+                CANSparkMax.ControlType.kVelocity
         );
 
     }

@@ -68,7 +68,7 @@ public class SwerveGuidingMotor implements PIDTuneable {
             percent = 0.0;
         }
 
-        motor.set(percent);
+        motor.set(-percent);
     }
 
     public double getAngle() {
@@ -157,7 +157,7 @@ public class SwerveGuidingMotor implements PIDTuneable {
 
         this.setpoint = setpoint;
         double angleDiff = SwerveChassis.getAngleDifference(setpoint, getAngle());
-        double p = PID.calculate(Math.abs(angleDiff), 0.0) * Math.signum(angleDiff);
+        double p = -PID.calculate(Math.abs(angleDiff), 0.0) * Math.signum(angleDiff);
 
         if(Math.abs(p) < 0.001){
             p = 0.0;

@@ -83,11 +83,11 @@ public class DriveStation {
     /** Bind technical driver button commands here */
     private void bindTechnicalControl(Joystick secondary) {
 
-        tuneSwerveGuidingMotors(secondary);
+//        tuneSwerveGuidingMotors(secondary);
 
 //        tuneLauncherWheels(secondary);
 
-        if(true) return;
+//        if(true) return;
 
 //        new RaiseFlippah().bind(new JoystickButton(secondary, 16));
 

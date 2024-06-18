@@ -31,7 +31,7 @@ SwerveModule implements Subsystem, DriveModuleIF, SwerveModuleIF {
         if(calibrating) return;
 
 
-//        drivingMotor.update();
+        drivingMotor.update();
 
         guidingMotor.update();
 
