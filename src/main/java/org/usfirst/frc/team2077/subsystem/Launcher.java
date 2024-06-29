@@ -123,7 +123,7 @@ public class Launcher implements Subsystem {
 //                return;
 //            }
 
-            motor.set(speed * (12d / 11004d));
+            motor.set(speed);
 
 //            PID.setReference(speed, CANSparkMax.ControlType.kVelocity);
         }

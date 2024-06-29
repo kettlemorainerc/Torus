@@ -72,10 +72,10 @@ public class DriveStation {
     /** Bind primary driver's button commands here */
     private static void bindDriverControl(DriveXboxController primary) {
 
-        new ResetGyro().bind(new JoystickButton(primary, 3));
+//        new ResetGyro().bind(new JoystickButton(primary, 3));
 
 //        new ToggleAngleReq().bind(new JoystickButton(primary, 2));
-        new ToggleFieldOriented().bind(new JoystickButton(primary, 6));
+//        new ToggleFieldOriented().bind(new JoystickButton(primary, 6));
         
 //        primary.getRightTriggerAxis()
     }
