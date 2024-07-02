@@ -25,8 +25,9 @@ public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChas
     public RobotHardware() {
         instance = this;
 
-        CameraServer.startAutomaticCapture(0);
-        CameraServer.startAutomaticCapture(1);
+//        CameraServer.startAutomaticCapture(0);
+//        CameraServer.startAutomaticCapture(1);
+
         climbers = new Climbers();
         pivot    = new LauncherPivot();
         launcher = new Launcher();
