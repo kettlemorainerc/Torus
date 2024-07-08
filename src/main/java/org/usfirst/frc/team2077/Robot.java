@@ -17,6 +17,7 @@ public class Robot extends TimedRobot {
         autoDash = new SmartDashNumber("autonomous number: ", 0.0, false);
     }
 
+
     @Override public void robotPeriodic() {
         CommandScheduler.getInstance().run();
     }
@@ -46,7 +47,7 @@ public class Robot extends TimedRobot {
             SequentialCommandGroup auto = new SequentialCommandGroup();
             int autonomousNumber = autoDash.get().intValue();
 
-            double d, a; //Java is very funky, and aparently I can't redeclar a variable in a seperate case because it is the same scope.
+            double d, a; //Java is very funky, and apparently I can't redeclare a variable in a seperate cases because it is the same scope.
             switch(autonomousNumber) {
                 case 0:
                     auto.addCommands(

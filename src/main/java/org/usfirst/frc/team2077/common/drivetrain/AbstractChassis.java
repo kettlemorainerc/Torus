@@ -52,9 +52,13 @@ public abstract class AbstractChassis<DriveModule> extends SubsystemBase impleme
     }
 
     public void updatePosition(){
-        for(VelocityDirection axis : VelocityDirection.values()){
-            position.move(velocityMeasured.get(axis) * deltaTime, axis);
-        }
+        Vector velocity = getVelocityMeasured();
+        velocity.scale(deltaTime);
+        position.move(velocity);
+
+//        for(VelocityDirection axis : VelocityDirection.values()){
+//            position.move(velocityMeasured.get(axis) * deltaTime, axis);
+//        }
     }
 
     public Map<WheelPosition, DriveModule> getDriveModules(){

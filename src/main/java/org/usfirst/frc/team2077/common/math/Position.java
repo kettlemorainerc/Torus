@@ -36,6 +36,12 @@ public class Position extends EnumMap<VelocityDirection, Double> {
         compute(ROTATION, (k, v) -> v + rotation);
     }
 
+    public void move(Vector delta){
+        compute(FORWARD,  (k, v) -> v + delta.get(k));
+        compute(STRAFE,   (k, v) -> v + delta.get(k));
+        compute(ROTATION, (k, v) -> v + delta.get(k));
+    }
+
     public void move(double delta, VelocityDirection axis){
         compute(axis, (k, v) -> v + delta);
     }

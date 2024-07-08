@@ -18,12 +18,6 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
     private final SwerveMath math;
     private final AHRS gyro = new AHRS();
 
-    public enum DriveMode{
-        BRAKE, COAST
-    }
-
-    public DriveMode mode = DriveMode.COAST;
-
     private final double maxDrivePercent = 0.65;
     private final double minDriveInputPercent = 0.001;
 
@@ -69,7 +63,7 @@ public class SwerveChassis extends AbstractChassis<SwerveModule> {
     @Override protected void updateDriveModules() {
 
         Vector target = velocitySet.copy();
-        if(fieldOriented) {
+        if(fieldOriented) { //TODO, add
             double gyroOffset = Math.toRadians(gyro.getAngle());
             target.rotate(gyroOffset);
         }

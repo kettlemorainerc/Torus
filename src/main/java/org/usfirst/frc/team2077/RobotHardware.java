@@ -8,6 +8,7 @@ import org.usfirst.frc.team2077.subsystem.*;
 import org.usfirst.frc.team2077.drivetrain.swerve.SwerveModule;
 
 public class RobotHardware extends HardwareRequirements<SwerveModule, SwerveChassis> {
+
     private static RobotHardware instance = null;
 
     public static RobotHardware getInstance() {
