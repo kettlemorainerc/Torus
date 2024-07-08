@@ -175,8 +175,8 @@ public class DriveStation {
     }
 
     private static DriveXboxController getXbox(int port){
-        return new DriveXboxController(port).setDriveSensitivity(.3,1)
-                                                       .setRotationSensitivity(.3,1.5);
+        return new DriveXboxController(port).setDriveSensitivity(.1,3)
+                                                       .setRotationSensitivity(.1,3);
     }
 
     /** Currently the darker joystick that doesn't support rotation */
