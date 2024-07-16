@@ -4,6 +4,9 @@ import edu.wpi.first.math.util.Units;
 
 public class SwerveConstants {
 
+    public static final double accelerationRate = 6.0;
+    public static final double deccelerationRate = 12.0;
+
     //Physical Constants
     public static final double wheelBaseLength = Units.inchesToMeters(29.5);
     public static final double wheelBaseWidth = Units.inchesToMeters(29.5);

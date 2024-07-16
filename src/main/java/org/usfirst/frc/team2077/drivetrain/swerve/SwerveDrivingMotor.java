@@ -11,7 +11,9 @@ public class SwerveDrivingMotor implements PIDTuneable {
     private final SwerveConstants.MotorPosition position;
     private final SwerveModule parent;
 
-    private final SlewRateLimiter rateLimiter;
+    private final SlewRateLimiter accelRateLimiter;
+    private final SlewRateLimiter deccelRateLimiter;
+    private SlewRateLimiter currentRateLimiter;
 
     private final CANSparkMax motor;
     private final RelativeEncoder encoder;
@@ -23,7 +25,9 @@ public class SwerveDrivingMotor implements PIDTuneable {
     public SwerveDrivingMotor(SwerveConstants.MotorPosition position, SwerveModule parent){
         this.parent = parent;
         this.position = position;
-        rateLimiter = new SlewRateLimiter(6.0);
+
+        accelRateLimiter = new SlewRateLimiter(6);
+        deccelRateLimiter = new SlewRateLimiter(12);
 
         motor = new CANSparkMax(position.drivingCANid, CANSparkLowLevel.MotorType.kBrushless);
         motor.setIdleMode(CANSparkMax.IdleMode.kBrake);
@@ -52,9 +56,9 @@ public class SwerveDrivingMotor implements PIDTuneable {
 //        );
 
         PID.setReference(
-            rateLimiter.calculate(
-                velocitySet  * (reversed? -1 : 1)
-            ),
+                currentRateLimiter.calculate(
+                        velocitySet * (reversed? -1 : 1)
+                ),
             CANSparkMax.ControlType.kVelocity
         );
     }
@@ -71,6 +75,21 @@ public class SwerveDrivingMotor implements PIDTuneable {
         if(parent.calibrating){
             return;
         }
+        //Could we do something here? hmmmm, what could we do? should we look at the methods of SlewRateLimiter?
+        if(velocity > Math.abs(getVelocityMeasured())){
+            currentRateLimiter = accelRateLimiter;
+        }else{
+            currentRateLimiter = deccelRateLimiter;
+        }
+        /*
+        Dear Henry
+            I write to you from the 2077 robotics room.
+         This code was simutaniously nerve racking and simple.
+         Why did I do this???
+
+            Dustin
+         */
+
         velocitySet = velocity;
     }
 
