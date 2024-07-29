@@ -2,6 +2,7 @@ package org.usfirst.frc.team2077.drivetrain.swerve;
 
 import com.revrobotics.*;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import org.usfirst.frc.team2077.math.RateLimiter;
 import org.usfirst.frc.team2077.util.PIDTuneable;
 
 public class SwerveDrivingMotor implements PIDTuneable {
@@ -11,9 +12,7 @@ public class SwerveDrivingMotor implements PIDTuneable {
     private final SwerveConstants.MotorPosition position;
     private final SwerveModule parent;
 
-    private final SlewRateLimiter accelRateLimiter;
-    private final SlewRateLimiter deccelRateLimiter;
-    private SlewRateLimiter currentRateLimiter;
+    private RateLimiter rateLimiter;
 
     private final CANSparkMax motor;
     private final RelativeEncoder encoder;
@@ -26,8 +25,7 @@ public class SwerveDrivingMotor implements PIDTuneable {
         this.parent = parent;
         this.position = position;
 
-        accelRateLimiter = new SlewRateLimiter(6);
-        deccelRateLimiter = new SlewRateLimiter(12);
+        rateLimiter = new RateLimiter(6, 10);
 
         motor = new CANSparkMax(position.drivingCANid, CANSparkLowLevel.MotorType.kBrushless);
         motor.setIdleMode(CANSparkMax.IdleMode.kBrake);
@@ -56,8 +54,8 @@ public class SwerveDrivingMotor implements PIDTuneable {
 //        );
 
         PID.setReference(
-                currentRateLimiter.calculate(
-                        velocitySet * (reversed? -1 : 1)
+                rateLimiter.calculate(
+                    velocitySet * (reversed? -1 : 1)
                 ),
             CANSparkMax.ControlType.kVelocity
         );
@@ -75,20 +73,6 @@ public class SwerveDrivingMotor implements PIDTuneable {
         if(parent.calibrating){
             return;
         }
-        //Could we do something here? hmmmm, what could we do? should we look at the methods of SlewRateLimiter?
-        if(velocity > Math.abs(getVelocityMeasured())){
-            currentRateLimiter = accelRateLimiter;
-        }else{
-            currentRateLimiter = deccelRateLimiter;
-        }
-        /*
-        Dear Henry
-            I write to you from the 2077 robotics room.
-         This code was simutaniously nerve racking and simple.
-         Why did I do this???
-
-            Dustin
-         */
 
         velocitySet = velocity;
     }
